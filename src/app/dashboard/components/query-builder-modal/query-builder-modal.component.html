@@ -1,0 +1,637 @@
+<div class="qb-overlay" (click)="close.emit()">
+  <div class="qb-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="qb-header">
+      <span class="qb-header-icon">🏗</span>
+      <span class="qb-header-title">Query Builder</span>
+      <button class="qb-close-btn" (click)="close.emit()">✕</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="qb-tabs">
+      @for (tab of tabs; track tab.id) {
+        <button class="qb-tab" [class.qb-tab-active]="activeTab() === tab.id"
+                (click)="selectTab(tab.id)">
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Tab panels -->
+    <div class="qb-body">
+
+      <!-- ── FROM ── -->
+      @if (activeTab() === 'from') {
+        <div class="qb-panel">
+          <div class="qb-panel-title">Select the primary data source entity</div>
+
+          <div class="qb-form-row">
+            <label class="qb-label">Entity</label>
+            @if (loadingEntities()) {
+              <span class="qb-hint">Loading entities…</span>
+            } @else {
+              <select class="qb-select qb-select-lg"
+                      (change)="onFromEntityChange($any($event.target).value)">
+                <option value="" [selected]="!fromEntityId()">— select entity —</option>
+                @for (e of entities(); track e.id) {
+                  <option [value]="e.id" [selected]="fromEntityId() === e.id">
+                    {{ e.entityAlias }}
+                  </option>
+                }
+              </select>
+            }
+          </div>
+
+          @if (fromEntityId()) {
+            <div class="qb-form-row">
+              <label class="qb-label">Alias</label>
+              <input class="qb-input" [ngModel]="fromAlias()"
+                     (ngModelChange)="fromAlias.set($event)"
+                     placeholder="t" maxlength="20" />
+              <span class="qb-hint">Used in generated SQL as table alias</span>
+            </div>
+
+            <div class="qb-from-info">
+              <span class="qb-badge-green">✓ {{ entityName(fromEntityId()) }}</span>
+              <span class="qb-hint ml-2">{{ fromFields().length }} fields available</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── JOINS ── -->
+      @if (activeTab() === 'joins') {
+        <div class="qb-panel">
+          <div class="qb-panel-title">Join additional tables</div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            @for (row of joinRows(); track $index) {
+              <div class="qb-join-card">
+                <div class="qb-join-line">
+                  <select class="qb-select qb-select-sm"
+                          (change)="setJoinType($index, $any($event.target).value)">
+                    @for (jt of joinTypes; track jt) {
+                      <option [value]="jt" [selected]="row.type === jt">{{ jt }}</option>
+                    }
+                  </select>
+                  <span class="qb-join-word">JOIN</span>
+                  <select class="qb-select"
+                          (change)="onJoinEntityChange($index, $any($event.target).value)">
+                    <option value="" [selected]="!row.entityId">— table —</option>
+                    @for (e of entities(); track e.id) {
+                      <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.entityAlias }}</option>
+                    }
+                  </select>
+                  <span class="qb-join-word">as</span>
+                  <input class="qb-input qb-input-sm qb-join-alias"
+                         [value]="row.alias"
+                         (input)="setJoinAlias($index, $any($event.target).value)"
+                         placeholder="alias" maxlength="20" />
+                  <button class="qb-btn-remove qb-join-remove" (click)="removeJoinRow($index)">✕</button>
+                </div>
+
+                <div class="qb-join-on">
+                  <span class="qb-join-on-label">ON</span>
+                  <select class="qb-select qb-select-sm"
+                          (change)="onJoinLeftEntityChange($index, $any($event.target).value)">
+                    <option value="" [selected]="!row.leftEntityId">— table —</option>
+                    @for (e of usedEntities(); track e.id) {
+                      <option [value]="e.id" [selected]="row.leftEntityId === e.id">{{ e.label }}</option>
+                    }
+                  </select>
+                  <select class="qb-select qb-select-sm"
+                          (change)="setJoinLeftField($index, $any($event.target).value)">
+                    <option value="" [selected]="!row.leftFieldId">— field —</option>
+                    @for (f of fieldsForClean(row.leftEntityId); track f.id) {
+                      <option [value]="f.id" [selected]="row.leftFieldId === f.id">{{ f.displayName }}</option>
+                    }
+                  </select>
+                  <select class="qb-select qb-select-xs"
+                          (change)="setJoinOperator($index, $any($event.target).value)">
+                    @for (op of joinOperators; track op) {
+                      <option [value]="op" [selected]="row.operator === op">{{ op }}</option>
+                    }
+                  </select>
+                  <select class="qb-select qb-select-sm"
+                          (change)="onJoinRightEntityChange($index, $any($event.target).value)">
+                    <option value="" [selected]="!row.rightEntityId">— table —</option>
+                    @for (e of usedEntities(); track e.id) {
+                      <option [value]="e.id" [selected]="row.rightEntityId === e.id">{{ e.label }}</option>
+                    }
+                  </select>
+                  <select class="qb-select qb-select-sm"
+                          (change)="setJoinRightField($index, $any($event.target).value)">
+                    <option value="" [selected]="!row.rightFieldId">— field —</option>
+                    @for (f of fieldsForClean(row.rightEntityId); track f.id) {
+                      <option [value]="f.id" [selected]="row.rightFieldId === f.id">{{ f.displayName }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+
+            <button class="qb-btn-add" (click)="addJoinRow()">+ Add Join</button>
+
+            @if (joinRows().length === 0) {
+              <p class="qb-hint mt-2">No joins — the query uses only the FROM table.</p>
+            }
+          }
+        </div>
+      }
+
+      <!-- ── SELECT ── -->
+      @if (activeTab() === 'select') {
+        <div class="qb-panel">
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+            <div class="qb-panel-title">Choose columns to include in the result</div>
+            @if (fromEntityId()) {
+              <div class="qb-toggle-switch-group">
+                <label class="qb-toggle-switch">
+                  <input type="checkbox"
+                         [checked]="selectAllEnabled()"
+                         (change)="toggleSelectAll()" />
+                  <span class="qb-toggle-slider"></span>
+                </label>
+                <span class="qb-toggle-label">Select All</span>
+              </div>
+            }
+          </div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            <table class="qb-table">
+              <thead>
+                <tr>
+                  @if (hasJoins()) { <th>Table</th> }
+                  <th>Field</th>
+                  <th>Aggregate</th>
+                  <th>Output Alias</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of selectRows(); track $index) {
+                  <tr>
+                    @if (hasJoins()) {
+                      <td>
+                        <select class="qb-select qb-select-sm"
+                                (change)="onSelectEntityChange($index, $any($event.target).value)">
+                          @for (e of usedEntities(); track e.id) {
+                            <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.label }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td>
+                      <select class="qb-select"
+                              (change)="onSelectFieldChange($index, $any($event.target).value)">
+                        <option value="" [selected]="!row.fieldId">— field —</option>
+                        @for (f of fieldsForClean(row.entityId); track f.id) {
+                          <option [value]="f.id" [selected]="row.fieldId === f.id">{{ f.displayName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="qb-select qb-select-sm"
+                              (change)="setSelectAggregate($index, $any($event.target).value)">
+                        @for (agg of aggregates; track agg) {
+                          <option [value]="agg" [selected]="row.aggregate === agg">{{ agg || '—' }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <input class="qb-input qb-input-sm"
+                             [value]="row.alias"
+                             (input)="setSelectAlias($index, $any($event.target).value)"
+                             placeholder="optional" />
+                    </td>
+                    <td>
+                      <button class="qb-btn-remove" (click)="removeSelectRow($index)">✕</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <button class="qb-btn-add" (click)="addSelectRow()">+ Add Column</button>
+
+            @if (selectRows().length === 0) {
+              <p class="qb-hint mt-2">No columns selected — all columns will be returned.</p>
+            }
+          }
+        </div>
+      }
+
+      <!-- ── WHERE ── -->
+      @if (activeTab() === 'where') {
+        <div class="qb-panel">
+          <div class="qb-panel-title">Filter conditions</div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            <table class="qb-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">And/Or</th>
+                  @if (hasJoins()) { <th>Table</th> }
+                  <th>Field</th>
+                  <th>Operator</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of whereRows(); track $index) {
+                  <tr [style.padding-left.px]="(row.groupLevel ?? 0) * 20">
+                    <td>
+                      @if ($index > 0) {
+                        <select class="qb-select qb-select-sm" (change)="setWhereLogicalOp($index, $any($event.target).value)">
+                          <option value="AND" [selected]="(row.logicalOp ?? 'AND') === 'AND'">AND</option>
+                          <option value="OR" [selected]="(row.logicalOp ?? 'AND') === 'OR'">OR</option>
+                        </select>
+                      }
+                    </td>
+                    @if (hasJoins()) {
+                      <td>
+                        <select class="qb-select qb-select-sm"
+                                (change)="onWhereEntityChange($index, $any($event.target).value)">
+                          @for (e of usedEntities(); track e.id) {
+                            <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.label }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td>
+                      <select class="qb-select"
+                              (change)="onWhereFieldChange($index, $any($event.target).value)">
+                        <option value="" [selected]="!row.fieldId">— field —</option>
+                        @for (f of fieldsForClean(row.entityId); track f.id) {
+                          <option [value]="f.id" [selected]="row.fieldId === f.id">{{ f.displayName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="qb-select qb-select-sm"
+                              (change)="setWhereOperator($index, $any($event.target).value)">
+                        @for (op of operators; track op) {
+                          <option [value]="op" [selected]="row.operator === op">{{ op }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      @if (!isNullOperator(row.operator)) {
+                        <div class="qb-value-cell">
+                          <select class="qb-select qb-select-xs"
+                                  (change)="setWhereValueMode($index, $any($event.target).value)">
+                            <option value="literal" [selected]="row.valueMode === 'literal'">Value</option>
+                            <option value="column" [selected]="row.valueMode === 'column'">Column</option>
+                            <option value="session" [selected]="row.valueMode === 'session'">Session Data</option>
+                          </select>
+                          @if (row.valueMode === 'column') {
+                            <!-- Column-to-column reference -->
+                            <select class="qb-select qb-select-sm"
+                                    (change)="onWhereRightEntityChange($index, $any($event.target).value)">
+                              <option value="" [selected]="!row.rightEntityId">— table —</option>
+                              @for (e of usedEntities(); track e.id) {
+                                <option [value]="e.id" [selected]="row.rightEntityId === e.id">{{ e.label }}</option>
+                              }
+                            </select>
+                            <select class="qb-select qb-select-sm"
+                                    (change)="setWhereRightField($index, $any($event.target).value)">
+                              <option value="" [selected]="!row.rightFieldId">— field —</option>
+                              @for (f of fieldsForClean(row.rightEntityId); track f.id) {
+                                <option [value]="f.id" [selected]="row.rightFieldId === f.id">{{ f.displayName }}</option>
+                              }
+                            </select>
+                          } @else if (row.valueMode === 'session') {
+                            <!-- Session storage parameter reference -->
+                            <select class="qb-select qb-select-sm"
+                                    (change)="setWhereSessionField($index, $any($event.target).value)">
+                              <option value="">— Choose session field —</option>
+                              @for (field of sessionFields(); track field.key) {
+                                <option [value]="field.key" [selected]="row.sessionFieldName === field.key">{{ field.value }}</option>
+                              }
+                            </select>
+                          } @else {
+                            <!-- Literal value input -->
+                            <input class="qb-input qb-input-sm"
+                                   [value]="row.value"
+                                   (input)="setWhereValue($index, $any($event.target).value)"
+                                   placeholder="value" />
+                          }
+                        </div>
+                      } @else {
+                        <span class="qb-hint">—</span>
+                      }
+                    </td>
+                    <td style="text-align: right;">
+                      <button class="qb-btn-remove" (click)="removeWhereRow($index)">✕</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <button class="qb-btn-add" (click)="addWhereRow()">+ Add Condition</button>
+
+            <p class="qb-hint mt-2">
+              Each value can be a fixed <strong>Value</strong>, another <strong>Column</strong> (e.g. <em>a.price &gt; b.threshold</em>),
+              a <strong>Session</strong> field (fixed from browser storage at runtime, e.g. companyId, officeId, txnDt),
+              or user-adjustable at runtime via a <strong>Runtime Filter</strong> (configure panel) whose <em>Filter column</em> points at this field.
+            </p>
+          }
+        </div>
+      }
+
+      <!-- ── GROUP BY ── -->
+      @if (activeTab() === 'groupby') {
+        <div class="qb-panel">
+          <div class="qb-panel-title">Group rows for aggregation</div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            <table class="qb-table">
+              <thead>
+                <tr>
+                  @if (hasJoins()) { <th>Table</th> }
+                  <th>Field</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of groupByRows(); track $index) {
+                  <tr>
+                    @if (hasJoins()) {
+                      <td>
+                        <select class="qb-select qb-select-sm"
+                                (change)="onGroupByEntityChange($index, $any($event.target).value)">
+                          @for (e of usedEntities(); track e.id) {
+                            <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.label }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td>
+                      <select class="qb-select"
+                              (change)="setGroupByField($index, $any($event.target).value)">
+                        <option value="" [selected]="!row.fieldId">— field —</option>
+                        @for (f of fieldsForClean(row.entityId); track f.id) {
+                          <option [value]="f.id" [selected]="row.fieldId === f.id">{{ f.displayName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <button class="qb-btn-remove" (click)="removeGroupByRow($index)">✕</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <button class="qb-btn-add" (click)="addGroupByRow()">+ Add Group By</button>
+
+            @if (groupByWarning()) {
+              <p class="qb-warn mt-2">⚠ {{ groupByWarning() }}</p>
+            }
+
+            <p class="qb-hint mt-2">Tip: adding an aggregate in SELECT auto-groups the non-aggregated columns.</p>
+          }
+        </div>
+      }
+
+      <!-- ── HAVING ── -->
+      @if (activeTab() === 'having') {
+        <div class="qb-panel">
+          <div class="qb-panel-header-row">
+            <span class="qb-panel-title">Filter on aggregated values</span>
+            <div class="qb-toggle-group">
+              <button class="qb-toggle" [class.qb-toggle-active]="havingOp() === 'AND'"
+                      (click)="havingOp.set('AND')">AND</button>
+              <button class="qb-toggle" [class.qb-toggle-active]="havingOp() === 'OR'"
+                      (click)="havingOp.set('OR')">OR</button>
+            </div>
+          </div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            <table class="qb-table">
+              <thead>
+                <tr>
+                  @if (hasJoins()) { <th>Table</th> }
+                  <th>Aggregate</th>
+                  <th>Field</th>
+                  <th>Operator</th>
+                  <th>Value</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of havingRows(); track $index) {
+                  <tr>
+                    @if (hasJoins()) {
+                      <td>
+                        <select class="qb-select qb-select-sm"
+                                (change)="onHavingEntityChange($index, $any($event.target).value)">
+                          @for (e of usedEntities(); track e.id) {
+                            <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.label }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td>
+                      <select class="qb-select qb-select-sm"
+                              (change)="setHavingAggregate($index, $any($event.target).value)">
+                        @for (agg of havingAggregates; track agg) {
+                          <option [value]="agg" [selected]="row.aggregate === agg">{{ agg }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="qb-select"
+                              (change)="setHavingField($index, $any($event.target).value)">
+                        <option value="" [selected]="!row.fieldId">— field —</option>
+                        @for (f of fieldsForClean(row.entityId); track f.id) {
+                          <option [value]="f.id" [selected]="row.fieldId === f.id">{{ f.displayName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="qb-select qb-select-sm"
+                              (change)="setHavingOperator($index, $any($event.target).value)">
+                        @for (op of operators; track op) {
+                          <option [value]="op" [selected]="row.operator === op">{{ op }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      @if (!isNullOperator(row.operator)) {
+                        <input class="qb-input qb-input-sm"
+                               [value]="row.value"
+                               (input)="setHavingValue($index, $any($event.target).value)"
+                               placeholder="value" />
+                      } @else {
+                        <span class="qb-hint">—</span>
+                      }
+                    </td>
+                    <td>
+                      <button class="qb-btn-remove" (click)="removeHavingRow($index)">✕</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <button class="qb-btn-add" (click)="addHavingRow()">+ Add Having</button>
+          }
+        </div>
+      }
+
+      <!-- ── ORDER BY ── -->
+      @if (activeTab() === 'orderby') {
+        <div class="qb-panel">
+          <div class="qb-panel-title">Sort order</div>
+
+          @if (!fromEntityId()) {
+            <p class="qb-warn">Select a FROM entity first (FROM tab).</p>
+          } @else {
+            <table class="qb-table">
+              <thead>
+                <tr>
+                  @if (hasJoins()) { <th>Table</th> }
+                  <th>Field</th>
+                  <th>Direction</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of orderByRows(); track $index) {
+                  <tr>
+                    @if (hasJoins()) {
+                      <td>
+                        <select class="qb-select qb-select-sm"
+                                (change)="onOrderByEntityChange($index, $any($event.target).value)">
+                          @for (e of usedEntities(); track e.id) {
+                            <option [value]="e.id" [selected]="row.entityId === e.id">{{ e.label }}</option>
+                          }
+                        </select>
+                      </td>
+                    }
+                    <td>
+                      <select class="qb-select"
+                              (change)="setOrderByFieldId($index, $any($event.target).value)">
+                        <option value="" [selected]="!row.fieldId">— field —</option>
+                        @for (f of fieldsForClean(row.entityId); track f.id) {
+                          <option [value]="f.id" [selected]="row.fieldId === f.id">{{ f.displayName }}</option>
+                        }
+                      </select>
+                    </td>
+                    <td>
+                      <select class="qb-select qb-select-sm"
+                              (change)="setOrderByDirection($index, $any($event.target).value)">
+                        <option value="ASC" [selected]="row.direction === 'ASC'">ASC</option>
+                        <option value="DESC" [selected]="row.direction === 'DESC'">DESC</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="qb-btn-remove" (click)="removeOrderByRow($index)">✕</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+
+            <button class="qb-btn-add" (click)="addOrderByRow()">+ Add Sort</button>
+
+            <div class="qb-form-row mt-3">
+              <label class="qb-label">Limit rows</label>
+              <input type="number" class="qb-input qb-input-sm"
+                     [ngModel]="limitVal()"
+                     (ngModelChange)="limitVal.set(+$event)"
+                     min="1" max="5000" />
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── PREVIEW ── -->
+      @if (activeTab() === 'preview') {
+        <div class="qb-panel qb-preview-panel">
+          <div class="qb-panel-header-row">
+            <span class="qb-panel-title">Preview (first 100 rows)</span>
+            <button class="qb-btn-primary" [disabled]="!configValid() || previewLoading()"
+                    (click)="runPreview()">
+              @if (previewLoading()) { <span class="qb-spinner-inline"></span> Running… }
+              @else { ▶ Run Preview }
+            </button>
+          </div>
+
+          @if (getSessionParamsInUse().length > 0) {
+            <div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-radius: 6px; border-left: 3px solid #0ea5e9;">
+              <div style="font-size: 12px; font-weight: 600; color: #0369a1; margin-bottom: 8px;">Session Data Parameters</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                @for (param of getSessionParamsInUse(); track param) {
+                  <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 11px; font-weight: 600; color: #374151;">{{ param }}</label>
+                    <input class="qb-input qb-input-sm"
+                           [value]="previewSessionParam(param)"
+                           (input)="setPreviewSessionParam(param, $any($event.target).value)"
+                           placeholder="Enter value"
+                           style="max-width: 160px;" />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (previewError()) {
+            <div class="qb-error-banner">{{ previewError() }}</div>
+          }
+
+          @if (previewResult()) {
+            <div class="qb-preview-stats">{{ previewRows().length }} row(s)</div>
+            <div class="qb-preview-table-wrap">
+              <table class="qb-table qb-data-table">
+                <thead>
+                  <tr>
+                    @for (col of previewCols(); track col) {
+                      <th>{{ col }}</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of previewRows(); track $index) {
+                    <tr>
+                      @for (col of previewCols(); track col) {
+                        <td>{{ row[col] }}</td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else if (!previewLoading() && !previewError()) {
+            <div class="qb-preview-empty">
+              Click "Run Preview" to execute the query and see results.
+            </div>
+          }
+        </div>
+      }
+
+    </div><!-- /qb-body -->
+
+    <!-- Footer -->
+    <div class="qb-footer">
+      <button class="qb-btn-ghost" (click)="close.emit()">Cancel</button>
+      <button class="qb-btn-primary" [disabled]="!configValid()" (click)="apply()">
+        Apply Query
+      </button>
+    </div>
+
+  </div><!-- /qb-modal -->
+</div><!-- /qb-overlay -->

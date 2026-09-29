@@ -1,0 +1,104 @@
+<div class="page-wrapper min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+
+  @if (form) {
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="transaction-form max-w-4xl mx-auto">
+
+      <div class="panel bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+
+       
+
+        <!-- Main Content Grid -->
+        <div class="form-grid-col-1 p-6 space-y-8">
+
+          <!-- Primary Fields Section -->
+          <section class="primary-fields-section bg-gray-50 rounded-xl p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Personal Information
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <!-- Name Field -->
+              <div class="component-section">
+                <input-text-box
+                  [frmGroup]="form"
+                  controlName="name"
+                  label="Full Name"
+                  type="text"
+                  [minLength]="2"
+                  [maxLength]="50"
+                  placeholder="Enter your full name"
+                  displayMode="vertical"
+                  [tooltip]="'Your complete name'"
+                  [tooltipPosition]="'above'"
+                  [tooltipDelay]="300">
+                </input-text-box>
+              </div>
+
+              <!-- Email Field -->
+              <!-- <div class="component-section">
+                <input-text-box
+                  [frmGroup]="form"
+                  controlName="email"
+                  label="Email Address"
+                  type="email"
+                  placeholder="you@example.com"
+                displayMode="vertical"
+                  [tooltip]="'We will send notification here'"
+                  [tooltipPosition]="'above'"
+                  [tooltipDelay]="300">
+                </input-text-box>
+              </div> -->
+
+            </div>
+
+            <!-- Age Field (Single Row) -->
+            <div class="mt-6 component-section">
+              <input-number
+                [frmGroup]="form"
+                controlName="age"
+                label="Your Age"
+                [minValue]="1"
+                [maxValue]="120"
+                [maxLen]="3"
+                placeholder="25"
+                
+                [tooltip]="'Must be between 1 and 120'"
+                [tooltipPosition]="'above'"
+                [tooltipDelay]="300">
+              </input-number>
+            </div>
+          </section>
+
+          <!-- Action Buttons Section -->
+          <section class="action-buttons-section flex justify-end gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <generic-button
+             id="saveBtn"
+              value="save"
+              labelText="Save"
+              (onClick)="onSave()"
+            ></generic-button>
+          </section>
+
+          <!-- Status Messages -->
+          <section class="status-section text-center py-4">
+            <p *ngIf="localStatus" 
+               class="text-sm font-medium text-blue-600 animate-pulse">
+              {{ localStatus }}
+            </p>
+            <p *ngIf="responseMessage" 
+               class="text-sm font-semibold mt-2"
+               [class.text-green-600]="!responseMessage.includes('Error')"
+               [class.text-red-600]="responseMessage.includes('Error')">
+              {{ responseMessage }}
+            </p>
+          </section>
+
+        </div>
+      </div>
+    </form>
+  }
+</div>

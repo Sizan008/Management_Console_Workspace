@@ -1,0 +1,492 @@
+<div
+  class="font-roboto flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-slate-50"
+>
+  <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+    <div class="min-w-0 space-y-3 p-3">
+      <section
+        class="min-w-0 overflow-visible rounded-lg border border-slate-200 bg-white"
+      >
+        <app-expansion-panel-header
+          panelTitle="Dashboard Filter"
+          [isOpenSignal]="userDashboardPanelOpen"
+        >
+        </app-expansion-panel-header>
+        @if (userDashboardPanelOpen()) {
+          <div class="min-w-0 border-t border-slate-100 p-3">
+            <form
+              id="dashboard-filter-form"
+              [formGroup]="filterForm"
+              class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-3"
+            >
+              <div class="min-w-0">
+                <input-date
+                  [frmGroup]="filterForm"
+                  controlName="fromDate"
+                  label="From Date"
+                  displayMode="outline"
+                >
+                </input-date>
+              </div>
+              <div class="min-w-0">
+                <input-date
+                  [frmGroup]="filterForm"
+                  controlName="toDate"
+                  label="To Date"
+                  displayMode="outline"
+                >
+                </input-date>
+              </div>
+            </form>
+          </div>
+        }
+      </section>
+      @if (hasSearchResult()) {
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <div
+            class="flex min-w-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 p-3"
+          >
+            <generic-button
+              label="Customer Information"
+              [styles]="getCustomerTabStyle('customer')"
+              [enable]="!loading()"
+              (onClick)="setCustomerTab('customer')"
+            >
+            </generic-button>
+            <generic-button
+              label="Accounts"
+              [styles]="getCustomerTabStyle('accounts')"
+              [enable]="!loading()"
+              (onClick)="setCustomerTab('accounts')"
+            >
+            </generic-button>
+            <generic-button
+              label="Address Info"
+              [styles]="getCustomerTabStyle('address')"
+              [enable]="!loading()"
+              (onClick)="setCustomerTab('address')"
+            >
+            </generic-button>
+          </div>
+          @if (activeCustomerTab() === "customer") {
+            <div class="min-w-0 p-3">
+              <h3 class="mb-3 text-sm font-bold text-slate-800">
+                Account Holder Information
+              </h3>
+              <div
+                class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-3"
+              >
+                @for (card of customerInfoCards(); track card.title) {
+                  <fieldset
+                    class="min-w-0 overflow-hidden rounded-lg border border-slate-200 p-3"
+                  >
+                    <legend class="px-2 text-xs font-semibold text-slate-600">
+                      {{ card.title }}
+                    </legend>
+                    <div class="min-w-0 divide-y divide-slate-100">
+                      @for (item of card.items; track item.label) {
+                        <div
+                          class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                        >
+                          <span class="text-slate-500">{{ item.label }}</span>
+                          <span class="text-slate-400">:</span>
+                          <span
+                            class="min-w-0 text-slate-800 [overflow-wrap:anywhere]"
+                            >{{ item.value }}</span
+                          >
+                        </div>
+                      }
+                    </div>
+                  </fieldset>
+                }
+              </div>
+            </div>
+          }
+          @if (activeCustomerTab() === "accounts") {
+            <div class="min-w-0 overflow-x-auto p-3">
+              <div class="min-w-[600px]">
+                <generic-data-grid
+                  id="user-dashboard-accounts-grid"
+                  [dataSource]="accountRows()"
+                  [selectedColumns]="accountColumns"
+                  [customColumnNames]="accountColumnNames"
+                  [initPageSize]="10"
+                  [pageSizeOptions]="pageSizeOptions"
+                  [showPaginator]="true"
+                  [searchEnabled]="false"
+                  [enableSelection]="false"
+                  uniqueIdField="rowId"
+                >
+                </generic-data-grid>
+              </div>
+            </div>
+          }
+          @if (activeCustomerTab() === "address") {
+            <div class="min-w-0 overflow-x-auto p-3">
+              <div class="min-w-[1000px]">
+                <generic-data-grid
+                  id="user-dashboard-address-grid"
+                  [dataSource]="addressRows()"
+                  [selectedColumns]="addressColumns"
+                  [customColumnNames]="addressColumnNames"
+                  [initPageSize]="10"
+                  [pageSizeOptions]="pageSizeOptions"
+                  [showPaginator]="true"
+                  [searchEnabled]="false"
+                  [enableSelection]="false"
+                  uniqueIdField="rowId"
+                >
+                </generic-data-grid>
+              </div>
+            </div>
+          }
+        </section>
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            panelTitle="Today's Transaction"
+            [isOpenSignal]="todayTransactionPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (todayTransactionPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100">
+              <div
+                class="flex min-w-0 flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50 p-3"
+              >
+                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                  <span
+                    class="text-xs font-semibold"
+                    [class.text-emerald-700]="isSuccessfulTransaction()"
+                    [class.text-red-700]="!isSuccessfulTransaction()"
+                  >
+                    {{ isSuccessfulTransaction() ? "Successful" : "Failed" }}
+                  </span>
+                  <generic-switch
+                    [frmGroup]="todayTransactionStatusForm"
+                    controlName="isSuccessful"
+                    id="user-dashboard-transaction-status"
+                    [isChecked]="
+                      todayTransactionStatusForm.controls.isSuccessful.value ===
+                      true
+                    "
+                    failedText="Failed"
+                    successText="Successful"
+                  >
+                  </generic-switch>
+                </div>
+                <generic-button
+                  label="Download Excel"
+                  [enable]="!loading() && todayTransactionRows().length > 0"
+                  (onClick)="
+                    downloadExcel(
+                      todayTransactionRows(),
+                      todayTransactionColumns,
+                      todayTransactionColumnNames,
+                      'Today Transactions',
+                      'today-transactions'
+                    )
+                  "
+                >
+                </generic-button>
+              </div>
+              <div class="min-w-0 overflow-x-auto p-3">
+                <div class="min-w-[1100px]">
+                  <generic-data-grid
+                    id="user-dashboard-today-transaction-grid"
+                    [dataSource]="todayTransactionRows()"
+                    [selectedColumns]="todayTransactionColumns"
+                    [customColumnNames]="todayTransactionColumnNames"
+                    [initPageSize]="10"
+                    [pageSizeOptions]="pageSizeOptions"
+                    [showPaginator]="true"
+                    [searchEnabled]="false"
+                    [enableSelection]="false"
+                    uniqueIdField="rowId"
+                  >
+                  </generic-data-grid>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            panelTitle="FDR/DPS A/C Open Details"
+            [isOpenSignal]="fdrDpsPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (fdrDpsPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100">
+              <div
+                class="flex justify-end border-b border-slate-100 bg-slate-50 p-3"
+              >
+                <generic-button
+                  label="Download Excel"
+                  [enable]="!loading() && fdrDpsOpenRows().length > 0"
+                  (onClick)="
+                    downloadExcel(
+                      fdrDpsOpenRows(),
+                      fdrDpsColumns,
+                      fdrDpsColumnNames,
+                      'FDR DPS Details',
+                      'fdr-dps-details'
+                    )
+                  "
+                >
+                </generic-button>
+              </div>
+              <div class="min-w-0 overflow-x-auto p-3">
+                <div class="min-w-[850px]">
+                  <generic-data-grid
+                    id="user-dashboard-fdr-dps-grid"
+                    [dataSource]="fdrDpsOpenRows()"
+                    [selectedColumns]="fdrDpsColumns"
+                    [customColumnNames]="fdrDpsColumnNames"
+                    [initPageSize]="10"
+                    [pageSizeOptions]="pageSizeOptions"
+                    [showPaginator]="true"
+                    [searchEnabled]="false"
+                    [enableSelection]="false"
+                    uniqueIdField="rowId"
+                  >
+                  </generic-data-grid>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+        <div
+          class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))] gap-3"
+        >
+          <section
+            class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <app-expansion-panel-header
+              panelTitle="Request Details"
+              [isOpenSignal]="requestDetailsPanelOpen"
+            >
+            </app-expansion-panel-header>
+            @if (requestDetailsPanelOpen()) {
+              <div class="min-w-0 border-t border-slate-100">
+                <div
+                  class="flex justify-end border-b border-slate-100 bg-slate-50 p-3"
+                >
+                  <generic-button
+                    label="Download Excel"
+                    [enable]="!loading() && requestDetailRows().length > 0"
+                    (onClick)="
+                      downloadExcel(
+                        requestDetailRows(),
+                        requestColumns,
+                        requestColumnNames,
+                        'Request Details',
+                        'request-details'
+                      )
+                    "
+                  >
+                  </generic-button>
+                </div>
+                <div class="min-w-0 overflow-x-auto p-3">
+                  <div class="min-w-[650px]">
+                    <generic-data-grid
+                      id="user-dashboard-request-grid"
+                      [dataSource]="requestDetailRows()"
+                      [selectedColumns]="requestColumns"
+                      [customColumnNames]="requestColumnNames"
+                      [initPageSize]="10"
+                      [pageSizeOptions]="pageSizeOptions"
+                      [showPaginator]="true"
+                      [searchEnabled]="false"
+                      [enableSelection]="false"
+                      uniqueIdField="rowId"
+                    >
+                    </generic-data-grid>
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+          <section
+            class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <app-expansion-panel-header
+              panelTitle="Activity Details"
+              [isOpenSignal]="activityDetailsPanelOpen"
+            >
+            </app-expansion-panel-header>
+            @if (activityDetailsPanelOpen()) {
+              <div class="min-w-0 border-t border-slate-100">
+                <div
+                  class="flex justify-end border-b border-slate-100 bg-slate-50 p-3"
+                >
+                  <generic-button
+                    label="Download Excel"
+                    [enable]="!loading() && activityDetailRows().length > 0"
+                    (onClick)="
+                      downloadExcel(
+                        activityDetailRows(),
+                        activityColumns,
+                        activityColumnNames,
+                        'Activity Details',
+                        'activity-details'
+                      )
+                    "
+                  >
+                  </generic-button>
+                </div>
+                <div class="min-w-0 overflow-x-auto p-3">
+                  <div class="min-w-[650px]">
+                    <generic-data-grid
+                      id="user-dashboard-activity-grid"
+                      [dataSource]="activityDetailRows()"
+                      [selectedColumns]="activityColumns"
+                      [customColumnNames]="activityColumnNames"
+                      [initPageSize]="10"
+                      [pageSizeOptions]="pageSizeOptions"
+                      [showPaginator]="true"
+                      [searchEnabled]="false"
+                      [enableSelection]="false"
+                      uniqueIdField="rowId"
+                    >
+                    </generic-data-grid>
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+        </div>
+        <div
+          class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(420px,100%),1fr))] gap-3"
+        >
+          <section
+            class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <app-expansion-panel-header
+              panelTitle="Device Details"
+              [isOpenSignal]="deviceDetailsPanelOpen"
+            >
+            </app-expansion-panel-header>
+            @if (deviceDetailsPanelOpen()) {
+              <div class="min-w-0 border-t border-slate-100">
+                <div
+                  class="flex justify-end border-b border-slate-100 bg-slate-50 p-3"
+                >
+                  <generic-button
+                    label="Download Excel"
+                    [enable]="!loading() && deviceDetailRows().length > 0"
+                    (onClick)="
+                      downloadExcel(
+                        deviceDetailRows(),
+                        deviceColumns,
+                        deviceColumnNames,
+                        'Device Details',
+                        'device-details'
+                      )
+                    "
+                  >
+                  </generic-button>
+                </div>
+                <div class="min-w-0 overflow-x-auto p-3">
+                  <div class="min-w-[500px]">
+                    <generic-data-grid
+                      id="user-dashboard-device-grid"
+                      [dataSource]="deviceDetailRows()"
+                      [selectedColumns]="deviceColumns"
+                      [customColumnNames]="deviceColumnNames"
+                      [initPageSize]="10"
+                      [pageSizeOptions]="pageSizeOptions"
+                      [showPaginator]="true"
+                      [searchEnabled]="false"
+                      [enableSelection]="false"
+                      uniqueIdField="rowId"
+                    >
+                    </generic-data-grid>
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+          <section
+            class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+          >
+            <app-expansion-panel-header
+              panelTitle="Password Change History"
+              [isOpenSignal]="passwordChangePanelOpen"
+            >
+            </app-expansion-panel-header>
+            @if (passwordChangePanelOpen()) {
+              <div class="min-w-0 border-t border-slate-100">
+                <div
+                  class="flex justify-end border-b border-slate-100 bg-slate-50 p-3"
+                >
+                  <generic-button
+                    label="Download Excel"
+                    [enable]="
+                      !loading() && passwordChangeHistoryRows().length > 0
+                    "
+                    (onClick)="
+                      downloadExcel(
+                        passwordChangeHistoryRows(),
+                        passwordChangeColumns,
+                        passwordChangeColumnNames,
+                        'Password History',
+                        'password-history'
+                      )
+                    "
+                  >
+                  </generic-button>
+                </div>
+                <div class="min-w-0 overflow-x-auto p-3">
+                  <div class="min-w-[500px]">
+                    <generic-data-grid
+                      id="user-dashboard-password-grid"
+                      [dataSource]="passwordChangeHistoryRows()"
+                      [selectedColumns]="passwordChangeColumns"
+                      [customColumnNames]="passwordChangeColumnNames"
+                      [initPageSize]="10"
+                      [pageSizeOptions]="pageSizeOptions"
+                      [showPaginator]="true"
+                      [searchEnabled]="false"
+                      [enableSelection]="false"
+                      uniqueIdField="rowId"
+                    >
+                    </generic-data-grid>
+                  </div>
+                </div>
+              </div>
+            }
+          </section>
+        </div>
+      }
+    </div>
+  </div>
+  <div
+    class="shrink-0 border-t border-slate-200 bg-white px-3 py-3 shadow-[0_-2px_6px_rgba(15,23,42,0.06)]"
+  >
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+      <generic-button
+        label="Reset"
+        [enable]="!loading() && hasFilterChanges"
+        (onClick)="requestReset()"
+      >
+      </generic-button>
+      <generic-button
+        label="Search"
+        [enable]="!loading()"
+        (onClick)="searchUserDashboard()"
+      >
+      </generic-button>
+      <generic-button
+        label="Close"
+        [enable]="!loading()"
+        (onClick)="requestClose()"
+      >
+      </generic-button>
+    </div>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

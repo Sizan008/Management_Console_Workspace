@@ -1,0 +1,25 @@
+<div class="sub-panel-header">
+  <div class="flex gap-2 items-center">
+    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-width="2"
+         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M13 16h-1v-4h-1m1-4h.01M12 20.5C6.753 20.5 2.5 16.247 2.5 11S6.753 1.5 12 1.5 21.5 5.753 21.5 11 17.247 20.5 12 20.5z" />
+    </svg>
+    <div class="flex justify-between items-center w-full">
+      <div>{{subPanelTitle()}}</div>
+        <div class="flex justify-end items-center gap-4">
+            @if (isOptional()) {
+                <button (click)="toggleVisibility()" mat-icon-button>
+                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M440-800v487L216-537l-56 57 320 320 320-320-56-57-224 224v-487h-80Z"/></svg>
+                </button>
+            }
+            @if (isButton()) {
+                <button matTooltip="Add {{subPanelTitle()}}" matTooltipPosition="above" mat-icon-button (click)="add()">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                </button>
+            }
+        </div>
+    </div>
+  </div>
+</div>
+

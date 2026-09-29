@@ -1,0 +1,69 @@
+<div class="page-wrapper min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
+
+  @if (notifications.length > 0) {
+  <div class="max-w-7xl mx-auto">
+
+    <div class="panel bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+
+      <!-- Header Section -->
+      <section class="header-section bg-[var(--theme-primary)] text-white p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold flex items-center gap-3">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+              Notification Center
+            </h1>
+            <p class="text-sm opacity-90 mt-1">Real-time in-app notifications from Novu</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center gap-2">
+            <span class="text-xs font-medium">{{ unreadCount }} unread</span>
+              <button *ngIf="unreadCount > 0"
+                      (click)="markAllAsRead()"
+                      class="text-xs hover:underline">
+                Mark all as read
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Grid Section -->
+        <section class="transaction-grid-section">
+          <div class="p-4">
+            <generic-data-grid
+              id="notification-grid"
+              [dataSource]="notifications"
+              [initPageSize]="8"
+              [enableSelection]="true"
+              [showViewButton]="true"
+              [showDeleteButton]="true"
+              [useInlineEdit]="false"
+              [selectedColumns]="['subject', 'content', 'createdAt', 'read']"
+              [editableColumns]="[]"
+              [checkboxColumns]="['read']"
+              [checkboxSelectAllColumns]="['read']"
+              [numberColumns]="[]"
+              [tblClass]="'enhanced-notification-table'"
+              (onFHViewClick)="markAsRead($event)"
+              (onCheckboxValueChange)="onReadStatusChanged($event)"
+              (onColumnSelectAll)="onMarkAllRead($event)">
+            </generic-data-grid>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  } @else {
+  <div class="flex flex-col items-center justify-center h-96 text-gray-500">
+    <svg class="w-24 h-24 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M20 13v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6m16 0V9a2 2 0 00-2-2h-2m4 4H4m0 0v6a2 2 0 002 2h12a2 2 0 002-2v-6"></path>
+    </svg>
+    <p class="text-lg font-medium">No notifications yet.</p>
+    <p class="text-sm">You'll see updates here when something happens.</p>
+  </div>
+  }
+</div>

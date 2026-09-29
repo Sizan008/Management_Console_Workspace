@@ -1,0 +1,17 @@
+.section-card {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  padding: 12px;
+  background: #fff;
+}
+
+.section-card.session-details-header {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.section-card.section-card-flush {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: 8px;
+}

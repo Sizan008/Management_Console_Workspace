@@ -1,0 +1,13 @@
+<div class="bg-white rounded-lg shadow-sm p-4 border border-slate-100">
+  <div class="flex items-start justify-between mb-3">
+    <h3 class="text-sm font-extrabold text-slate-800">{{ title }}</h3>
+    <button *ngIf="editText" class="text-xs text-blue-600 hover:text-blue-700 focus:outline-none">{{ editText }}</button>
+  </div>
+
+  <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
+    <ng-container *ngFor="let item of items">
+      <div class="text-slate-500">{{ item.label }}</div>
+      <div class="text-slate-800 font-medium text-right">{{ item.value }}</div>
+    </ng-container>
+  </div>
+</div>

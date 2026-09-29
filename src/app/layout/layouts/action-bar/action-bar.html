@@ -1,0 +1,23 @@
+@if (hasVisibleActions()) {
+  <div class="flex-shrink-0 flex items-center justify-between gap-3 bg-white border-b border-gray-200 px-4 py-1 shadow-sm">
+
+    <!-- LEFT: current page title -->
+    <h1 class="text-sm font-semibold text-slate-800 truncate min-w-0">
+      {{ pageName() }}
+    </h1>
+
+    <!-- RIGHT: action buttons (moved from the navbar) -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      @if (isButtonVisible('save')) { <app-save [disabled]="!isButtonEnabled('save')"></app-save> }
+      @if (isButtonVisible('saveNext')) { <app-save label="Save & Next" [clickSignal]="onClickSaveNext"
+        [disabled]="!isButtonEnabled('saveNext')"></app-save> }
+      @if (isButtonVisible('update')) { <app-update [disabled]="!isButtonEnabled('update')"></app-update> }
+      @if (isButtonVisible('updateNext')) { <app-update label="Update & Next" [clickSignal]="onClickUpdateNext"
+        [disabled]="!isButtonEnabled('updateNext')"></app-update> }
+      @if (isButtonVisible('view')) { <app-view [disabled]="!isButtonEnabled('view')"></app-view> }
+      @if (isButtonVisible('delete')) { <app-delete [disabled]="!isButtonEnabled('delete')"></app-delete> }
+      @if (isButtonVisible('reset')) { <app-reset [disabled]="!isButtonEnabled('reset')"></app-reset> }
+      @if (isButtonVisible('exit')) { <app-exit [disabled]="!isButtonEnabled('exit')"></app-exit> }
+    </div>
+  </div>
+}

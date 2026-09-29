@@ -1,0 +1,355 @@
+<!-- ====================================================
+     SIDEBAR PANEL
+     Always 220px on desktop; hidden on mobile when collapsed
+     ==================================================== -->
+<div
+  class="sidebar-panel"
+  [class.sidebar-animate]="animateWidth"
+  [class.sidebar-collapsed]="!sidebarExpanded"
+  [class.sidebar-mobile-hidden]="isMobileOpen && !sidebarExpanded"
+>
+  <!-- Search / Brand Area -->
+  <div class="sidebar-search-wrap">
+    <app-search></app-search>
+  </div>
+
+  <!-- ===== MAIN NAVIGATION ===== -->
+  <nav class="sidebar-nav">
+    <!-- Menu -->
+    <!-- <div class="nav-group group">
+        <div class="nav-item"
+            [class.nav-active]="activeItem === 'Menu'"
+            (click)="toggleDrawer('Menu'); setActiveItem('Menu')"
+            data-drawer-trigger="Menu">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <span class="nav-label">Menu</span>
+          <div class="nav-tooltip">Menu<div class="tooltip-arrow"></div></div>
+        </div>
+      </div> -->
+
+    <!-- LC Cases (active Workspace route) -->
+    <!-- <div class="nav-group group">
+      <div class="nav-item"
+           [class.nav-active]="activeItem === 'LCCases'"
+           [routerLink]="workspaceRoute"
+           (click)="setActiveItem('LCCases')">
+        <img [src]="getIcon('application')" class="nav-icon" alt="LC Cases"/>
+        <span class="nav-label">LC Cases</span>
+        <div class="nav-tooltip">LC Cases<div class="tooltip-arrow"></div></div>
+      </div>
+    </div> -->
+
+    <!-- Functions -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Functions'"
+        routerLink="/feature/settings/functions"
+        (click)="setActiveItem('Functions')"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+          />
+        </svg>
+        <span class="nav-label">Functions</span>
+        <div class="nav-tooltip">
+          Functions
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Report'"
+        routerLink="/rpt/report-generation"
+        (click)="setActiveItem('Report')"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"
+          />
+          <path d="M14 3v5h5" />
+          <path d="M9 17v-3" />
+          <path d="M12 17v-5" />
+          <path d="M15 17v-2" />
+        </svg>
+        <span class="nav-label">Reports</span>
+        <div class="nav-tooltip">
+          Reports
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Dashboard'"
+        routerLink="/landing/dashboard"
+        (click)="setActiveItem('Dashboard')"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M4 20V4" />
+          <path d="M4 20h16" />
+          <rect x="7" y="11" width="3" height="6" rx="1" />
+          <rect x="12" y="7" width="3" height="10" rx="1" />
+          <rect x="17" y="13" width="3" height="4" rx="1" />
+        </svg>
+        <span class="nav-label">Dashboard</span>
+        <div class="nav-tooltip">
+          Dashboard
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Approval Steps -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Approval'"
+        routerLink="/poc/approval-items"
+        (click)="setActiveItem('Approval')"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+        <span class="nav-label">Approval</span>
+        <div class="nav-tooltip">
+          Approval
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+     <!-- Config -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Config'"
+        routerLink="/feature/settings/config"
+        (click)="setActiveItem('Config')"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+          />
+        </svg>
+        <span class="nav-label">Config</span>
+        <div class="nav-tooltip">
+          Config
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modules -->
+    <div class="nav-group group">
+      <div
+        class="nav-item"
+        [class.nav-active]="activeItem === 'Modules'"
+        (click)="toggleDrawer('Modules'); setActiveItem('Modules')"
+        data-drawer-trigger="Modules"
+      >
+        <svg
+          class="nav-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.25"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="4" y="4" width="6.5" height="6.5" rx="1.6" />
+          <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6" />
+          <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6" />
+          <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6" />
+        </svg>
+        <span class="nav-label">Modules</span>
+        <div class="nav-tooltip">
+          Modules
+          <div class="tooltip-arrow"></div>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- ===== BOTTOM: USER PROFILE CARD ===== -->
+  <!-- The notification bell / unread badge live on the navbar's right side now. -->
+  <div
+    class="user-profile-card"
+    (click)="toggleDrawer('Personalization'); setActiveItem('Personalization')"
+    data-drawer-trigger="Personalization"
+  >
+    <div class="user-avatar-wrap">
+      <div class="user-avatar-circle">{{ userInitials }}</div>
+    </div>
+    <div class="user-info-text">
+      <div class="user-name-line">
+        <span class="user-name-text">{{ userName }}</span>
+      </div>
+      <div class="user-role-line">{{ userRole }}</div>
+    </div>
+  </div>
+</div>
+<!-- end .sidebar-panel -->
+
+<!-- ====================================================
+     DRAWER OVERLAY (backdrop)
+     ==================================================== -->
+@if (drawerOpen) {
+  <div
+    class="fixed z-[55] bg-black/30 transition-opacity duration-300"
+    [class.inset-0]="isMobile"
+    [class.top-[54px]]="!isMobile"
+    [class.left-[220px]]="!isMobile && sidebarExpanded"
+    [class.left-[56px]]="!isMobile && !sidebarExpanded"
+    [class.right-0]="!isMobile"
+    [class.bottom-0]="!isMobile"
+    (click)="closeDrawer()"
+  ></div>
+}
+
+<!-- ====================================================
+     DRAWER PANEL
+     ==================================================== -->
+<div
+  class="drawer-container fixed z-[60] bg-white shadow-2xl rounded transition-all duration-300"
+  [class.left-0]="isMobile && drawerOpen"
+  [class.top-[53px]]="drawerOpen"
+  [class.w-full]="isMobile && drawerOpen"
+  [style.height]="drawerOpen ? 'calc(100vh - 53px)' : 'auto'"
+  [class.max-w-full]="isMobile"
+  [class.md:w-[350px]]="drawerOpen"
+  [style.left]="
+    !isMobile && drawerOpen
+      ? sidebarExpanded
+        ? '230px'
+        : '66px'
+      : drawerOpen
+        ? '0'
+        : '-480px'
+  "
+  [style.opacity]="drawerOpen ? '1' : '0'"
+  [style.visibility]="drawerOpen ? 'visible' : 'hidden'"
+  [style.borderRadius]="'10px'"
+  (click)="$event.stopPropagation()"
+>
+  <!-- Header -->
+  <div
+    class="flex justify-between items-center px-4 py-2 border-b rounded border-gray-200 bg-[var(--theme-background)]"
+    [style.borderRadius]="'10px'"
+  >
+    <h2 class="text-base font-medium text-gray-800 flex items-center">
+      <svg
+        class="w-4 h-4 mr-2 text-blue-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2.25"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        ></path>
+      </svg>
+      {{
+        drawerType === "Personalization" ? "Profile" : (drawerType | titlecase)
+      }}
+    </h2>
+    <button
+      (click)="closeDrawer()"
+      class="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full p-1.5 transition-all duration-200 ease-in-out transform hover:scale-110"
+    >
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2.25"
+          d="M6 18L18 6M6 6l12 12"
+        ></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="overflow-y-auto h-[calc(100vh-53px-49px)]">
+    @if (drawerType === "Personalization") {
+      <app-profile-drawer></app-profile-drawer>
+    } @else if (drawerType === "Menu") {
+      <app-menu-drawer></app-menu-drawer>
+    } @else if (drawerType === "Modules") {
+      <app-module-drawer></app-module-drawer>
+    }
+  </div>
+</div>

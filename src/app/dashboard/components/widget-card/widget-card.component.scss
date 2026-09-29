@@ -1,0 +1,472 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  overflow: visible;
+  position: relative;
+}
+
+.wc-badge {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  background: #f97316;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 8px;
+  z-index: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.vw-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.vw-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  svg { width: 20px; height: 20px; display: block; }
+}
+
+.vw-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vw-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+
+  app-widget-preview {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+  }
+}
+
+.vw-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  color: #94a3b8;
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.12s, background 0.12s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled) {
+    color: #475569;
+    background: #f1f5f9;
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.2 !important;
+    cursor: default;
+  }
+
+  &.spinning svg {
+    animation: spin 0.75s linear infinite;
+    color: #2563eb;
+  }
+}
+
+.export-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 150;
+  width: 166px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15, 23, 42, 0.08);
+  animation: export-pop 0.12s ease-out;
+}
+
+@keyframes export-pop {
+  from { opacity: 0; transform: translateY(-3px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.export-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 29px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover,
+  &:focus-visible {
+    background: #f1f5f9;
+    color: #0f172a;
+    outline: none;
+  }
+}
+
+.export-ext {
+  width: 28px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  &.csv { color: #047857; background: #d1fae5; }
+  &.xls { color: #166534; background: #dcfce7; }
+  &.pdf { color: #b91c1c; background: #fee2e2; }
+  &.png { color: #7c3aed; background: #ede9fe; }
+}
+
+.zoom-header .export-menu {
+  top: calc(100% + 8px);
+}
+
+// ── Runtime filter bar ─────────────────────────────────────────────────────────
+.vw-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.vw-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vw-filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.vw-filter-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: 12px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  height: 26px;
+  max-width: 160px;
+
+  &:focus { border-color: #3b82f6; }
+}
+
+// Filter bar inside zoom modal — slightly tighter padding, white bg
+.zoom-filter-bar {
+  background: #fff !important;
+  padding: 8px 20px !important;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+// ── Zoom modal ────────────────────────────────────────────────────────────────
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 14000;
+  padding: 40px;
+  animation: zfade 0.15s ease;
+}
+
+@keyframes zfade { from { opacity: 0; } to { opacity: 1; } }
+
+.zoom-card {
+  background: #fff;
+  border-radius: 16px;
+  width: min(960px, 92vw);
+  height: min(660px, 86vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  animation: zpop 0.18s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes zpop {
+  from { transform: scale(0.93); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.zoom-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafbfc;
+  flex-shrink: 0;
+
+  .zoom-icon {
+    width: 28px;
+    height: 28px;
+    svg { width: 28px; height: 28px; display: block; }
+  }
+  .zoom-title { flex: 1; font-size: 17px; font-weight: 700; color: #1e293b; }
+}
+
+.zoom-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #94a3b8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  &:hover { background: #f1f5f9; color: #334155; }
+}
+
+.zoom-body {
+  flex: 1;
+  min-height: 0;
+  padding: 28px 32px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+
+  app-widget-preview { flex: 1; display: flex; width: 100%; height: 100%; }
+}
+
+.vw-not-configured {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.vw-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+// ── Spinner ──────────────────────────────────────────────────────────────────
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+
+  &.sm { width: 18px; height: 18px; border-width: 2px; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Per-widget date range controls ────────────────────────────────────────────
+
+.vw-date-select {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: #dbeafe; }
+}
+
+.zoom-date-select {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.vw-custom-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.zoom-custom-bar {
+  background: #fafbfc;
+  padding: 6px 20px;
+}
+
+.vw-custom-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.vw-custom-sep {
+  font-size: 11px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.vw-date-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  height: 26px;
+
+  &:focus { border-color: #2563eb; }
+}
+
+.vw-date-apply {
+  padding: 3px 10px;
+  border-radius: 5px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 26px;
+  flex-shrink: 0;
+
+  &:hover { background: #1d4ed8; }
+}
+
+// ── Drill-down badge bar ──────────────────────────────────────────────────────
+.vw-drill-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  flex-shrink: 0;
+}
+
+.vw-drill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 2px 6px 2px 8px;
+  font-size: 11px;
+
+  .drill-col { color: #92400e; font-weight: 600; }
+  .drill-val { color: #b45309; }
+}
+
+.drill-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b45309;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 1px;
+  &:hover { color: #92400e; }
+}
+
+.drill-clear-all {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  color: #d97706;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  &:hover { background: #fde68a; }
+}

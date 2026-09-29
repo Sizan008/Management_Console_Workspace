@@ -1,0 +1,72 @@
+<div *ngFor="let section of menuSections" class="border-b border-gray-200">
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between p-3 text-gray-700 hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
+    (click)="toggleSection(section.key)">
+
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-6 bg-gray-100 rounded-full flex items-center justify-center">
+        <mat-icon class="text-blue-600">{{ section.icon }}</mat-icon>
+      </div>
+      <p class="font-medium text-gray-800">{{ section.label }}</p>
+    </div>
+
+    <mat-icon class="text-slate-400">
+      {{ isSectionOpen(section.key) ? 'expand_less' : 'expand_more' }}
+    </mat-icon>
+
+  </div>
+
+  <!-- Dropdown -->
+  <div [@expandCollapse]="isSectionOpen(section.key) ? 'open' : 'closed'" class="overflow-hidden">
+
+    <div class="max-w-md mx-auto bg-gray-0 p-2 rounded-lg space-y-1">
+
+      <!-- Loading -->
+      <div *ngIf="isLoading" class="flex gap-3 p-3 items-center">
+        <mat-icon class="text-gray-400 animate-spin">refresh</mat-icon>
+        <p class="text-sm text-gray-500">Loading menu items...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !isLoading" class="flex gap-3 p-3 items-center">
+        <mat-icon class="text-red-500">error</mat-icon>
+        <p class="text-sm text-red-500">{{ error }}</p>
+      </div>
+
+      <!-- Dynamic Menu Routes -->
+<div *ngFor="let item of getItemsByMenu(section.label)"
+     [routerLink]="item.AppRoute"
+     routerLinkActive="bg-gray-100"
+     [routerLinkActiveOptions]="{ exact: true }"
+     (click)="onMenuItemClick(item)"
+     class="flex gap-3 p-3 hover:bg-gray-100  rounded-lg transition cursor-pointer">
+
+  <mat-icon class="text-blue-600">view_headline</mat-icon>
+
+  <!-- Text container -->
+  <div class="flex-1">
+
+    <!-- Function name row -->
+    <div class="flex items-center justify-between gap-2">
+      <p class="text-sm font-medium text-gray-800 break-words">
+        {{ item.FunctionName }}
+      </p>
+
+      <span *ngIf="item.QuickRouteNo"
+            class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded whitespace-nowrap">
+        {{ item.QuickRouteNo }}
+      </span>
+    </div>
+
+    <!-- Module name row -->
+    <p class="text-xs text-gray-500 mt-0.5">
+      {{ item.ModuleName }}
+    </p>
+
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>

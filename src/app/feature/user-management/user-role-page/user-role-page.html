@@ -1,0 +1,66 @@
+<!-- Body -->
+<div class="sm:p-5 space-y-4">
+  <!-- Role badge -->
+  <div class="flex items-center justify-between border rounded-lg px-4 py-3"
+       style="background-color: var(--theme-background); border-color: var(--theme-border)">
+    <div>
+      <p class="text-xs font-medium" style="color: var(--theme-primary)">Assigned Role</p>
+      <p class="text-sm font-bold mt-0.5" style="color: var(--theme-secondary)">{{ userData?.role ?? '-' }}</p>
+    </div>
+    <div class="text-right">
+      <p class="text-xs font-medium" style="color: var(--theme-primary)">Permissions</p>
+      <p class="text-sm font-bold mt-0.5" style="color: var(--theme-secondary)">{{ grantedCount }} / {{ totalCount }} granted</p>
+    </div>
+  </div>
+
+  <!-- User summary -->
+  <case-summary-details
+    title="User Information"
+    [details]="userSummary">
+  </case-summary-details>
+
+  <!-- Permission groups -->
+  @for (group of permissionGroups; track group.module) {
+    <div class="border border-slate-200 rounded-lg overflow-hidden">
+      <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200">
+        <p class="text-xs font-semibold text-slate-700 uppercase tracking-wide">
+          {{ group.module }}
+        </p>
+      </div>
+      <div class="divide-y divide-slate-100">
+        @for (perm of group.permissions; track perm.label) {
+          <div class="flex items-center justify-between px-4 py-2.5">
+            <span class="text-xs text-slate-700">{{ perm.label }}</span>
+            @if (perm.granted) {
+              <span class="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                Granted
+              </span>
+            } @else {
+              <span class="flex items-center gap-1 text-xs font-medium text-slate-400">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Denied
+              </span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Footer (sticky) -->
+<div class="sticky bottom-0 z-10 bg-slate-50 border-t border-slate-100 p-3 flex items-center justify-end gap-2.5">
+  <button (click)="onClose()"
+    class="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded hover:bg-slate-50 transition-colors shadow-sm">
+    Close
+  </button>
+  <button
+    class="px-4 py-2 text-xs font-bold btn-theme-primary rounded shadow-sm focus:outline-none">
+    Edit Role
+  </button>
+</div>

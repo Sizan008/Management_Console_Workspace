@@ -1,0 +1,49 @@
+.color-option {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 3px;
+  color: #000;
+  box-sizing: border-box;
+  height: 32px;
+}
+
+.color-option::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  background-color: var(--color);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.color-name {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.note-color-select {
+  width: 100%;
+}
+
+::ng-deep .note-color-select .mat-select-panel-wrap {
+  max-width: 300px;
+}
+
+::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  height: auto;
+  min-height: 44px;
+  padding: 0 !important;
+}
+::ng-deep .ql-editor {
+  height: 150px !important;
+}
+.time-input-style
+{
+ border-color: 1px solid gray !important;
+ height: 50px !important;
+}

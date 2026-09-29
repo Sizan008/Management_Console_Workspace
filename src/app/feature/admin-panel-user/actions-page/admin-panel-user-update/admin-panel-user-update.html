@@ -1,0 +1,408 @@
+<div
+  class="flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-slate-50 font-roboto"
+>
+  <div class="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
+    @if (userInfo) {
+      <div class="min-w-0 space-y-3 p-3">
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'Account Holder Information'"
+            [isOpenSignal]="accountInfoPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (accountInfoPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <div
+                class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(290px,100%),1fr))] gap-3"
+              >
+                <fieldset
+                  class="min-w-0 overflow-hidden rounded-lg border border-slate-200 p-3"
+                >
+                  <legend class="px-2 text-xs font-semibold text-slate-600">
+                    Basic Information
+                  </legend>
+                  <div class="min-w-0 divide-y divide-slate-100">
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">User ID</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 font-medium text-slate-800 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.userId || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Home Branch ID</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.customerInfo?.homE_BRANCH_ID || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Customer ID</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.customerId || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">No. of User</span>
+                      <span class="text-slate-400">:</span>
+                      <span class="text-slate-700">1</span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">User Type</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.customerInfo?.customeR_TYPE_NM || "-" }}
+                      </span>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset
+                  class="min-w-0 overflow-hidden rounded-lg border border-slate-200 p-3"
+                >
+                  <legend class="px-2 text-xs font-semibold text-slate-600">
+                    Extended Information
+                  </legend>
+                  <div class="min-w-0 divide-y divide-slate-100">
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">User Name</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.userNm || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">D.O.B</span>
+                      <span class="text-slate-400">:</span>
+                      <span class="text-slate-700">
+                        @if (userInfo?.customerInfo?.birtH_DATE) {
+                          {{
+                            userInfo?.customerInfo?.birtH_DATE
+                              | date: "dd/MM/yyyy"
+                          }}
+                        } @else {
+                          -
+                        }
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Creation Status</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-semibold"
+                        [ngClass]="
+                          userInfo?.regCustUser?.authStatusId === 'A'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-amber-50 text-amber-700'
+                        "
+                      >
+                        {{
+                          userInfo?.regCustUser?.authStatusId === "A"
+                            ? "Authorized"
+                            : "Pending"
+                        }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Auth Type</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.authenticationTypeId || "-" }}
+                      </span>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset
+                  class="min-w-0 overflow-hidden rounded-lg border border-slate-200 p-3"
+                >
+                  <legend class="px-2 text-xs font-semibold text-slate-600">
+                    Contact Information
+                  </legend>
+                  <div class="min-w-0 divide-y divide-slate-100">
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Father Name</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.customerInfo?.fatheR_NM || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Mother Name</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.customerInfo?.motheR_NM || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Email</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.emailAddress || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">Mobile</span>
+                      <span class="text-slate-400">:</span>
+                      <span
+                        class="min-w-0 text-slate-700 [overflow-wrap:anywhere]"
+                      >
+                        {{ userInfo?.regCustUser?.mobileNumber || "-" }}
+                      </span>
+                    </div>
+                    <div
+                      class="grid min-w-0 grid-cols-[minmax(90px,120px)_10px_minmax(0,1fr)] gap-x-2 py-2 text-sm"
+                    >
+                      <span class="text-slate-500">User Status</span>
+                      <span class="text-slate-400">:</span>
+                      <div class="flex min-w-0 flex-wrap gap-1.5">
+                        <span
+                          class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                          [ngClass]="
+                            userInfo?.regCustUser?.userStatusActiveFlag
+                              ? 'bg-emerald-50 text-emerald-700'
+                              : 'bg-red-50 text-red-700'
+                          "
+                        >
+                          {{
+                            userInfo?.regCustUser?.userStatusActiveFlag
+                              ? "Active"
+                              : "Inactive"
+                          }}
+                        </span>
+                        <span
+                          class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                          [ngClass]="
+                            userInfo?.regCustUser?.lockedFlag
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-slate-100 text-slate-600'
+                          "
+                        >
+                          {{
+                            userInfo?.regCustUser?.lockedFlag
+                              ? "Locked"
+                              : "Unlocked"
+                          }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
+          }
+        </section>
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'Update User Information'"
+            [isOpenSignal]="updateInfoPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (updateInfoPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <div class="mb-4 flex min-w-0 flex-wrap items-center gap-2">
+                <generic-button
+                  label="Contact Info"
+                  [styles]="getUpdateTypeButtonStyle('contact')"
+                  [enable]="!loading() && !saving()"
+                  (onClick)="selectUpdateType('contact')"
+                >
+                </generic-button>
+                <generic-button
+                  label="Customer ID"
+                  [styles]="getUpdateTypeButtonStyle('customer')"
+                  [enable]="!loading() && !saving()"
+                  (onClick)="selectUpdateType('customer')"
+                >
+                </generic-button>
+              </div>
+              @if (updateType() === "contact") {
+                <form
+                  id="contact-update-form"
+                  [formGroup]="contactInfoForm"
+                  class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-4"
+                >
+                  <fieldset
+                    class="min-w-0 rounded-lg border border-slate-200 p-3"
+                  >
+                    <legend class="px-2 text-xs font-semibold text-slate-600">
+                      Current Information
+                    </legend>
+                    <div class="space-y-3">
+                      <input-text-box
+                        id="contact-update-form"
+                        [frmGroup]="contactInfoForm"
+                        controlName="email"
+                        label="Email"
+                        displayMode="outline"
+                        [isReadonly]="true"
+                      >
+                      </input-text-box>
+                      <input-text-box
+                        id="contact-update-form"
+                        [frmGroup]="contactInfoForm"
+                        controlName="mobileNumber"
+                        label="Mobile Number"
+                        displayMode="outline"
+                        [isReadonly]="true"
+                      >
+                      </input-text-box>
+                    </div>
+                  </fieldset>
+                  <fieldset
+                    class="min-w-0 rounded-lg border border-slate-200 p-3"
+                  >
+                    <legend class="px-2 text-xs font-semibold text-slate-600">
+                      New Information
+                    </legend>
+                    <div class="space-y-3">
+                      <input-text-box
+                        id="contact-update-form"
+                        [frmGroup]="contactInfoForm"
+                        controlName="cbsEmail"
+                        label="New CBS Email"
+                        placeholder="Enter new CBS Email"
+                        displayMode="outline"
+                        [maxLength]="150"
+                      >
+                      </input-text-box>
+                      <input-text-box
+                        id="contact-update-form"
+                        [frmGroup]="contactInfoForm"
+                        controlName="cbsMobile"
+                        label="New CBS Mobile"
+                        placeholder="Enter new CBS Mobile"
+                        displayMode="outline"
+                        [maxLength]="20"
+                      >
+                      </input-text-box>
+                    </div>
+                  </fieldset>
+                </form>
+              }
+              @if (updateType() === "customer") {
+                <form
+                  id="customer-update-form"
+                  [formGroup]="customerIdForm"
+                  class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(270px,100%),1fr))] gap-4"
+                >
+                  <fieldset
+                    class="min-w-0 rounded-lg border border-slate-200 p-3"
+                  >
+                    <legend class="px-2 text-xs font-semibold text-slate-600">
+                      Current Information
+                    </legend>
+                    <input-text-box
+                      id="customer-update-form"
+                      [frmGroup]="customerIdForm"
+                      controlName="presentCustomerId"
+                      label="Present Customer ID"
+                      displayMode="outline"
+                      [isReadonly]="true"
+                    >
+                    </input-text-box>
+                  </fieldset>
+                  <fieldset
+                    class="min-w-0 rounded-lg border border-slate-200 p-3"
+                  >
+                    <legend class="px-2 text-xs font-semibold text-slate-600">
+                      New Information
+                    </legend>
+                    <input-text-box
+                      id="customer-update-form"
+                      [frmGroup]="customerIdForm"
+                      controlName="newCustomerId"
+                      label="New Customer ID"
+                      placeholder="Enter new Customer ID"
+                      displayMode="outline"
+                      [maxLength]="100"
+                    >
+                    </input-text-box>
+                  </fieldset>
+                </form>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    }
+    @if (!loading() && !userInfo) {
+      <div class="px-4 py-10 text-center">
+        <p class="text-sm text-slate-500">User information is not available.</p>
+      </div>
+    }
+  </div>
+  <div
+    class="z-20 flex w-full shrink-0 items-center justify-end gap-2 border-t border-slate-200 bg-white px-4 py-3 shadow-[0_-2px_8px_rgba(15,23,42,0.06)]"
+  >
+    <generic-button
+      id="user-update-reset-button"
+      label="Reset"
+      [enable]="!loading() && !saving() && hasActiveUpdateValue"
+      (onClick)="requestReset()"
+    >
+    </generic-button>
+    <generic-button
+      id="user-update-submit-button"
+      label="Update"
+      [enable]="!loading() && !saving() && !!userInfo && hasActiveUpdateValue"
+      (onClick)="requestUpdate()"
+    >
+    </generic-button>
+    <generic-button
+      id="user-update-exit-button"
+      label="Close"
+      [enable]="!loading() && !saving()"
+      (onClick)="requestClose()"
+    >
+    </generic-button>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

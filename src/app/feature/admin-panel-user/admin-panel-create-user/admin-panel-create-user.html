@@ -1,0 +1,257 @@
+<form [formGroup]="userForm" class="create-page">
+
+  <app-expansion-panel-header
+    [panelTitle]="'Account Information'"
+    [isOpenSignal]="accountSectionOpen">
+
+    <div class="fluid-grid-4 gap-x-4">
+
+      <input-select-option-field
+        [frmGroup]="userForm"
+        [controlName]="'branchId'"
+        [label]="'Branch Name'"
+        [options]="branchList"
+        [searchable]="true"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Branch is required' }">
+      </input-select-option-field>
+
+      <input-text-box
+        [frmGroup]="userForm"
+        [controlName]="'accountNo'"
+        [label]="'Account No'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Account No is required' }"
+        (onBlurred)="onAccountChange()">
+      </input-text-box>
+
+      <input-text-box
+        [frmGroup]="userForm"
+        [controlName]="'customerId'"
+        [label]="'Customer'"
+        [isReadonly]="true"
+        displayMode="vertical">
+      </input-text-box>
+
+      <input-select-option-field
+        [frmGroup]="userForm"
+        [controlName]="'authType'"
+        [label]="'Select Auth Type'"
+        [options]="authTypeList"
+        [searchable]="false"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Auth Type is required' }">
+      </input-select-option-field>
+
+      <input-select-option-field
+        *ngIf="showOTPSendType()"
+        [frmGroup]="userForm"
+        [controlName]="'otpSendType'"
+        [label]="'Select OTP Send Type'"
+        [options]="otpSendTypeList"
+        [searchable]="false"
+        displayMode="vertical">
+      </input-select-option-field>
+
+      <input-select-option-field
+        [frmGroup]="userForm"
+        [controlName]="'addressType'"
+        [label]="'Select Address Type'"
+        [options]="addressTypeList"
+        [searchable]="true"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Address Type is required' }">
+      </input-select-option-field>
+
+    </div>
+
+  </app-expansion-panel-header>
+
+  <app-expansion-panel-header
+    [panelTitle]="'User Information'"
+    [isOpenSignal]="userSectionOpen">
+
+    <div class="fluid-grid-4 gap-x-4">
+
+      <input-text-box
+        [frmGroup]="userForm"
+        [controlName]="'userId'"
+        [label]="userIdTitle()"
+        displayMode="vertical"
+        [isAllowSpecialChars]="false"
+        [customErrorMessages]="{ required: 'User Id is required', pattern: 'Only letters, digits and dot allowed' }"
+        (onChanged)="sanitizeInput()"
+        (onBlurred)="onUserIdBlur()">
+      </input-text-box>
+
+      <input-text-box
+        *ngIf="isOrgUser()"
+        [frmGroup]="userForm"
+        [controlName]="'userName'"
+        [label]="'User Name'"
+        displayMode="vertical">
+      </input-text-box>
+
+      <input-select-option-field
+        *ngIf="!isOrgUser()"
+        [frmGroup]="userForm"
+        [controlName]="'email'"
+        [label]="'Email'"
+        [options]="emailList"
+        [searchable]="true"
+        displayMode="vertical">
+      </input-select-option-field>
+
+      <input-text-box
+        *ngIf="isOrgUser()"
+        [frmGroup]="userForm"
+        [controlName]="'orgEmail'"
+        [label]="'Email'"
+        [type]="'email'"
+        displayMode="vertical">
+      </input-text-box>
+
+      <input-select-option-field
+        *ngIf="!isOrgUser()"
+        [frmGroup]="userForm"
+        [controlName]="'mobile'"
+        [label]="'Mobile No'"
+        [options]="mobileNoList"
+        [searchable]="true"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Mobile No is required' }">
+      </input-select-option-field>
+
+      <input-text-box
+        *ngIf="isOrgUser()"
+        [frmGroup]="userForm"
+        [controlName]="'orgMobile'"
+        [label]="'Mobile No'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Mobile No is required' }">
+      </input-text-box>
+
+    </div>
+
+    <div *ngIf="isOrgUser()" class="mt-3">
+      <input-text-area
+        [frmGroup]="userForm"
+        [controlName]="'userAddress'"
+        [label]="'User Address'"
+        [rows]="2"
+        [maxLen]="250"
+        widthClass="w-full md:w-1/2"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'User Address is required', maxlength: 'Max 250 characters' }">
+      </input-text-area>
+    </div>
+
+  </app-expansion-panel-header>
+
+  <app-expansion-panel-header
+    *ngIf="showOrg()"
+    [panelTitle]="'Authorization Information'"
+    [isOpenSignal]="authSectionOpen">
+
+    <div class="auth-level-row">
+      <input-select-option-field
+        class="auth-level-field"
+        [frmGroup]="userForm"
+        [controlName]="'userAuthLevel'"
+        [label]="'Select Users Level for Authorization'"
+        [options]="userAuthLevelList"
+        [searchable]="true"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'User Auth Level is required' }">
+      </input-select-option-field>
+    </div>
+
+    <div *ngIf="userAccountPermission.length > 0" class="mt-4">
+      <label class="text-xs font-bold text-slate-600 block mb-2">
+        <span class="text-rose-600">* </span>Select Account
+      </label>
+
+      <div class="overflow-x-auto border border-slate-200 rounded-md">
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th class="perm-th perm-th--check"></th>
+              <th *ngFor="let h of userAccountPermissionHeader" class="perm-th"
+                  [class.perm-th--center]="h.align !== 'left'"
+                  [class.perm-th--left]="h.align === 'left'">
+                {{ h.text }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of userAccountPermission" class="perm-row">
+              <td class="perm-td perm-td--check">
+                <input
+                  type="checkbox"
+                  class="cursor-pointer"
+                  [checked]="isAccountRowSelected(row)"
+                  (change)="toggleAccountRow(row, $any($event.target).checked)">
+              </td>
+              <td class="perm-td perm-td--center">{{ row.BRANCH_ID }}</td>
+              <td class="perm-td perm-td--center">{{ row.ACCOUNT_NUMBER }}</td>
+              <td class="perm-td perm-td--left">{{ row.TRANSFER_TYPE_NAME }}</td>
+              <td class="perm-td perm-td--center">
+                <input type="number" min="0"
+                       [ngModel]="row.MIN_AMOUNT_PER_TRANS"
+                       (ngModelChange)="row.MIN_AMOUNT_PER_TRANS = $event; dataChange(row, 'MIN_AMOUNT_PER_TRANS')"
+                       [ngModelOptions]="{ standalone: true }"
+                       class="perm-num-input">
+              </td>
+              <td class="perm-td perm-td--center">
+                <input type="number" min="0"
+                       [ngModel]="row.MAX_AMOUNT_PER_TRANS"
+                       (ngModelChange)="row.MAX_AMOUNT_PER_TRANS = $event; dataChange(row, 'MAX_AMOUNT_PER_TRANS')"
+                       [ngModelOptions]="{ standalone: true }"
+                       class="perm-num-input">
+              </td>
+              <td class="perm-td perm-td--center">
+                <input type="number" min="0"
+                       [ngModel]="row.MAX_AMOUNT_TRANS_PER_DAY"
+                       (ngModelChange)="row.MAX_AMOUNT_TRANS_PER_DAY = $event; dataChange(row, 'MAX_AMOUNT_TRANS_PER_DAY')"
+                       [ngModelOptions]="{ standalone: true }"
+                       class="perm-num-input">
+              </td>
+              <td class="perm-td perm-td--center">
+                <input type="number" min="0"
+                       [ngModel]="row.MAX_NO_OF_TRANS_PER_DAY"
+                       (ngModelChange)="row.MAX_NO_OF_TRANS_PER_DAY = $event; dataChange(row, 'MAX_NO_OF_TRANS_PER_DAY')"
+                       [ngModelOptions]="{ standalone: true }"
+                       class="perm-num-input">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </app-expansion-panel-header>
+
+  <div *ngIf="showInfo() && userInformation() as info"
+       class="customer-info-card mt-4 rounded-md border border-slate-200 bg-slate-50 p-3">
+    <p class="text-xs font-bold text-slate-700 mb-2">Customer Information</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-1 text-xs text-slate-700">
+      <div class="customer-info-col">
+        <div><span class="text-slate-500">Customer Name:</span> {{ info.basic.customeR_FULL_NM }}</div>
+        <div><span class="text-slate-500">Address:</span> {{ customerAddress(info) }}</div>
+        <div><span class="text-slate-500">Description:</span> {{ info.basic.description || '—' }}</div>
+      </div>
+
+      <div class="customer-info-col">
+        <div><span class="text-slate-500">Type:</span> {{ info.basic.customeR_TYPE_NM }}</div>
+        <div><span class="text-slate-500">No. of user:</span> 1</div>
+        <div *ngIf="!isOrgUser()"><span class="text-slate-500">Date of Birth:</span> {{ info.basic.birtH_DATE || '—' }}</div>
+        <div *ngIf="!isOrgUser()"><span class="text-slate-500">Father Name:</span> {{ info.basic.fatheR_NM || '—' }}</div>
+      </div>
+
+      <div class="customer-info-col">
+        <div *ngIf="!isOrgUser()"><span class="text-slate-500">Mother Name:</span> {{ info.basic.motheR_NM || '—' }}</div>
+      </div>
+    </div>
+  </div>
+
+</form>

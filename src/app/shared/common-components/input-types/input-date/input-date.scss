@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+// Position the datepicker calendar toggle inside .input-wrapper (position: relative)
+// Mirrors the removed Tailwind classes: absolute top-1/2 right-2 -translate-y-1/2 text-gray-500
+.datepicker-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  color: #6b7280; // text-gray-500
+}

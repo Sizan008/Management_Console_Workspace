@@ -1,0 +1,301 @@
+:host {
+  --navy: #12193a;
+  --holiday: #dc2626;
+  --event: #d4a017;
+  --line: #eceef3;
+  --muted: #c3c8d4;
+  --font: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  display: inline-block;
+  position: relative;
+}
+
+/* ── Trigger pill ─────────────────────────────────────────────── */
+.bdp-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--theme-secondary, #0456b8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.15s ease;
+
+  &:hover { border-color: rgba(255, 255, 255, 0.4); }
+  &.is-open { border-color: rgba(255, 255, 255, 0.55); }
+}
+
+.bdp-cal-icon { width: 14px; height: 14px; opacity: 0.9; }
+.bdp-trigger-label { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+
+/* ── Card ─────────────────────────────────────────────────────── */
+.bdp-card {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 200;
+  width: 300px;
+  padding: 14px 14px 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(18, 25, 58, 0.16);
+  color: var(--navy);
+  font-family: var(--font);
+  overflow: visible;
+  animation: bdp-in 0.15s ease-out;
+}
+
+@keyframes bdp-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.bdp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.bdp-title {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.bdp-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--navy);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  svg { width: 14px; height: 14px; }
+  &:hover:not(:disabled) { background: #f6f7fa; border-color: #dfe2ea; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+/* ── Grid ─────────────────────────────────────────────────────── */
+.bdp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.bdp-dow {
+  margin-bottom: 3px;
+  span {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #9aa1b4;
+    padding: 2px 0;
+  }
+}
+
+.bdp-week { position: relative; }
+
+/* ── Day cell ─────────────────────────────────────────────────── */
+.bdp-day {
+  position: relative;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin: 1px;
+  border: 1.5px solid transparent;
+  border-radius: 9px;
+  cursor: default;
+  transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+  /* selectable business days — light green background + dark number */
+  &.selectable {
+    cursor: pointer;
+    .bdp-day-num { color: var(--navy); font-weight: 600; }
+    &:not(.selected) { background: #b7e2c4; }
+    &:hover:not(.selected) { background: #9bd5ac; }
+    &:hover:not(.selected) .bdp-day-num { color: var(--navy); }
+  }
+
+  .bdp-day-num {
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  /* non-selectable in-month days — dimmed so they read as "not pickable"
+     (holidays keep their red number) */
+  &:not(.selectable):not(.out):not(.selected):not(.holiday) .bdp-day-num {
+    color: var(--muted);
+  }
+
+  /* weekends — gray background (green/selected/holiday still win) */
+  &.weekend:not(.selectable):not(.selected):not(.holiday) {
+    background: #eef0f4;
+  }
+
+  /* leading/trailing days from adjacent months */
+  &.out {
+    opacity: 0.4;
+    .bdp-day-num { color: var(--muted); font-weight: 500; }
+  }
+
+  /* today — navy outline ring */
+  &.today:not(.selected) { border-color: var(--navy); }
+
+  /* holiday — light red tint + red number */
+  &.holiday:not(.selected) {
+    background: #fdf1f1;
+    .bdp-day-num { color: var(--holiday); }
+  }
+
+  /* selected — filled navy pill */
+  &.selected {
+    background: var(--navy);
+    box-shadow: 0 4px 12px rgba(18, 25, 58, 0.28);
+    .bdp-day-num { color: #fff; font-weight: 700; }
+    .bdp-dot { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35); }
+  }
+}
+
+/* ── Dots ─────────────────────────────────────────────────────── */
+.bdp-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 5px;
+}
+
+.bdp-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-business { background: var(--navy); }
+.dot-holiday { background: var(--holiday); }
+.dot-event { background: var(--event); }
+.bdp-day.selected .dot-business { background: #fff; }
+
+/* ── Hover popover ────────────────────────────────────────────── */
+.bdp-pop {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scale(0.96);
+  transform-origin: center;
+  z-index: 50;
+  min-width: 190px;
+  max-width: 250px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(18, 25, 58, 0.22);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.13s ease, transform 0.13s ease;
+
+  &.pop-up { bottom: calc(100% + 8px); }
+  &.pop-down { top: calc(100% + 8px); }
+
+  /* transparent bridge so the hover chain survives the caret gap */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+  &.pop-up::after { top: 100%; }
+  &.pop-down::after { bottom: 100%; }
+}
+
+.bdp-day.has-markers:hover .bdp-pop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) scale(1);
+}
+
+.bdp-pop-date {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a91a6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.bdp-pop-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 3px 0;
+
+  .bdp-dot { margin-top: 4px; }
+}
+
+.bdp-pop-text { display: flex; flex-direction: column; gap: 1px; text-align: left; }
+
+.bdp-pop-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+.bdp-pop-cat {
+  font-size: 10.5px;
+  font-weight: 600;
+  &.cat-business { color: var(--navy); opacity: 0.65; }
+  &.cat-holiday { color: var(--holiday); }
+  &.cat-event { color: #a97e0f; }
+}
+
+/* caret */
+.bdp-caret {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  transform: translateX(-50%) rotate(45deg);
+}
+.pop-up .bdp-caret { bottom: -5px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.pop-down .bdp-caret { top: -5px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+
+/* ── Legend footer ────────────────────────────────────────────── */
+.bdp-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #6b7280;
+
+  span { display: inline-flex; align-items: center; gap: 5px; }
+  .lg { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+}

@@ -1,0 +1,142 @@
+<section class="tab-panel">
+  <app-expansion-panel-header [isOpenSignal]="workspaceHeaderPanel" [panelTitle]="'Workspace Information'">
+  
+<div class="editor-wrapper">
+  <div class="editor-section">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input-text-box [frmGroup]="form" [controlName]="'workspace_name'" [label]="'Workspace Name'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'workspace_desc'" [label]="'Workspace Description'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'search_identifier'" [label]="'Search Identifier'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'search_selector'" [label]="'Search Selector'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'home_identifier'" [label]="'Home Identifier'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'home_selector'" [label]="'Home Selector'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'display_order'" [label]="'Display Order'" [displayMode]="'vertical'"></input-text-box>
+      <div class="switch-block">
+        <label class="switch-label">Status</label>
+        <generic-switch [frmGroup]="form" [controlName]="'is_active'" [label]="'Active'" [isChecked]="form.get('is_active')?.value === 1" [enable]="true" [displayMode]="'horizontal'"></generic-switch>
+      </div>
+    </div>
+
+    <!-- New Page Identifiers -->
+    <div class="npi-section">
+      <p class="npi-section-title">New Page Identifiers</p>
+      <div class="npi-entry-grid">
+        <input-text-box
+          [frmGroup]="npiEntryForm"
+          [controlName]="'new_page_identifier'"
+          [label]="'Identifier'"
+          [displayMode]="'vertical'">
+        </input-text-box>
+        <input-text-box
+          [frmGroup]="npiEntryForm"
+          [controlName]="'new_page_selector'"
+          [label]="'Selector'"
+          [displayMode]="'vertical'">
+        </input-text-box>
+        <generic-button
+          [label]="npiEditingIdentifier() ? 'UPDATE' : 'ADD'"
+          [enable]="true"
+          (onClick)="addNewPageIdentifier()"
+          class="npi-add-btn">
+        </generic-button>
+        <input-text-box
+          [frmGroup]="npiEntryForm"
+          [controlName]="'display_order'"
+          [label]="'Order'"
+          [type]="'number'"
+          [displayMode]="'vertical'">
+        </input-text-box>
+        <div class="npi-switch-col">
+          <generic-switch
+            [frmGroup]="npiEntryForm"
+            [controlName]="'is_active'"
+            [isChecked]="isActiveNpi"
+            [label]="'Active'"
+            [enable]="true">
+          </generic-switch>
+        </div>
+      </div>
+      @if (newPageIdentifierRows().length > 0) {
+        <generic-data-grid
+          [dataSource]="newPageIdentifierRows()"
+          [selectedColumns]="['newPageIdentifier', 'newPageSelector', 'displayOrder', 'isActive']"
+          [showEditButton]="true"
+          [showDeleteButton]="true"
+          [showViewButton]="false"
+          [showPrintButton]="false"
+          [enableSelection]="false"
+          [searchEnabled]="false"
+          [useInlineEdit]="false"
+          (onFHEditClick)="editNewPageIdentifier($event)"
+          (onFHDeleteClick)="removeNewPageIdentifier($event)"
+          [initPageSize]="5">
+        </generic-data-grid>
+      }
+    </div>
+
+    <!--<div class="selection-help">
+      <div>
+        <h3>Pick a table and select all the column you want to show</h3>
+      </div>
+    </div>
+
+    <div class="editor-grid-grid">
+      <section class="grid-panel">
+        <div class="grid-panel__header">
+          <h4>Tables</h4>
+          <span *ngIf="selectedTableName" class="grid-panel__meta">Selected: {{ selectedTableName }}</span>
+        </div>
+
+        <generic-data-grid
+          [dataSource]="tables"
+          [selectedColumns]="['tableName']"
+          [customColumnNames]="{ tableName: 'Table Name' }"
+          [showEditButton]="false"
+          [showDeleteButton]="false"
+          [showViewButton]="false"
+          [showPrintButton]="false"
+          [enableSelection]="false"
+          [searchEnabled]="true"
+          [initPageSize]="6"
+          (onRowDoubleClick)="onTableSelect($event)"
+          (onFHViewClick)="onTableSelect($event)">
+        </generic-data-grid>
+      </section>
+
+      <section class="grid-panel">
+        <div class="grid-panel__header">
+          <h4>Assigned Columns</h4>
+          <span *ngIf="selectedTableLabel" class="grid-panel__meta">Table: {{ selectedTableLabel }}</span>
+          <span *ngIf="loadingColumns" class="grid-panel__meta">Loading...</span>
+        </div>
+
+        <generic-data-grid
+          [dataSource]="columns"
+          [selectedColumns]="['columnName', 'columnLabel', 'displayOrder', 'columnType', 'isIdColumn']"
+          [customColumnNames]="{ columnName: 'Column Name', columnLabel: 'Column Label', displayOrder: 'Display Order', columnType: 'Data Type', isIdColumn: 'Primary Key' }"
+          [showEditButton]="true"
+          [showDeleteButton]="false"
+          [showViewButton]="false"
+          [showPrintButton]="false"
+          [enableSelection]="true"
+          [useInlineEdit]="true"
+          [editableColumns]="['columnLabel', 'displayOrder']"
+          [numberColumns]="['displayOrder']"
+          [searchEnabled]="true"
+          [initPageSize]="6"
+          [uniqueIdField]="'columnId'"
+          [selectionStateField]="'isSelected'"
+          [selectionUpdateField]="'isSelected'"
+          (dataSourceChanged)="onColumnGridChanged($event)">
+        </generic-data-grid>
+      </section>
+    </div>-->
+  </div>
+
+  <div class="footer-actions">
+    <generic-button [label]="'Cancel'" (onClick)="close()"></generic-button>
+    <generic-button [label]="form.get('workspace_id')?.value ? 'Update' : 'Save'" (onClick)="submit()"></generic-button>
+  </div>
+</div>
+</app-expansion-panel-header>
+</section>

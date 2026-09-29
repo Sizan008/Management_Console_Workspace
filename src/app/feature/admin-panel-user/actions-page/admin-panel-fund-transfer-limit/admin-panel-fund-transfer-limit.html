@@ -1,0 +1,193 @@
+<div
+  class="flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-slate-50 font-roboto"
+>
+  <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+    @if (userInfo) {
+      <div class="min-w-0 space-y-3 p-3">
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'User Information'"
+            [isOpenSignal]="userInfoPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (userInfoPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <div
+                class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-3"
+              >
+                <input-text-box
+                  [frmGroup]="fundTransferForm"
+                  controlName="userId"
+                  label="User ID"
+                  displayMode="outline"
+                  [isReadonly]="true"
+                >
+                </input-text-box>
+                <input-text-box
+                  [frmGroup]="fundTransferForm"
+                  controlName="customerId"
+                  label="Customer ID"
+                  displayMode="outline"
+                  [isReadonly]="true"
+                >
+                </input-text-box>
+                <input-text-box
+                  [frmGroup]="fundTransferForm"
+                  controlName="mobileNumber"
+                  label="Mobile Number"
+                  displayMode="outline"
+                  [isReadonly]="true"
+                >
+                </input-text-box>
+              </div>
+              <div
+                class="mt-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(210px,100%),1fr))] gap-3"
+              >
+                <div class="min-w-0 rounded-lg bg-slate-50 px-3 py-2.5">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    User Name
+                  </p>
+                  <p
+                    class="mt-1 text-sm text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.userNm || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 px-3 py-2.5">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Email
+                  </p>
+                  <p
+                    class="mt-1 text-sm text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.emailAddress || "-" }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+        <section
+          class="min-w-0 overflow-visible rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'Individual Fund Transfer Policy'"
+            [isOpenSignal]="fundLimitPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (fundLimitPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <form
+                id="fund-transfer-form"
+                [formGroup]="fundTransferForm"
+                class="min-w-0"
+              >
+                <div
+                  class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-3"
+                >
+                  <div class="min-w-0">
+                    <input-select-option-field
+                      [frmGroup]="fundTransferForm"
+                      controlName="transferType"
+                      label="Select Transfer Type"
+                      displayMode="outline"
+                      [options]="transferTypeOptions"
+                    >
+                    </input-select-option-field>
+                  </div>
+                </div>
+                <div
+                  class="mt-4 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-3"
+                >
+                  <div class="min-w-0">
+                    <input-text-box
+                      [frmGroup]="fundTransferForm"
+                      controlName="minAmountPerTrans"
+                      label="Min Amount Per Transaction"
+                      displayMode="outline"
+                    >
+                    </input-text-box>
+                  </div>
+                  <div class="min-w-0">
+                    <input-text-box
+                      [frmGroup]="fundTransferForm"
+                      controlName="maxAmountPerTrans"
+                      label="Max Amount Per Transaction"
+                      displayMode="outline"
+                    >
+                    </input-text-box>
+                  </div>
+                  <div class="min-w-0">
+                    <input-text-box
+                      [frmGroup]="fundTransferForm"
+                      controlName="maxAmountTransPerDay"
+                      label="Max Amount Per Day"
+                      displayMode="outline"
+                    >
+                    </input-text-box>
+                  </div>
+                  <div class="min-w-0">
+                    <input-text-box
+                      [frmGroup]="fundTransferForm"
+                      controlName="maxNumOfTransPerDay"
+                      label="Max Transactions Per Day"
+                      displayMode="outline"
+                    >
+                    </input-text-box>
+                  </div>
+                </div>
+              </form>
+              <div
+                class="mt-4 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5"
+              >
+                <p class="text-xs leading-5 text-blue-700">
+                  These limits will apply only to
+                  <span class="font-semibold">{{
+                    userInfo?.regCustUser?.userId || userId
+                  }}</span>
+                  and will not modify global or all-internal-user policies.
+                </p>
+              </div>
+            </div>
+          }
+        </section>
+      </div>
+    }
+    @if (!loading() && !userInfo) {
+      <div class="flex min-h-[300px] items-center justify-center px-4 py-10">
+        <p class="text-sm text-slate-500">User information is not available.</p>
+      </div>
+    }
+  </div>
+  <div
+    class="shrink-0 border-t border-slate-200 bg-white px-3 py-3 shadow-[0_-2px_6px_rgba(15,23,42,0.06)]"
+  >
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+      <generic-button
+        label="Reset"
+        [enable]="!loading() && !saving() && hasFormChanges"
+        (onClick)="requestReset()"
+      >
+      </generic-button>
+      <generic-button
+        [label]="saving() ? 'Saving...' : 'Save'"
+        [enable]="!loading() && !saving() && !!userInfo"
+        (onClick)="requestSave()"
+      >
+      </generic-button>
+      <generic-button
+        label="Close"
+        [enable]="!loading() && !saving()"
+        (onClick)="requestClose()"
+      >
+      </generic-button>
+    </div>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

@@ -1,0 +1,16 @@
+<!-- Global loader -->
+<app-loader></app-loader>
+
+<!-- Render the app only after auth is resolved, so we never flash a
+     protected route (e.g. landing/home) while logging out / redirecting to login. -->
+@if (authReady) {
+  <router-outlet></router-outlet>
+}
+
+<!-- Inactivity countdown, shown just before the session lock signs the user out. -->
+<confirmation-dialogue
+  [isOpen]="idleSeconds() !== null"
+  [config]="idleDialogConfig()"
+  (buttonClick)="onIdleWarningAction($event)"
+  (close)="onIdleWarningDismissed()">
+</confirmation-dialogue>

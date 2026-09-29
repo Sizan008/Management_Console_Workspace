@@ -1,0 +1,101 @@
+<!-- `@container` here too, so the grid below still scales if this page is ever rendered
+     outside the workspace right-panel (which is itself a container). -->
+<div class="@container sm:p-2">
+  <div class="">
+    <!-- Expansion Panel Header -->
+    <div class="">
+      <app-expansion-panel-header
+        [panelTitle]="'User Details & Access'"
+        [isOpenSignal]="isUserFieldsOpen">
+        <!-- Form Body -->
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="">
+        <div class="fluid-grid-4 gap-x-4">
+
+          <!-- User ID (Read-only) -->
+
+            <input-text-box
+              [frmGroup]="userForm"
+              [controlName]="'userId'"
+              [label]="'User ID (Read-only)'"
+              [isReadonly]="true"
+              displayMode="vertical">
+            </input-text-box>
+
+
+          <!-- Full Name -->
+
+            <input-text-box
+              [frmGroup]="userForm"
+              [controlName]="'fullName'"
+              [label]="'Full Name'"
+              displayMode="vertical"
+              [customErrorMessages]="{ required: 'Full name is required' }">
+            </input-text-box>
+
+
+          <!-- Email -->
+
+            <input-text-box
+              [frmGroup]="userForm"
+              [controlName]="'email'"
+              [label]="'Email Address'"
+              displayMode="vertical"
+              [customErrorMessages]="{ required: 'Email is required', email: 'Enter a valid email address' }">
+            </input-text-box>
+
+
+          <!-- Role -->
+
+            <input-select-option-field
+              [frmGroup]="userForm"
+              [controlName]="'role'"
+              [label]="'Role'"
+              [options]="roleOptions"
+              [searchable]="false"
+              displayMode="vertical">
+            </input-select-option-field>
+
+
+          <!-- Department -->
+
+            <input-text-box
+              [frmGroup]="userForm"
+              [controlName]="'department'"
+              [label]="'Department'"
+              displayMode="vertical"
+              [customErrorMessages]="{ required: 'Department is required' }">
+            </input-text-box>
+
+
+          <!-- Branch -->
+
+            <input-text-box
+              [frmGroup]="userForm"
+              [controlName]="'branch'"
+              [label]="'Branch (Optional)'"
+              displayMode="vertical">
+            </input-text-box>
+         
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            (click)="userForm.reset({ role: 'Officer', userId: userData?.userId })"
+            class="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded-lg hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
+            Reset
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 text-xs font-bold btn-theme-primary rounded-lg shadow-sm focus:outline-none cursor-pointer">
+            Save Parameters
+          </button>
+        </div>
+      </form>
+      </app-expansion-panel-header>
+    </div>
+  </div>
+
+

@@ -1,0 +1,58 @@
+/* ------------------------------------------
+   PAGE BREAK STYLE
+------------------------------------------- */
+:host ::ng-deep .ql-editor .ql-page-break {
+  position: relative;
+  border-top: 2px dashed #999;
+  margin: 20px 0;
+  height: 0;
+}
+
+:host ::ng-deep .ql-editor .ql-page-break::after {
+  content: "Page Break";
+  position: absolute;
+  top: -10px;
+  left: 0;
+  background: white;
+  padding: 0 4px;
+  font-size: 10px;
+  color: #666;
+}
+
+/* Toolbar button icon */
+:host ::ng-deep .ql-toolbar button.ql-pageBreak::before {
+  content: "PB";
+  font-size: 12px;
+}
+
+/* PRINT SUPPORT */
+@media print {
+  .ql-page-break {
+    page-break-after: always;
+  }
+}
+
+/* default: table wrapper is centered */
+:host ::ng-deep .ql-editor .ql-table-wrapper {
+  display: table !important;          /* shrink to content */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: auto !important;           /* reset default width */
+}
+
+/* styles for cells */
+:host ::ng-deep .ql-editor table {
+  width: auto !important;
+  border-collapse: collapse;
+}
+
+:host ::ng-deep .ql-editor table td,
+:host ::ng-deep .ql-editor table th {
+  max-width: 10px !important;
+  min-width: 100px !important;
+  padding: 4px 8px;
+  border: 1px solid #000;
+}
+
+
+

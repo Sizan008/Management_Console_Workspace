@@ -1,0 +1,113 @@
+<!-- No scroll container here on purpose: <generic-modal>'s .modal-body already
+     scrolls, and nesting a second one gives the user two scrollbars. -->
+<div class="aa-root">
+
+  @if (isLoadingHistory) {
+    <div class="aa-state">
+      <mat-icon class="aa-state-icon aa-spin">sync</mat-icon>
+      <span>Loading approval history…</span>
+    </div>
+  } @else if (historyError) {
+    <div class="aa-state is-rejected">
+      <mat-icon class="aa-state-icon">error_outline</mat-icon>
+      <span>{{ historyError }}</span>
+    </div>
+  } @else if (!steps.length) {
+    <div class="aa-state">
+      <mat-icon class="aa-state-icon">history</mat-icon>
+      <span>No approval history found.</span>
+    </div>
+  } @else {
+
+    <!-- Summary: outcome of the whole chain, progress, and which record it is -->
+    <section class="aa-summary" [ngClass]="outcomeView.token">
+      <div class="aa-summary-head">
+        <span class="aa-outcome">
+          <mat-icon class="aa-outcome-icon">{{ outcomeView.icon }}</mat-icon>
+          {{ outcomeLabel }}
+        </span>
+        <span class="aa-summary-count">{{ approvedStepsCount }} / {{ steps.length }} levels approved</span>
+      </div>
+
+      <div class="aa-meter" role="progressbar"
+           [attr.aria-valuenow]="progressPercent" aria-valuemin="0" aria-valuemax="100">
+        <span class="aa-meter-fill" [style.width.%]="progressPercent"></span>
+      </div>
+
+      @if (contextLine) {
+        <p class="aa-context">{{ contextLine }}</p>
+      }
+    </section>
+
+    <!-- Timeline of approval levels -->
+    <ol class="aa-timeline">
+      @for (step of steps; track step.stepOrder) {
+        <li class="aa-level"
+            [ngClass]="step.statusView.token"
+            [class.is-open]="selectedStepId() === step.stepOrder">
+
+          <span class="aa-marker">
+            <mat-icon>{{ step.statusView.icon }}</mat-icon>
+          </span>
+
+          <button type="button"
+                  class="aa-level-btn"
+                  [attr.aria-expanded]="selectedStepId() === step.stepOrder"
+                  (click)="toggleStep(step.stepOrder)">
+            <span class="aa-level-order">{{ step.stepOrder }}</span>
+
+            <span class="aa-level-main">
+              <span class="aa-level-name">{{ step.stepName }}</span>
+              <span class="aa-level-meta">{{ step.approvedCount }} of {{ step.minReqSupervisor }} approvals</span>
+            </span>
+
+            <span class="aa-chip">{{ step.statusView.label }}</span>
+            <mat-icon class="aa-caret">expand_more</mat-icon>
+          </button>
+
+          @if (selectedStepId() === step.stepOrder) {
+            <div class="aa-approvers">
+              @for (a of step.historyList; track a.queueId) {
+                <div class="aa-approver" [ngClass]="a.statusView.token">
+                  <span class="aa-avatar">{{ a.initials }}</span>
+
+                  <span class="aa-approver-main">
+                    <span class="aa-approver-name">{{ a.performedBy }}</span>
+                    <span class="aa-role">{{ a.role }}</span>
+                  </span>
+
+                  <span class="aa-chip">{{ a.statusView.label }}</span>
+
+                  <!-- Time and remark only render when present, so an untouched
+                       row stays a single tight line instead of a gapped card. -->
+                  @if (a.performedTime) {
+                    <span class="aa-time">
+                      <mat-icon>schedule</mat-icon>
+                      {{ a.performedTime | date: 'dd-MMM-yyyy, hh:mm a' }}
+                    </span>
+                  }
+
+                  @if (a.comment) {
+                    <span class="aa-remark" [matTooltip]="a.comment">
+                      <mat-icon>chat_bubble_outline</mat-icon>
+                      {{ a.comment }}
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ol>
+
+    <!-- Slim tallies, not stat cards -->
+    <div class="aa-tallies">
+      <span class="aa-tally is-approved"><b>{{ approvedStepsCount }}</b> Approved</span>
+      <span class="aa-tally is-pending"><b>{{ pendingStepsCount }}</b> In progress</span>
+      <span class="aa-tally is-waiting"><b>{{ waitingStepsCount }}</b> Waiting</span>
+      <span class="aa-tally"><b>{{ totalApprovalsCount }}</b> Approvals</span>
+      <span class="aa-tally"><b>{{ totalApproversCount }}</b> Approvers</span>
+    </div>
+  }
+</div>

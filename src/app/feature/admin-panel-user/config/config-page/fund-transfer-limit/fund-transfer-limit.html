@@ -1,0 +1,36 @@
+<!-- Tabs -->
+<div class="border-b border-slate-200 bg-white">
+  <div class="flex items-center gap-1 px-2">
+    <button type="button" (click)="tab.set('allInternal')"
+      class="px-4 py-2 text-xs font-bold border-b-2"
+      [class.border-blue-500]="tab() === 'allInternal'"
+      [class.text-blue-600]="tab() === 'allInternal'"
+      [class.border-transparent]="tab() !== 'allInternal'"
+      [class.text-slate-600]="tab() !== 'allInternal'">
+      All Internal Users
+    </button>
+    <button type="button" (click)="tab.set('allGlobal')"
+      class="px-4 py-2 text-xs font-bold border-b-2"
+      [class.border-blue-500]="tab() === 'allGlobal'"
+      [class.text-blue-600]="tab() === 'allGlobal'"
+      [class.border-transparent]="tab() !== 'allGlobal'"
+      [class.text-slate-600]="tab() !== 'allGlobal'">
+      All Global Users
+    </button>
+  </div>
+</div>
+
+<!-- Active tab content -->
+<div class="bg-white">
+
+  <app-fund-transfer-limit-all-internal
+    *ngIf="tab() === 'allInternal'"
+    (isValid)="onChildValidity($event)">
+  </app-fund-transfer-limit-all-internal>
+
+  <app-fund-transfer-limit-all-global
+    *ngIf="tab() === 'allGlobal'"
+    (isValid)="onChildValidity($event)">
+  </app-fund-transfer-limit-all-global>
+
+</div>

@@ -1,0 +1,185 @@
+<div class="profile-drawer h-full overflow-y-auto">
+  <div class="pd-inner">
+
+    <!-- ===== Profile Header ===== -->
+    <section class="pd-hero">
+      <div class="pd-avatar">
+        <span class="pd-avatar__initials">{{ userInitials }}</span>
+        <span class="pd-avatar__status" title="Active"></span>
+      </div>
+      <div class="pd-hero__meta">
+        <h3 class="pd-hero__name">{{ currentUser?.name || 'Loading user…' }}</h3>
+        <p class="pd-hero__email">{{ currentUser?.email || 'Fetching email…' }}</p>
+      </div>
+      <button type="button" class="pd-hero__edit" (click)="openEditProfileModal()" title="Edit Profile">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </section>
+
+    <!-- ===== Branch card ===== -->
+    <section class="pd-branch">
+      <div class="pd-branch__head">
+        <span class="pd-tile pd-tile--amber"><mat-icon>account_tree</mat-icon></span>
+        <p class="pd-branch__title">Branch</p>
+        <button type="button" class="pd-branch__switch" (click)="switchBranch()" title="Switch branch">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      <dl class="pd-branch__list">
+        <div class="pd-branch__row">
+          <dt>Office Code</dt><dd>{{ officeCode || 'N/A' }}</dd>
+        </div>
+        <div class="pd-branch__row">
+          <dt>Office Name</dt><dd>{{ officeNm || 'No Name' }}</dd>
+        </div>
+        <div class="pd-branch__row">
+          <dt>Txn Date</dt><dd>{{ txnDt || 'No Date' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- ===== Workspace ===== -->
+    <div class="pd-group">
+
+      <!-- Service Request -->
+      <button type="button" class="pd-row" (click)="openServiceRequestModal()">
+        <span class="pd-tile pd-tile--green"><mat-icon>support_agent</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Service Request</span>
+          <span class="pd-row__desc">Raise a support ticket</span>
+        </span>
+        <mat-icon class="pd-row__chevron">chevron_right</mat-icon>
+      </button>
+
+      <!-- Notes -->
+      <button type="button" class="pd-row" (click)="goToNotes()">
+        <span class="pd-tile pd-tile--violet"><mat-icon>list_alt</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Notes</span>
+          <span class="pd-row__desc">My personal notes</span>
+        </span>
+        <mat-icon class="pd-row__chevron">chevron_right</mat-icon>
+      </button>
+
+      <!-- Notifications -->
+      <!-- <button type="button" class="pd-row" (click)="toggleNotificationsPopover($event)">
+        <span class="pd-tile pd-tile--sky"><mat-icon>notifications</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Notifications</span>
+          <span class="pd-row__desc">Latest alerts</span>
+        </span>
+        @let unread = (novuService.getUnreadCount() | async) || 0;
+        @if (unread) {
+          <span class="pd-badge">{{ unread > 99 ? '99+' : unread }}</span>
+        }
+        <mat-icon class="pd-row__chevron">chevron_right</mat-icon>
+      </button> -->
+
+      <!-- Messaging (expandable) -->
+      <button type="button" class="pd-row" (click)="toggleSection('messaging')">
+        <span class="pd-tile pd-tile--blue"><mat-icon>mail</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Messaging</span>
+          <span class="pd-row__desc">Send and receive messages</span>
+        </span>
+        <mat-icon class="pd-row__chevron" [class.pd-row__chevron--open]="isSectionOpen('messaging')">
+          expand_more
+        </mat-icon>
+      </button>
+
+      <div [@expandCollapse]="isSectionOpen('messaging') ? 'open' : 'closed'" class="overflow-hidden">
+        <div class="pd-messaging">
+          <form [formGroup]="searchForm" (submit)="$event.preventDefault()">
+            <input-text-box
+              [frmGroup]="searchForm"
+              [controlName]="'query'"
+              [label]="'Search users'"
+              [placeholder]="'Type name or email…'"
+              [displayMode]="'outline'"
+              [isAllowSpecialChars]="true"
+              (onChanged)="onSearchInput()">
+            </input-text-box>
+          </form>
+
+          <div *ngIf="searching" class="pd-messaging__hint">Searching…</div>
+
+          @for (chat of chatPreviews$ | async; track chat.chatId) {
+            <div (click)="openChat(chat)" class="pd-chat">
+              <div class="pd-chat__avatar-wrap">
+                <div class="pd-chat__avatar">{{ chat.partner[0].toUpperCase() }}</div>
+                @if (chat.unread > 0) {
+                  <span class="pd-chat__unread">{{ chat.unread }}</span>
+                }
+              </div>
+              <div class="pd-chat__body">
+                <div class="pd-chat__line">
+                  <p class="pd-chat__partner">{{ chat.partner }}</p>
+                  <span class="pd-chat__time">{{ chat.time }}</span>
+                </div>
+                <p class="pd-chat__last">{{ chat.lastMessage }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Settings ===== -->
+    <div class="pd-group">
+      <button type="button" class="pd-row" (click)="goToPreferences()">
+        <span class="pd-tile pd-tile--indigo"><mat-icon>tune</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Preferences</span>
+          <span class="pd-row__desc">Workspace &amp; display settings</span>
+        </span>
+        <mat-icon class="pd-row__chevron">chevron_right</mat-icon>
+      </button>
+
+      <!-- Change Password -->
+      <button type="button" class="pd-row" (click)="goToChangePassword()">
+        <span class="pd-tile pd-tile--amber"><mat-icon>lock</mat-icon></span>
+        <span class="pd-row__text">
+          <span class="pd-row__title">Change Password</span>
+          <span class="pd-row__desc">Update your sign-in password</span>
+        </span>
+        <mat-icon class="pd-row__chevron">chevron_right</mat-icon>
+      </button>
+    </div>
+    <!-- Logout lives on the navbar's right side now. -->
+  </div>
+</div>
+
+<!-- Chat Drawer -->
+<div
+  class="fixed bottom-[20px] right-[10px] w-[300px] h-[380px] bg-white shadow-2xl
+         transform transition-all duration-300 ease-in-out border border-gray-200
+         rounded-lg flex flex-col z-50"
+  [style.transform]="isChatOpen() ? 'translateY(0)' : 'translateY(100%)'"
+  [style.opacity]="isChatOpen() ? '1' : '0'"
+  [style.visibility]="isChatOpen() ? 'visible' : 'hidden'">
+
+  <app-chat-box
+    class="flex-1"
+    [chatId]="selectedChat?.chatId ?? ''"
+    [partner]="selectedChat?.partner ?? ''"
+    (closeChat)="closeChatFromChild()">
+  </app-chat-box>
+
+  <!-- Resize bar -->
+  <div class="absolute right-0 top-0 h-full w-1 bg-gray-200 hover:bg-blue-400 cursor-col-resize"></div>
+</div>
+
+<!-- Notification Detail Modal -->
+<app-notification-detail-modal *ngIf="showDetailModal && selectedNotification" [notification]="selectedNotification!"
+  (close)="closeDetailModal()">
+</app-notification-detail-modal>
+
+<!-- Dynamic Modal -->
+<generic-modal #modalComponentRef [isVisible]="showModal || showEditProfileModal"
+  [modalTitle]="showEditProfileModal ? 'Edit Profile' : 'Service Request'" [modalComponent]="modalComponent"
+  [modalComponentData]="showEditProfileModal ? modalData : modalComponentData"
+  [okButtonText]="showEditProfileModal ? 'Update Profile' : modalOkButtonText()"
+  [footerNote]="showEditProfileModal ? profileLastUpdatedNote : ''"
+  (isVisibleChanged)="onModalVisibilityChange($event)" (modalResult)="onModalResult($event)"
+  (modalClosed)="onModalClosed()" [cssClass]="'modal-lg'" [showOkButton]="true" [showDefaultFooter]="true">
+</generic-modal>

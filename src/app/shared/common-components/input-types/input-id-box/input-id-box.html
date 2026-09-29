@@ -1,0 +1,167 @@
+<!-- idbox.component.html -->
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical' : displayMode() === 'vertical',
+    'input-container-horizontal' : displayMode() === 'horizontal',
+    'input-container-outline' : displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        id="idbox_outlined"
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [ngClass]="{'readonly-input': isReadonly()}"
+        [readonly]="isReadonly()"
+        matInput
+        [placeholder]="' '"
+        type="text"
+        inputmode="numeric"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        class="custom-input"
+        (keyup)="onChangeInput()"
+        (keydown)="preventSpecialChars($event)"
+        (input)="onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      <!-- FLOATING LABEL -->
+      <label
+        for="idbox_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- CLEAR BUTTON (render when enabled; CSS controls visibility) -->
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button type="button" class="clear-button" (click)="clearInput()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                  </svg>
+        </button>
+      }
+
+      <!-- DOTS BUTTON -->
+      @if (isDotsVisible()) {
+        <button
+          type="button"
+          class="dots-button"
+          (click)="onDotsClick()"
+          [disabled]="isReadonly()"
+          matRipple>
+          ...
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    @if (displayMode() === 'vertical') {
+      <label class="input-label block leading-tight">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    @if (displayMode() === 'horizontal') {
+      <label class="input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    <div class="input-wrapper" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [ngClass]="{'readonly-input': isReadonly()}"
+        [readonly]="isReadonly()"
+        matInput
+        [placeholder]="placeholder() ?? 'Enter ' + label()"
+        type="text"
+        inputmode="numeric"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        class="custom-input"
+        (keyup)="onChangeInput()"
+        (keydown)="preventSpecialChars($event)"
+        (input)="onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      <!-- CLEAR BUTTON (render when enabled; CSS controls visibility) -->
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button type="button" class="clear-button" (click)="clearInput()">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                  </svg>
+        </button>
+      }
+
+      <!-- DOTS BUTTON -->
+      @if (isDotsVisible()) {
+        <button
+          type="button"
+          class="dots-button"
+          (click)="onDotsClick()"
+          [disabled]="isReadonly()"
+          matRipple>
+          ...
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+    <div
+    class="mt-0 min-h-[1rem]">
+    @if (isInvalid()) {
+            <p
+      class="text-[10px] text-red-500 leading-4 ms-1">
+        @if (hasError('required')) {
+          <div>{{ label() }} is required!</div>
+        }
+
+        @if (hasError('min')) {
+          <div>Minimum value is {{ getErrorValue('min')?.min }}</div>
+        }
+
+        @if (hasError('max')) {
+          <div>Maximum value is {{ getErrorValue('max')?.max }}</div>
+        }
+
+        @if (hasError('minlength')) {
+          <div>Minimum length required is {{ getErrorValue('minlength')?.requiredLength }} characters</div>
+        }
+
+        @if (hasError('maxlength')) {
+          <div>Maximum length allowed is {{ getErrorValue('maxlength')?.requiredLength }} characters</div>
+        }
+
+        @if (hasError('pattern')) {
+          <div>{{ label() }} format is invalid</div>
+        }
+
+        @if (hasError('specialCharacterNotAllowed')) {
+          <div>{{ label() }} contains invalid characters</div>
+        }
+
+        @if (hasCustomErrors()) {
+          @for (errorKey of getCustomErrorKeys(); track errorKey) {
+            <div>{{ getCustomErrorMessage(errorKey) }}</div>
+          }
+        }
+      </p>
+    }
+  </div>
+</div>

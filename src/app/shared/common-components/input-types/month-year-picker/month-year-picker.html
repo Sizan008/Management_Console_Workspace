@@ -1,0 +1,142 @@
+<!-- month-year-picker.component.html -->
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        id="floating_outlined"
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [ngClass]="{'readonly-input': isReadonly()}"
+        [readonly]="isReadonly()"
+        matInput
+        [matDatepicker]="picker"
+        [placeholder]="' '"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        class="custom-input has-suffix-icon peer block px-3 pt-4 pb-2 text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+        (blur)="onBlur()"
+        (focus)="onFocus($event)"
+        (keydown)="onKeyDown($event)" />
+
+      <!-- FLOATING LABEL -->
+      <label
+        for="floating_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- DATEPICKER TOGGLE BUTTON -->
+      @if (!isReadonly() && control && !control.disabled) {
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 -translate-y-1/2 text-gray-500 peer-focus:text-blue-600"
+          (click)="picker.open()"
+          [attr.aria-label]="'Open calendar for ' + label()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#5f6368">
+            <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z"/>
+          </svg>
+        </button>
+      }
+
+      <mat-datepicker
+        #picker
+        startView="multi-year"
+        (yearSelected)="chosenYearHandler($event)"
+        (monthSelected)="chosenMonthHandler($event, picker)">
+      </mat-datepicker>
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    @if (displayMode() === 'vertical') {
+      <label class="input-label block leading-tight">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    @if (displayMode() === 'horizontal') {
+      <label class="input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    <div class="input-wrapper" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [ngClass]="{'readonly-input': isReadonly()}"
+        [readonly]="isReadonly()"
+        matInput
+        [matDatepicker]="picker"
+        [placeholder]="placeholder()"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        class="custom-input has-suffix-icon"
+        (blur)="onBlur()"
+        (focus)="onFocus($event)"
+        (keydown)="onKeyDown($event)" />
+
+      @if (!isReadonly() && control && !control.disabled) {
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 -translate-y-1/2 text-gray-500 peer-focus:text-blue-600"
+          (click)="picker.open()"
+          [attr.aria-label]="'Open calendar for ' + label()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#5f6368">
+            <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z"/>
+          </svg>
+        </button>
+      }
+
+      <mat-datepicker
+        #picker
+        startView="multi-year"
+        (yearSelected)="chosenYearHandler($event)"
+        (monthSelected)="chosenMonthHandler($event, picker)">
+      </mat-datepicker>
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+  <div class="mt-0 min-h-[1rem]">
+    @if (!isReadonly() && !frmGroup().get(controlName())?.disabled && frmGroup().get(controlName())?.errors && (frmGroup().get(controlName())?.touched || frmGroup().get(controlName())?.dirty)) {
+      <p class="text-[10px] text-red-500 leading-4 ms-1">
+        @if (frmGroup().get(controlName())?.hasError('required')) {
+          @if (hasCustomMessage('required')) {
+            {{ getCustomErrorMessage('required') }}
+          } @else {
+            {{ label() }} is required..!
+          }
+        }
+        @if (frmGroup().get(controlName())?.hasError('yearOutOfRange')) {
+          @if (hasCustomMessage('yearOutOfRange')) {
+            {{ getCustomErrorMessage('yearOutOfRange') }}
+          } @else {
+            {{ getDetailedErrorMessage() }}
+          }
+        }
+        @else if (hasCustomErrors()) {
+          @for (errorKey of getCustomErrorKeys(); track errorKey) {
+            <div>{{ getCustomErrorMessage(errorKey) }}</div>
+          }
+        }
+      </p>
+    }
+  </div>
+</div>

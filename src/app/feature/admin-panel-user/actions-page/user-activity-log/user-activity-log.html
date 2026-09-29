@@ -1,0 +1,120 @@
+<div
+  class="font-roboto flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-slate-50"
+>
+  <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+    <div class="min-w-0 space-y-3 p-3">
+      <section
+        class="min-w-0 overflow-visible rounded-lg border border-slate-200 bg-white"
+      >
+        <app-expansion-panel-header
+          panelTitle="Activity Log Search"
+          [isOpenSignal]="isActivityPanelOpen"
+        >
+        </app-expansion-panel-header>
+        @if (isActivityPanelOpen()) {
+          <div class="min-w-0 border-t border-slate-100 p-3">
+            <form
+              id="activity-log-form"
+              [formGroup]="formGroup"
+              class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-3"
+            >
+              <div class="min-w-0">
+                <input-select-option-field
+                  [frmGroup]="formGroup"
+                  controlName="userType"
+                  label="User Type"
+                  displayMode="outline"
+                  [options]="userTypeOptions"
+                >
+                </input-select-option-field>
+              </div>
+              <div class="min-w-0">
+                <input-text-box
+                  [frmGroup]="formGroup"
+                  controlName="userId"
+                  label="User ID"
+                  displayMode="outline"
+                  [isReadonly]="true"
+                >
+                </input-text-box>
+              </div>
+              <div class="min-w-0">
+                <input-date
+                  [frmGroup]="formGroup"
+                  controlName="startDate"
+                  label="Start Date"
+                  displayMode="outline"
+                >
+                </input-date>
+              </div>
+              <div class="min-w-0">
+                <input-date
+                  [frmGroup]="formGroup"
+                  controlName="endDate"
+                  label="End Date"
+                  displayMode="outline"
+                >
+                </input-date>
+              </div>
+            </form>
+          </div>
+        }
+      </section>
+      <section
+        class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+      >
+        <app-expansion-panel-header
+          panelTitle="Activity Log Details"
+          [isOpenSignal]="isActivityDetailsPanel"
+        >
+        </app-expansion-panel-header>
+        @if (isActivityDetailsPanel()) {
+          <div class="min-w-0 overflow-x-auto border-t border-slate-100 p-3">
+            <div class="min-w-[650px]">
+              <generic-data-grid
+                id="activityGrid"
+                [dataSource]="data()"
+                [selectedColumns]="selectedColumns"
+                [customColumnNames]="customColumnNames"
+                [initPageSize]="5"
+                [pageSizeOptions]="[5, 10, 25, 50]"
+                [backendPaginationEnabled]="false"
+                [enableSelection]="false"
+                uniqueIdField="id"
+                [searchEnabled]="true"
+                (onDataGridStateChange)="onGridStateChange($event)"
+                (onRowDoubleClick)="onRowDoubleClick($event)"
+              >
+              </generic-data-grid>
+            </div>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+  <div
+    class="shrink-0 border-t border-slate-200 bg-white px-3 py-3 shadow-[0_-2px_6px_rgba(15,23,42,0.06)]"
+  >
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+      <generic-button
+        label="Reset"
+        [enable]="!loading() && hasFilterValue"
+        (onClick)="requestReset()"
+      >
+      </generic-button>
+      <generic-button
+        label="View"
+        [enable]="!loading()"
+        (onClick)="requestView()"
+      >
+      </generic-button>
+      <generic-button
+        label="Close"
+        [enable]="!loading()"
+        (onClick)="requestClose()"
+      >
+      </generic-button>
+    </div>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

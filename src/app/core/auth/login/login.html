@@ -1,0 +1,56 @@
+<div class="login-page">
+  <!-- Background golden currencies -->
+  <div class="dollars" aria-hidden="true">
+    <span class="d d1" data-currency="$"></span>
+    <span class="d d2" data-currency="&euro;"></span>
+    <span class="d d3" data-currency="&#2547;"></span>
+    <span class="d d4" data-currency="$"></span>
+    <span class="d d5" data-currency="&euro;"></span>
+    <span class="d d6" data-currency="&#2547;"></span>
+    <span class="d d7" data-currency="&euro;"></span>
+    <span class="d d8" data-currency="$"></span>
+    <span class="d d9" data-currency="&euro;"></span>
+    <span class="d d10" data-currency="&#2547;"></span>
+  </div>
+
+  <div class="wrap">
+    <main class="shell" aria-label="SSO Sign in">
+      <section class="card" role="dialog" aria-modal="true" aria-labelledby="sso-title">
+        <!-- Brand -->
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10l9-7 9 7"></path>
+              <path d="M4 10h16v10H4z"></path>
+              <path d="M2 22h20"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1 class="company">LEADS Corporation Limited</h1>
+          </div>
+        </div>
+
+        <!-- Shared centerline keeps wordmark and button perfectly aligned -->
+        <div class="centerline">
+          <div class="product" aria-label="Product name">Fingine-X</div>
+
+          <h2 id="sso-title" class="title">Secure Corporate Sign in</h2>
+
+          <!-- Arrow moved to the RIGHT -->
+          <button type="button" class="btn" (click)="doLogin()" aria-label="Sign in with corporate account">
+            Sign in
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+
+          <div class="meta">You'll be redirected for authentication.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+

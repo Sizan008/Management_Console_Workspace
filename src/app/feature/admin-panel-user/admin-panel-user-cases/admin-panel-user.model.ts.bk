@@ -1,0 +1,21 @@
+/**
+ * Row shape for the Admin Panel User workspace. The lifecycle stages
+ * (e.g. Created → Authorized → Pending) and per-stage actions are now
+ * sourced from the live API via WorkspaceResolverService and
+ * WorkspaceApiService.getActionsByStage. Only the rows themselves come from
+ * the local MOCK_ADMIN_PANEL_USERS constant (no backend endpoint exists yet
+ * for this list).
+ */
+export interface AdminPanelUserCase {
+  userId: string;
+  fullName: string;
+  email: string;
+  department: string;
+  role: string;
+  /** Free-text stage name; resolved to a numeric stageId for actions. */
+  stage: string;
+  stageId?: number | null;
+  joinDate: string;
+  lastLogin: string;
+  branch?: string;
+}

@@ -1,0 +1,46 @@
+<div class="lookup-modal">
+  <div class="lookup-modal__header">
+  </div>
+  <div class="panel bg-white">
+    <div class="lookup-filters" *ngIf="showFilters">
+      <div class="modal-search-section my-4">
+        <div class="modal-search-wrapper flex items-center gap-2">
+          <input-select-option-field
+            *ngIf="showAppFilter"
+            [frmGroup]="filterForm"
+            [controlName]="'app_id'"
+            [label]="'App'"
+            [options]="appOptions"
+            [displayMode]="'vertical'"
+            (onSelect)="onAppChange($event)">
+          </input-select-option-field>
+
+          <generic-button
+            *ngIf="showSearchButton"
+            [label]="'Search'"
+            [enable]="true"
+            [visible]="true"
+            (onClick)="onSearch()">
+          </generic-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-section mt-3">
+      <generic-data-grid
+        [dataSource]="rows"
+        [selectedColumns]="selectedColumns"
+        [customColumnNames]="customColumnNames"
+        [showEditButton]="false"
+        [showDeleteButton]="false"
+        [showViewButton]="true"
+        [showPrintButton]="false"
+        [enableSelection]="false"
+        [searchEnabled]="true"
+        [initPageSize]="8"
+        (onRowDoubleClick)="onSelectRow($event)"
+        (onFHViewClick)="onSelectRow($event)">
+      </generic-data-grid>
+    </div>
+  </div>
+</div>

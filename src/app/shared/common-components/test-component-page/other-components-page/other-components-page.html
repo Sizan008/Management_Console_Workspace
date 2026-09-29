@@ -1,0 +1,99 @@
+<div class="other-page-wrapper p-4">
+  <h3 class="text-2xl font-bold mb-4">{{ title }}</h3>
+
+   <form [formGroup]="frmGroup" class="transaction-form">
+    <div class="panel">
+         <div class="transaction-grid-container mb-10">
+              <section class="header-section">
+            <app-expansion-panel-header
+              [isOpenSignal]="businessHeaderPanel"
+              [panelTitle]="'Transaction Management'"
+            >
+
+             <section class="primary-fields-section bg-gray-50 rounded-lg  mb-6 grid grid-cols-1 gap-2">
+
+              <!-- Transaction Reference Subsection -->
+              <div class=" component-section">
+                <input-text-box
+                  [frmGroup]="frmGroup"
+                  [controlName]="'textBox'"
+                  [label]="'Transaction Reference'"
+                  [isReadonly]="false"
+                  displayMode = "vertical"
+                  [tooltip]="'Auto-generated based on currency and category'"
+                  [tooltipPosition]="'above'"
+                  [tooltipDelay]="300"
+                  [tooltipClass]="'success-tooltip'"
+
+                  [customErrorMessages]="{
+                    required: 'Transaction reference is required',
+                    minlength: 'Minimum 3 characters required',
+                    maxlength: 'Maximum 20 characters allowed',
+                    pattern: 'Only alphanumeric characters and underscores are allowed'
+                  }"
+                ></input-text-box>
+              </div>
+
+              <!-- Account ID Subsection -->
+              <div class=" component-section">
+                <input-id-box
+                  [frmGroup]="frmGroup"
+                  [controlName]="'id'"
+                  [label]="'Account ID'"
+
+                  [isDotsVisible]="true"
+                  [tooltip]="'Click to select account ID'"
+                  [tooltipPosition]="'above'"
+                  [tooltipDelay]="300"
+
+                ></input-id-box>
+              </div>
+              <!-- Amount in Words Subsection -->
+              <div class=" component-section">
+                <input-amount-in-word
+                  [frmGroup]="frmGroup"
+                  [controlName]="'amountToWord'"
+                  [label]="'Amount in Words'"
+
+
+                  [decimalPlaces]="2"
+                  [maxLen]="12"
+                  [tooltip]="'Automatically synced with amount field'"
+
+                ></input-amount-in-word>
+              </div>
+
+                <div class="p-4">
+                <generic-data-grid
+                  [id]="'enhanced-transactions'"
+                  [dataSource]="sampleTransactions()"
+                  [initPageSize]="8"
+                  [enableSelection]="true"
+                  [useInlineEdit]="true"
+                  [editableColumns]="['amount', 'status', 'priority', 'currency', 'country', 'productCategory', 'subCategory', 'assignedRole']"
+                  [numberColumns]="['amount', 'calculatedTax', 'totalAmount', 'taxRate']"
+                  [selectedColumns]="['id', 'amount', 'currency','country']"
+                  (onRowDoubleClick)="onRowDblClick($event)"
+                  (onChecked)="onTransactionRowSelect($event)"
+                  ></generic-data-grid>
+
+                <!-- Send Selected Button -->
+                <div class="mt-4 flex gap-2">
+                  <button
+                    type="button"
+                    (click)="sendSelectedRows()"
+                    [disabled]="selectedRows().length === 0"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition font-semibold"
+                  >
+                    Send Selected ({{ selectedRows().length }})
+                  </button>
+                </div>
+              </div>
+            </section>
+            </app-expansion-panel-header>
+          </section>
+         </div>
+    </div>
+   </form>
+
+</div>

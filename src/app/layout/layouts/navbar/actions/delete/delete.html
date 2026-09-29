@@ -1,0 +1,24 @@
+<!-- <button
+  (click)="delete()"
+  [disabled]="disabled || frmGroup().invalid"
+  class="a_demo_three flex items-center gap-2 relative"
+>
+
+ <div class="icon-box flex items-center justify-center  left-0 h-full w-9 rounded-l-md">
+    <mat-icon>delete</mat-icon>
+  </div>
+  <span class="ml-8 text-sm">Delete</span>
+</button> -->
+
+
+<!-- <button class="btn_elevated" (click)="delete()" [disabled]="frmGroup().invalid">
+  <div style="  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);" class="icon_container_elevated">
+    <mat-icon>delete</mat-icon>
+  </div>
+  <span class="btn_text">Delete</span>
+</button> -->
+
+<button (click)="delete()" [disabled]="frmGroup().invalid" class="a_demo_four icon-delete">
+  <img src="/asset/icons/delete.svg" alt="" class="icon" />
+  Delete
+</button>

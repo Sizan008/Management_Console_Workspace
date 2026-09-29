@@ -1,0 +1,276 @@
+<div class="page-wrapper">
+  <!-- Parameter Basic Info Section -->
+  <div class="panel mb-2">
+    <app-expansion-panel-header
+      [panelTitle]="'Parameter Basic Information'"
+      [isOpenSignal]="parameterFormPanel"
+    >
+      <div class="component-section  py-2">
+        <form [formGroup]="parameterForm" class="flex flex-col gap-2">
+          <input-text-box
+            [label]="'Parameter Name (Required)'"
+            [controlName]="'parameterName'"
+            [frmGroup]="parameterForm"
+            [tooltip]="
+              'Only letters, numbers, and underscores allowed. Used internally.'
+            "
+
+          >
+          </input-text-box>
+
+          <input-text-box
+            [label]="'Parameter Label (Required)'"
+            [controlName]="'parameterLabel'"
+            [frmGroup]="parameterForm"
+            [tooltip]="'Display name shown to users'"
+
+          >
+          </input-text-box>
+
+          <input-select-option-field
+            [label]="'Data Type (Required)'"
+            [controlName]="'dataType'"
+            [frmGroup]="parameterForm"
+            [options]="parameterDataTypeOptions"
+
+            [searchable]="true"
+          >
+          </input-select-option-field>
+          <input-select-option-field
+            [label]="'Input Type'"
+            [controlName]="'inputType'"
+            [frmGroup]="parameterForm"
+            [options]="getFilteredInputTypeOptions()"
+
+            [searchable]="true"
+          >
+          </input-select-option-field>
+
+          <!-- Dropdown Options Section -->
+          @if (showDropdownOptions()) {
+          <input-text-area
+            [label]="getSelectOptionsLabel()"
+            [controlName]="'selectOptions'"
+            [frmGroup]="parameterForm"
+            [placeholder]="getSelectOptionsPlaceholder()"
+            [tooltip]="'Enter valid JSON format'"
+
+            [rows]="3"
+          >
+          </input-text-area>
+          }
+
+          <!-- Data Source - Only shown for dropdown/select types -->
+          @if (showDropdownOptions()) {
+          <input-text-box
+            [label]="'Data Source (Optional)'"
+            [controlName]="'dataSource'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'URL, SQL query, or JSON data'"
+            [tooltip]="
+              'API endpoint, database query, or static JSON for populating dropdown options'
+            "
+
+          >
+          </input-text-box>
+
+          @if (getDataSourceError()) {
+          <div class="text-danger small mt-1">
+            {{ getDataSourceError() }}
+          </div>
+          } }
+        </form>
+      </div>
+    </app-expansion-panel-header>
+  </div>
+
+  <!-- Parameter Validation Section -->
+  <div class="panel mb-2">
+    <app-expansion-panel-header
+      [panelTitle]="'Validation & Constraints'"
+      [isOpenSignal]="validationPanel"
+    >
+      <div class="component-section py-2">
+        <form [formGroup]="parameterForm" class="flex flex-col gap-2">
+          <generic-switch
+            [label]="'Required Field'"
+            [controlName]="'required'"
+            [frmGroup]="parameterForm"
+            [matTooltip]="'User must provide a value'"
+            [isChecked]="parameterForm.get('required')?.value ?? false"
+          >
+          </generic-switch>
+
+          <!-- Visible Toggle -->
+          <generic-switch
+            [label]="'Visible to User'"
+            [controlName]="'visible'"
+            [frmGroup]="parameterForm"
+            [isChecked]="parameterForm.get('visible')?.value ?? true"
+          >
+          </generic-switch>
+
+          <!-- Readonly Toggle -->
+          <generic-switch
+            [label]="'Read Only'"
+            [controlName]="'readonly'"
+            [frmGroup]="parameterForm"
+            [matTooltip]="'User cannot modify the value'"
+            [isChecked]="parameterForm.get('readonly')?.value ?? false"
+          >
+          </generic-switch>
+
+          <!-- Text Validation Section -->
+          @if (showTextValidation()) {
+          <input-number
+            [label]="'Minimum Length'"
+            [controlName]="'minLength'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., 3'"
+            [tooltip]="'Minimum number of characters'"
+
+          >
+          </input-number>
+          <input-number
+            [label]="'Maximum Length'"
+            [controlName]="'maxLength'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., 50'"
+            [tooltip]="'Maximum number of characters'"
+
+          >
+          </input-number>
+          }
+
+          <!-- Number Validation Section -->
+          @if (showNumberValidation()) {
+          <input-number
+            [label]="'Minimum Value'"
+            [controlName]="'minValue'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., 0'"
+            [tooltip]="'Minimum allowed value'"
+
+          >
+          </input-number>
+          <input-number
+            [label]="'Maximum Value'"
+            [controlName]="'maxValue'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., 100'"
+            [tooltip]="'Maximum allowed value'"
+
+          >
+          </input-number>
+          }
+
+          <!-- Date Format Section -->
+          @if (showDateFormat()) {
+          <input-text-box
+            [label]="'Date Format Pattern'"
+            [controlName]="'formatPattern'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., yyyy-MM-dd, dd/MM/yyyy'"
+            [tooltip]="'Expected date format for validation'"
+
+          >
+          </input-text-box>
+          }
+        </form>
+      </div>
+    </app-expansion-panel-header>
+  </div>
+
+  <!-- Default Value Section -->
+  <div class="panel">
+    <app-expansion-panel-header
+      [panelTitle]="'Default Value & Settings'"
+      [isOpenSignal]="defaultValuePanel"
+    >
+      <div class="component-section py-2">
+        <form [formGroup]="parameterForm" class="flex flex-col gap-2">
+          <input-number
+            [label]="'Display Order'"
+            [controlName]="'parameterOrder'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., 1, 2, 3'"
+            [tooltip]="'Order in which parameters appear'"
+
+          >
+          </input-number>
+          <input-select-option-field
+            [label]="'Default Value Type'"
+            [controlName]="'defaultValueType'"
+            [frmGroup]="parameterForm"
+            [options]="[
+              { key: 'predefined', value: 'Predefined Value' },
+              { key: 'custom', value: 'Custom Value' }
+            ]"
+
+          >
+          </input-select-option-field>
+
+          <!-- Predefined Default Value -->
+          @if (parameterForm.get('defaultValueType')?.value === 'predefined') {
+          <input-select-option-field
+            [label]="'Default Value'"
+            [controlName]="'defaultValue'"
+            [frmGroup]="parameterForm"
+            [options]="getFilteredPredefinedValues()"
+
+            [searchable]="true"
+            [placeholder]="'Select a predefined value'"
+          >
+          </input-select-option-field>
+          }
+
+          <!-- Custom Default Value -->
+          @if (parameterForm.get('defaultValueType')?.value === 'custom') {
+          <input-text-box
+            [label]="'Custom Default Value'"
+            [controlName]="'customDefaultValue'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'Enter custom default value'"
+            [tooltip]="'Custom value to use as default'"
+
+          >
+          </input-text-box>
+          }
+
+          <!-- SELECT Default Value Options -->
+          @if (showDropdownOptions() && getSelectOptionsForDefault().length > 0) {
+          <input-select-option-field
+            [label]="'Default Selected Option'"
+            [controlName]="'defaultValue'"
+            [frmGroup]="parameterForm"
+            [options]="getSelectOptionsForDefault()"
+
+            [placeholder]="'Select default option'"
+          >
+          </input-select-option-field>
+          }
+
+          <input-text-box
+            [label]="'Depends on Parameter'"
+            [controlName]="'dependsOnParameter'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'e.g., userId, branchCode'"
+            [tooltip]="'Parameter name this depends on'"
+
+          >
+          </input-text-box>
+          <input-text-area
+            [label]="'Help Text'"
+            [controlName]="'helpText'"
+            [frmGroup]="parameterForm"
+            [placeholder]="'Additional help or instructions for users'"
+            [tooltip]="'Shown as tooltip or help text'"
+
+            [rows]="2"
+          >
+          </input-text-area>
+        </form>
+      </div>
+    </app-expansion-panel-header>
+  </div>
+</div>

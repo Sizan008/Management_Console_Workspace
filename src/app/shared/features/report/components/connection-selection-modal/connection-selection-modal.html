@@ -1,0 +1,52 @@
+<div class="page-wrapper">
+  <!-- Results Section -->
+  <div class="panel mb-2">
+    <app-expansion-panel-header [panelTitle]="'Available Connections (' + getResultsCount() + ')'" [isOpenSignal]="availableConnectionsPanel">
+      <div class="component-section pb-2">
+        @if (isLoading()) {
+          <div class="text-center p-4">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">{{ config.loadingText || 'Loading connections...' }}</p>
+          </div>
+        } @else {
+          <!-- Data Grid -->
+          <generic-data-grid
+            [dataSource]="filteredConnections()"
+            [initPageSize]="10"
+            [showEditButton]="true"
+            [showDeleteButton]="false"
+            [searchEnabled]="true"
+            [showViewButton]="false"
+            [showPrintButton]="false"
+            [useInlineEdit]="false"
+            [selectedColumns]="gridColumns"
+            [tblClass]="'enhanced-transaction-table'"
+            [gridTitle]="''"
+            [groupOptionEnabled]="false"
+            [summaryGridEnabled]="false"
+            (onFHEditClick)="onConnectionEdit($event)"
+            (onChecked)="onConnectionRowSelect($event)"
+            (dataSourceChanged)="onConnectionDataChanged($event)">
+          </generic-data-grid>
+
+          <!-- No Data Message -->
+          @if (filteredConnections().length === 0) {
+            <div class="text-center p-4">
+              <div class="mb-3" style="font-size: 4rem; opacity: 0.5;">🔌</div>
+              <h5>No Connections Found</h5>
+              <p class="text-muted">{{ config.noDataMessage || 'No database connections match your search criteria. Try different keywords or create a new connection.' }}</p>
+              @if (config.showCreateNew) {
+                <generic-button
+                  labelText="Create New Connection"
+                  (onClick)="onCreateNewClick($event)">
+                </generic-button>
+              }
+            </div>
+          }
+        }
+      </div>
+    </app-expansion-panel-header>
+  </div>
+</div>

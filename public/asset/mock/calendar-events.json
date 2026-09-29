@@ -1,0 +1,18 @@
+{
+  "events": [
+    { "date": "2026-06-30", "type": "business", "title": "Half-Year Book Closing" },
+    { "date": "2026-07-01", "type": "business", "title": "New Fiscal Period Opens" },
+    { "date": "2026-07-01", "type": "event",    "title": "Treasury Briefing" },
+    { "date": "2026-07-04", "type": "holiday",  "title": "Bank Holiday" },
+    { "date": "2026-07-09", "type": "event",    "title": "Vendor Onboarding" },
+    { "date": "2026-07-16", "type": "business", "title": "Quarterly Settlement" },
+    { "date": "2026-07-16", "type": "event",    "title": "Board Review Call" },
+    { "date": "2026-07-16", "type": "holiday",  "title": "Regional Office Closed" },
+    { "date": "2026-07-21", "type": "holiday",  "title": "Ashura (Public Holiday)" },
+    { "date": "2026-07-23", "type": "business", "title": "Payroll Run" },
+    { "date": "2026-07-28", "type": "event",    "title": "Internal Audit Review" },
+    { "date": "2026-07-28", "type": "business", "title": "Reconciliation Cutoff" },
+    { "date": "2026-08-15", "type": "holiday",  "title": "National Mourning Day" },
+    { "date": "2026-08-31", "type": "business", "title": "Month-End Closing" }
+  ]
+}

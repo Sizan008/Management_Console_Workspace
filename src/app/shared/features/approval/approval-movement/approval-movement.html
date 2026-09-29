@@ -1,0 +1,120 @@
+<div class="">
+    <div class="">
+
+        <div class="grid grid-cols-1 md:grid-cols-1 gap-0">
+            <app-expansion-panel-header [isOpenSignal]="businessHeaderPanel" [panelTitle]="'Change Details'">
+                <div class="container">
+
+                    <!-- Action bar: navigation and title on the left, the decision controls on
+                         the right. Remarks is carried by both Approve and Reject, so it sits
+                         with the buttons instead of down in the panel body. -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-1 px-3 py-2
+                                border border-gray-200 rounded-lg bg-white">
+
+                        <div class="flex items-center gap-3">
+                            <generic-button [label]="'Back'"
+                                            [icon]="'arrow_back'"
+                                            [cssClass]="'bg-slate-500! hover:bg-slate-600! px-5!'"
+                                            (onClick)="goBack()">
+                            </generic-button>
+
+                            <h2 class="m-0 text-[15px] font-semibold text-gray-700">Approval Movement</h2>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-3">
+
+                            <div class="flex-1 min-w-[260px]">
+                                <input-text-box [frmGroup]="remarksForm"
+                                                [controlName]="'remarks'"
+                                                [label]="'Remarks'"
+                                                [placeholder]="'Reason for this decision'"
+                                                [maxLength]="250"
+                                                [tooltip]="'Required to reject'">
+                                </input-text-box>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <generic-button [label]="'Reject'"
+                                                [icon]="'close'"
+                                                [cssClass]="'bg-rose-600! hover:bg-rose-700! px-5!'"
+                                                (onClick)="onReject()">
+                                </generic-button>
+                                <generic-button [label]="'Approve'"
+                                                [icon]="'check_circle'"
+                                                [cssClass]="'bg-emerald-600! hover:bg-emerald-700! px-5!'"
+                                                (onClick)="onApprove()">
+                                </generic-button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- bg-accent-50 was used here and on the pane headers, but no `accent`
+                         colour exists in the Tailwind theme, so those classes emitted nothing
+                         and the headings rendered as bare text on white. -->
+                    <div class="w-full h-full p-3 bg-slate-50 rounded-lg">
+                        <!-- Case 1: Only Change Request -->
+                        <ng-container *ngIf="!hasPreviousContent(); else withPrevious">
+                            <mat-card class="w-full min-w-0 overflow-hidden">
+                                <div class="flex items-center justify-center gap-2 px-4 py-2.5
+                                            bg-sky-50 border-b border-sky-100 text-sky-800">
+                                    <mat-icon class="w-4! h-4! text-base! leading-4!">edit_note</mat-icon>
+                                    <span class="text-sm font-semibold uppercase tracking-wider">Change Request</span>
+                                </div>
+                                <div class="overflow-auto">
+                                    <div class="min-w-[70%]">
+                                        <ng-template #dynamicHostLeft></ng-template>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </ng-container>
+
+                        <!-- Case 2: Change Request + Previous Data -->
+                        <!-- Each pane scrolls horizontally on its own so the rendered form keeps
+                             room to lay out instead of being squeezed into half the page. Each
+                             track is sized to 70% of the page: the pane viewport is one of two
+                             equal grid columns, so 140% of the pane is 70% of the full width. The
+                             two bars are mirrored in linkPaneScrolling() so the fields being
+                             compared always stay on the same screen column. min-w-0 on the cards
+                             stops the grid tracks from being widened by the panes content.
+
+                             The headers are colour-coded by role rather than by outcome: the
+                             proposed state is tinted with the theme's blue family and the
+                             historical state stays neutral grey. Deliberately not green/red —
+                             those read as approved/rejected next to the decision buttons.
+                             overflow-hidden on the cards lets each band bleed to the card edge
+                             and inherit its corner radius. -->
+                        <ng-template #withPrevious>
+                            <div class="grid sm:grid-cols-2 gap-x-5 items-start">
+                                <mat-card class="min-w-0 overflow-hidden">
+                                    <div class="flex items-center justify-center gap-2 px-2 py-1
+                                                bg-sky-50 border-b border-sky-100 text-sky-800">
+                                        <mat-icon class="w-4! h-4! text-base! leading-4!">edit_note</mat-icon>
+                                        <span class="text-sm font-semibold  tracking-wider">Change Request</span>
+                                    </div>
+                                    <div #leftPane class="overflow-auto max-h-[420px]">
+                                        <div class="min-w-[160%]">
+                                            <ng-template #dynamicHostLeft></ng-template>
+                                        </div>
+                                    </div>
+                                </mat-card>
+                                <mat-card class="min-w-0 overflow-hidden">
+                                    <div class="flex items-center justify-center gap-2 px-4 py-1
+                                                bg-slate-100 border-b border-slate-200 text-slate-600">
+                                        <mat-icon class="w-4! h-4! text-base! leading-4!">history</mat-icon>
+                                        <span class="text-sm font-semibold tracking-wider">Previous Data</span>
+                                    </div>
+                                    <div #rightPane class="overflow-auto max-h-[420px]">
+                                        <div class="min-w-[160%]">
+                                            <ng-template #dynamicHostRight></ng-template>
+                                        </div>
+                                    </div>
+                                </mat-card>
+                            </div>
+                        </ng-template>
+                    </div>
+
+                </div>
+            </app-expansion-panel-header>
+        </div>
+    </div>
+</div>

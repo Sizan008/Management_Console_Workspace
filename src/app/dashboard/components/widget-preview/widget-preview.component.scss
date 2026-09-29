@@ -1,0 +1,602 @@
+// ── Widget preview visuals ──────────────────────────────────────────────────
+// Refined "international standard" palette: cool slate text, blue accents.
+
+$ink:        #1e293b;
+$muted:      #64748b;
+$muted-soft: #94a3b8;
+$grid:       #eef2f7;
+$accent:     #93c5fd;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.wp-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', 'Inter', sans-serif;
+  color: $ink;
+  position: relative;
+}
+
+// ── KPI ───────────────────────────────────────────────────────────────────────
+.kpi {
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+  display: flex;
+}
+
+.kpi-spark {
+  position: absolute;
+  inset: auto 0 0 0;
+  width: 100%;
+  height: 70%;
+}
+
+.kpi-overlay {
+  position: relative;
+  z-index: 1;
+  margin: auto;
+  width: 100%;
+  padding: 0 20px 18px;
+  text-align: center;
+}
+
+.kpi-value {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: $ink;
+  margin-bottom: 6px;
+}
+
+.kpi-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: $muted-soft;
+}
+
+.kpi-delta {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+
+  &.delta-up   { color: #15803d; background: #dcfce7; }
+  &.delta-down { color: #b91c1c; background: #fee2e2; }
+}
+
+// ── Line / bar shared chart frame ──────────────────────────────────────────────
+.chart {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 130px;
+}
+
+.chart-svg {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.grid-line {
+  stroke: $grid;
+  stroke-width: 1;
+}
+
+.bar-seg {
+  cursor: pointer;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+  &:hover { filter: brightness(1.12); }
+}
+
+// ── Pie / donut ─────────────────────────────────────────────────────────────
+.pie-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+  width: 100%;
+}
+
+// The ring takes all remaining vertical space via flex; the SVG fills it
+// absolutely so it never depends on a fragile percentage-height chain.
+.pie-ring {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+}
+
+.pie-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  // viewBox + default preserveAspectRatio (xMidYMid meet) keeps the donut a
+  // centered circle, scaling up to the limiting dimension of the ring.
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-size: 11px;
+  color: $muted;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 160px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  user-select: none;
+  border-radius: 4px;
+  padding: 1px 3px;
+
+  &:hover { opacity: 0.8; }
+}
+
+.legend-hidden {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+.legend-active {
+  font-weight: 700;
+  .legend-pct { color: #1e293b; }
+}
+
+.legend-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100px;
+}
+
+.legend-pct {
+  font-weight: 600;
+  color: $ink;
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+.table-outer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+.tbl-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 1px solid $grid;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.tbl-search-icon {
+  width: 13px;
+  height: 13px;
+  color: $muted-soft;
+  flex-shrink: 0;
+}
+
+.tbl-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  color: $ink;
+  background: transparent;
+  &::placeholder { color: $muted-soft; }
+}
+
+.tbl-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  color: $muted-soft;
+  padding: 0 2px;
+  line-height: 1;
+  &:hover { color: $ink; }
+}
+
+// ── Table wrap + sticky header ────────────────────────────────────────────────
+.table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0;
+}
+
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+
+  thead tr {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: #f8fafc;
+    z-index: 1;
+    text-align: left;
+    white-space: nowrap;
+    padding: 0;
+
+    &.col-num { text-align: right; }
+  }
+
+  .th-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .th-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: $muted;
+    text-transform: uppercase;
+    flex: 1;
+  }
+
+  .sort-chevron {
+    flex-shrink: 0;
+    svg {
+      width: 10px;
+      height: 10px;
+      display: block;
+      color: #3b82f6;
+    }
+    .sort-idle { color: $muted-soft; }
+  }
+
+  .sortable-col {
+    cursor: pointer;
+    user-select: none;
+    &:hover { background: #f1f5f9; }
+  }
+
+  tbody tr.tbl-row {
+    transition: background 0.1s;
+    &:hover td { background: #f0f9ff !important; }
+    &:nth-child(even) td { background: #fafbfc; }
+  }
+
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: $ink;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+
+  .cell-num  { text-align: right; font-variant-numeric: tabular-nums; color: $ink; }
+  .cell-date { color: $muted; font-size: 10.5px; }
+
+  .tbl-empty {
+    text-align: center;
+    padding: 20px;
+    color: $muted-soft;
+    font-style: italic;
+  }
+}
+
+// ── Footer: row count + pagination ────────────────────────────────────────────
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-top: 1px solid $grid;
+  flex-shrink: 0;
+  background: #fafbfc;
+}
+
+.tbl-row-count {
+  font-size: 10px;
+  color: $muted-soft;
+}
+
+.tbl-page-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  svg { width: 6px; height: 10px; }
+  &:disabled { opacity: 0.3; cursor: default; }
+  &:not(:disabled):hover { background: #e2e8f0; }
+}
+
+.page-info {
+  font-size: 11px;
+  color: #64748b;
+  min-width: 36px;
+  text-align: center;
+}
+
+// ── Approval list ─────────────────────────────────────────────────────────────
+.approval-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.approval-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-bottom: 1px solid #f6f8fa;
+}
+
+.check {
+  color: #6ee7b7;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.approval-name {
+  flex: 1;
+  font-size: 12px;
+  color: $ink;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  flex-shrink: 0;
+}
+
+// ── Status chip (shared by table + approval list) ──────────────────────────────
+.status-chip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+
+  // legacy keys kept for approval list
+  &.is-approved { background: #dcfce7; color: #166534; }
+  &.is-pending  { background: #fef3c7; color: #92400e; }
+
+  // new semantic variants
+  &.chip-green  { background: #dcfce7; color: #15803d; }
+  &.chip-amber  { background: #fef3c7; color: #92400e; }
+  &.chip-red    { background: #fee2e2; color: #b91c1c; }
+  &.chip-gray   { background: #f1f5f9; color: #475569; }
+}
+
+// ── No-data state (live data returned 0 rows) ────────────────────────────────
+.no-data {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: $muted-soft;
+  min-height: 80px;
+
+  .no-data-icon { font-size: 22px; opacity: 0.4; }
+  font-size: 12px;
+  font-weight: 500;
+}
+
+// ── Custom fallback ─────────────────────────────────────────────────────────
+.custom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: $muted-soft;
+  min-height: 120px;
+
+  .custom-icon { font-size: 28px; }
+  .custom-text { font-size: 12px; font-weight: 500; }
+}
+
+// ── Stat Card ───────────────────────────────────────────────────────────────
+// The icon is a fixed illustrative open-book, so it's treated like an app icon:
+// a rounded "squircle" tile with a soft tint keyed to the book's green cover,
+// and the value + label sit left-aligned beside it (scannable, balanced).
+.stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  min-height: 104px;
+}
+
+.stat-icon-tile {
+  width: 66px;
+  height: 66px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #e2f4e9 100%);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.18),
+              0 8px 16px -8px rgba(34, 197, 94, 0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-svg {
+  width: 36px;
+  height: 36px;
+}
+
+.stat-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.stat-value {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1.6px;
+  line-height: 1.05;
+  color: $ink;
+  font-variant-numeric: tabular-nums;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: $muted;
+  margin-top: 6px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Compact tweaks ──────────────────────────────────────────────────────────
+.compact {
+  .kpi-value  { font-size: 34px; }
+  .stat-card  { gap: 14px; padding: 0 16px; min-height: 78px; }
+  .stat-value { font-size: 27px; letter-spacing: -1px; }
+  .stat-icon-tile { width: 50px; height: 50px; border-radius: 15px; }
+  .stat-icon-svg  { width: 27px; height: 27px; }
+  .stat-label { font-size: 10.5px; margin-top: 4px; }
+  .mini-table { font-size: 10px; td, th { padding: 4px 6px; } }
+  .pie-ring { max-height: 120px; }
+}
+
+// ── KPI threshold coloring ──────────────────────────────────────────────────
+.kpi-value {
+  &.kpi-good   { color: #16a34a; }
+  &.kpi-warn   { color: #d97706; }
+  &.kpi-danger { color: #dc2626; }
+}
+
+// ── Clickable chart elements ────────────────────────────────────────────────
+.bar-clickable {
+  cursor: pointer;
+  &:hover .bar { filter: brightness(1.12); }
+}
+
+.seg-clickable {
+  cursor: pointer;
+  transition: opacity 0.22s ease, stroke-width 0.22s ease;
+  &:hover { filter: brightness(1.1); }
+}
+
+// ── Chart tooltip ───────────────────────────────────────────────────────────
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(calc(-100% - 10px));
+  background: #1e293b;
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+
+  // arrow
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1e293b;
+  }
+
+  .tt-label { font-weight: 600; }
+  .tt-value { color: #93c5fd; font-size: 12px; font-weight: 700; }
+}

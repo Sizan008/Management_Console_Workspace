@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Active status filter tab — follows the active theme colour */
+.status-filter-active {
+  background-color: var(--theme-primary, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 8px -2px color-mix(in srgb, var(--theme-primary, #2563eb) 40%, transparent);
+  transform: scale(1.03);
+}
+
+/* Count pill of the selected row inside the collapsed status dropdown — theme
+   colour without the tab's lift/scale, which would look wrong in a list row */
+.status-count-active {
+  background-color: var(--theme-primary, #2563eb);
+  color: #ffffff;
+}
+
+/* Active page number — follows the active theme colour */
+.pagination-page-active {
+  background-color: var(--theme-primary, #2563eb);
+  border-color:     var(--theme-primary, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Page numbers read as inert while a server-side page request is in flight */
+.pagination-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Pagination prev/next — follows the active theme colour */
+.pagination-nav-btn {
+  background-color: var(--theme-primary, #2563eb);
+  border-color:     var(--theme-primary, #2563eb);
+  color: #ffffff;
+  font-weight: 700;
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.88);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+}
+
+/* ── Sticky Status (Stage) + Action columns ───────────────────────────────────
+   Keep the status/stage column and the action column pinned to the right edge
+   while the rest of the table scrolls horizontally. */
+$action-col-width: 80px;
+
+.col-sticky-status,
+.col-sticky-action {
+  position: sticky;
+  z-index: 2;
+}
+
+.col-sticky-action {
+  right: 0;
+  width: $action-col-width;
+  min-width: $action-col-width;
+}
+
+.col-sticky-status {
+  right: $action-col-width;
+  /* subtle shadow on the left edge to separate from the scrolling content */
+  box-shadow: -6px 0 6px -6px rgba(15, 23, 42, 0.12);
+}
+
+/* ── Sticky column-header row ─────────────────────────────────────────────────
+   The grid body scrolls vertically, so pin the header row to the top of that
+   scroller. `border-collapse: collapse` drops borders from sticky cells, so the
+   divider under the header is drawn with an inset shadow instead. */
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3; /* above the sticky body columns (z-index 2) */
+  background-color: #f8fafc; /* slate-50 — opaque so rows don't show through */
+  box-shadow: inset 0 -2px 0 #e2e8f0; /* slate-200 divider */
+}
+
+/* Corner cells — sticky on both axes, so they sit above the rest of the header */
+thead .col-sticky-status,
+thead .col-sticky-action {
+  z-index: 4;
+}
+
+thead .col-sticky-status {
+  /* keep the left-edge separator alongside the header divider */
+  box-shadow: inset 0 -2px 0 #e2e8f0, -6px 0 6px -6px rgba(15, 23, 42, 0.12);
+}
+
+tbody .col-sticky-status,
+tbody .col-sticky-action {
+  background-color: #ffffff;
+}

@@ -1,0 +1,264 @@
+<form [formGroup]="globalForm">
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-3">
+
+    <div class="rounded-md border border-slate-200 bg-white p-3">
+      <p class="text-xs font-bold text-slate-700 mb-3">Individual Client</p>
+
+      <div class="grid grid-cols-12 gap-2">
+        <div class="col-span-12">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'inD_TRANS_PER_DAY'"
+            [label]="'No. of Transaction Allowed Per Day'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'inD_TRANS_AMT_PER_DAY'"
+            [label]="'Transaction Amount Allowed Per Day'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'inD_AMT_PER_TRANS'"
+            [label]="'Amount Allowed Per Transaction'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'inD_AMOUNT_PER_TRANS_MIN'"
+            [label]="'Minimum Amount Per Transaction'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-12">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'inD_GLOBAL_MAX_LIMIT'"
+            [label]="'Global Max Limit'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-md border border-slate-200 bg-white p-3">
+      <p class="text-xs font-bold text-slate-700 mb-3">Corporate Client</p>
+
+      <div class="grid grid-cols-12 gap-2">
+        <div class="col-span-12">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'corP_TRANS_PER_DAY'"
+            [label]="'No. of Transaction Allowed Per Day'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'corP_TRANS_AMT_DAY'"
+            [label]="'Transaction Amount Allowed Per Day'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'corP_AMT_PER_TRANS'"
+            [label]="'Amount Allowed Per Transaction'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-11">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'corP_AMOUNT_PER_TRANS_MIN'"
+            [label]="'Minimum Amount Per Transaction'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+        <div class="col-span-1 self-end pb-2 text-xs text-slate-500">BDT</div>
+
+        <div class="col-span-12">
+          <input-text-box
+            [frmGroup]="globalForm"
+            [controlName]="'corP_GLOBAL_MAX_LIMIT'"
+            [label]="'Global Max Limit'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Required', pattern: 'Only digits' }">
+          </input-text-box>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-1 md:col-span-2 rounded-md border border-slate-200 bg-white p-3">
+      <p class="text-xs font-bold text-slate-700 mb-3">Account & Charge</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+        <div>
+          <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-12">
+              <label class="flex items-center gap-2 text-xs text-slate-700">
+                <input type="checkbox" [checked]="enableFundTransfer === '1'"
+                       (change)="toggleEnableFundTransfer()" class="cursor-pointer">
+                Enable Fund Transfer Rule
+              </label>
+            </div>
+
+            <div class="col-span-12">
+              <input-select-option-field
+                [frmGroup]="globalForm"
+                [controlName]="'pB_BRANCH_ID'"
+                [label]="'Principal Branch'"
+                [options]="branchList"
+                [searchable]="true"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Branch is required' }">
+              </input-select-option-field>
+            </div>
+
+            <div class="col-span-12">
+              <input-select-option-field
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_BEFT_BRANCH_ID'"
+                [label]="'BEFT Branch'"
+                [options]="branchList"
+                [searchable]="true"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-select-option-field>
+            </div>
+
+            <div class="col-span-12">
+              <input-select-option-field
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_NPSB_BR_ID'"
+                [label]="'NPSB Branch'"
+                [options]="branchList"
+                [searchable]="true"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-select-option-field>
+            </div>
+
+            <div class="col-span-12">
+              <input-select-option-field
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_Q_CASH_NPSB_BR_ID'"
+                [label]="'Q-Cash Branch'"
+                [options]="branchList"
+                [searchable]="true"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-select-option-field>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_BB_EFT_HEAD'"
+                [label]="'BB EFT Head'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'chargE_RULE_ID'"
+                [label]="'EFT/NPSB Charge Rule ID'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-12">
+              <label class="flex items-center gap-2 text-xs text-slate-700">
+                <input type="checkbox" [checked]="chargeApplicableToPB === '1'"
+                       (change)="toggleChargeApplicableToPB()" class="cursor-pointer">
+                Charge Applicable to Principal Branch
+              </label>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_BEFT_ACC_NO'"
+                [label]="'BEFT Account No.'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_NPSB_ACC_NO'"
+                [label]="'NPSB Account No.'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'otheR_BANK_Q_CASH_NPSB_ACC_NO'"
+                [label]="'Q-Cash Account No.'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+
+            <div class="col-span-12">
+              <input-text-box
+                [frmGroup]="globalForm"
+                [controlName]="'q_CASH_CHARGE_RULE_ID'"
+                [label]="'Q-Cash Charge Rule ID'"
+                displayMode="vertical"
+                [customErrorMessages]="{ required: 'Required' }">
+              </input-text-box>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</form>

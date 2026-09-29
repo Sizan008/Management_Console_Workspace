@@ -1,0 +1,45 @@
+/* form-page.component.scss */
+@use "tailwindcss";
+:host {
+  display: block;
+  font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Save Button Override */
+app-save {
+  ::ng-deep .a_demo_four {
+    @apply w-full md:w-auto px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600
+           text-white font-semibold text-lg rounded-xl shadow-lg
+           hover:from-green-700 hover:to-emerald-700
+           focus:outline-none focus:ring-4 focus:ring-green-300
+           disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed
+           transform transition-all duration-200
+           hover:scale-105 active:scale-100 flex items-center justify-center gap-2;
+  }
+
+  ::ng-deep .a_demo_four::before {
+    content: '✓';
+    font-size: 1.1em;
+    opacity: 0.9;
+  }
+}
+
+/* Input Fields Full Width */
+input-text-box,
+input-number {
+  @apply block w-full;
+}
+
+/* Panel Shadow & Spacing */
+.panel {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Subtle Animations */
+.component-section {
+  transition: all 0.2s ease;
+}
+
+.component-section:hover {
+  transform: translateY(-1px);
+}

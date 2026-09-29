@@ -1,0 +1,68 @@
+<app-home></app-home>
+
+<generic-modal
+  [isVisible]="verificationModalVisible()"
+  modalTitle="CloudNetConsole Verification"
+  cssClass="!min-h-0 !max-w-md !h-auto [&_.btn-close]:hidden [&_.modal-body]:!min-h-0"
+  [closeOnBackdropClick]="false"
+  [showDefaultFooter]="false"
+  (isVisibleChanged)="onModalVisibilityChanged($event)">
+
+  <form [formGroup]="form" (ngSubmit)="continueVerification()" class="w-full">
+    <div class="flex flex-col gap-5">
+      <p class="m-0 text-sm leading-6 text-slate-600">
+        Verify your CloudNetConsole credentials to continue. Your Keycloak username is prefilled.
+      </p>
+
+      <input-text-box
+        [frmGroup]="form"
+        controlName="username"
+        label="Username"
+        type="text"
+        displayMode="outline"
+        [isReadonly]="false">
+      </input-text-box>
+
+      <input-text-box
+        [frmGroup]="form"
+        controlName="password"
+        label="Password"
+        type="password"
+        displayMode="outline"
+        [isReadonly]="busy()">
+      </input-text-box>
+
+      @if (errorMessage()) {
+        <div
+          class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          role="alert">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
+        <generic-button
+          label="Keycloak Logout"
+          cssClass="w-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 sm:w-auto"
+          [enable]="!busy()"
+          (onClick)="keycloakLogout()">
+        </generic-button>
+
+        <generic-button
+          cssClass="w-full sm:w-auto"
+          [label]="busy() ? 'Verifying...' : 'Continue'"
+          [enable]="canContinue()"
+          (onClick)="continueVerification()">
+        </generic-button>
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      hidden
+      [disabled]="busy()"
+      tabindex="-1"
+      aria-hidden="true">
+    </button>
+  </form>
+</generic-modal>

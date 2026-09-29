@@ -1,0 +1,186 @@
+<div class="Workspace-shell">
+  <div class="hero">
+    <div class="app-context" *ngIf="useSessionAppId; else appDropdown">
+      <span class="app-context__label">Current Application:</span>
+      <strong class="app-context__value">{{ currentAppId || 'N/A' }}</strong>
+      <span class="app-context__name">{{ currentApplicationName }}</span>
+    </div>
+
+    <ng-template #appDropdown>
+      <form [formGroup]="appSelectionForm" class="app-picker-form">
+        <input-select-option-field
+          [frmGroup]="appSelectionForm"
+          [controlName]="'app_id'"
+          [label]="'Select Application'"
+          [options]="appOptions"
+          [displayMode]="'vertical'"
+          (onSelect)="onHeaderAppSelection($event)">
+        </input-select-option-field>
+      </form>
+    </ng-template>
+  </div>
+
+  <div class="selection-hint" *ngIf="!hasSelectedApplication">
+    Select an application to load workspace, stage, and action data.
+  </div>
+
+  <mat-tab-group
+    *ngIf="hasSelectedApplication"
+    class="Workspace-tabs"
+    [selectedIndex]="activeTab()"
+    (selectedIndexChange)="setTab($event)">
+    <mat-tab label="Workspace Design">
+      <ng-template matTabContent>
+        <section class="tab-panel">
+          <div class="toolbar-row">
+            <generic-button [label]="'New Workspace'" [enable]="true" [visible]="true"
+                            (onClick)="openWorkspaceEditor()">
+            </generic-button>
+            <generic-button [label]="'Expand All'" [enable]="true" [visible]="true" (onClick)="expandTree()">
+            </generic-button>
+            <generic-button [label]="'Collapse All'" [enable]="true" [visible]="true" (onClick)="collapseTree()">
+            </generic-button>
+          </div>
+
+          <div class="tree-container" *ngIf="treeNodes.length > 0; else emptyTree">
+            <ng-container *ngFor="let node of treeNodes">
+              <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: node, level: 0 }"></ng-container>
+            </ng-container>
+          </div>
+
+          <ng-template #emptyTree>
+            <div class="no-results">No Workspace data to display.</div>
+          </ng-template>
+        </section>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Workspace Assign">
+      <ng-template matTabContent>
+        <section class="tab-panel">
+          <form [formGroup]="grantForm" class="form-grid">
+            <input-id-box
+              [frmGroup]="grantForm"
+              [controlName]="'user_id'"
+              [label]="'User ID'"
+              [isReadonly]="false"
+              [isAllowSpecialChars]="true"
+              [displayMode]="'vertical'"
+              (dotsClicked)="openLookup('user_id')"
+              (onBlurred)="onUserIdChange($event)">
+            </input-id-box>
+
+            <input-id-box
+              [frmGroup]="grantForm"
+              [controlName]="'action_id'"
+              [label]="'Action ID'"
+              [isReadonly]="false"
+              [displayMode]="'vertical'"
+              (dotsClicked)="openLookup('action_id')">
+            </input-id-box>
+          </form>
+
+          <div class="table-shell" *ngIf="showAssignedGrid">
+            <generic-data-grid
+              [dataSource]="actiongrid"
+              [selectedColumns]="['userId', 'appName', 'workspaceName', 'stageName', 'actionName']"
+              [showEditButton]="false"
+              [showDeleteButton]="true"
+              [showViewButton]="false"
+              [showPrintButton]="false"
+              [enableSelection]="false"
+              [searchEnabled]="false"
+              (onFHDeleteClick)="userActionUnassign($event)"
+              [initPageSize]="5">
+            </generic-data-grid>
+          </div>
+        </section>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+
+  <ng-template #renderNode let-node let-level="level">
+    <div class="node-wrapper" [style.padding-left.px]="level * 20">
+      <div class="node-line" [style.left.px]="level * 20"></div>
+
+      <button mat-icon-button class="expand-btn" (click)="toggleNode(node)">
+        <mat-icon>
+          {{
+          node.children?.length > 0
+            ? (node.expanded ? 'expand_more' : 'chevron_right')
+            : 'remove'
+          }}
+        </mat-icon>
+      </button>
+
+      <div class="node-content">
+        <span class="node-title">{{ node.title }}</span>
+        <span class="node-badge" [ngClass]="node.type">
+          {{ node.type | titlecase }}
+        </span>
+        <span class="node-sub" *ngIf="node.subtitle">{{ node.subtitle }}</span>
+
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="menu-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
+
+      <mat-menu #menu="matMenu" class="ultra-compact-menu">
+        <button mat-menu-item *ngIf="node.type === 'workspace'" (click)="openWorkspaceEditor(node)">
+          <mat-icon class="menu-icon">add</mat-icon>
+          <span>Edit Workspace</span>
+        </button>
+        <button mat-menu-item *ngIf="node.type === 'workspace'" (click)="openStageEditor(undefined, node)">
+          <mat-icon class="menu-icon">add</mat-icon>
+          <span>Add Stage</span>
+        </button>
+        <button mat-menu-item *ngIf="node.type === 'stage'" (click)="openStageEditor(node)">
+          <mat-icon class="menu-icon">edit</mat-icon>
+          <span>Edit Stage</span>
+        </button>
+        <button mat-menu-item *ngIf="node.type === 'stage'" (click)="openActionEditor(undefined, node)">
+          <mat-icon class="menu-icon">add</mat-icon>
+          <span>Add Action</span>
+        </button>
+        <button mat-menu-item *ngIf="node.type === 'action'" (click)="openActionEditor(node)">
+          <mat-icon class="menu-icon">edit</mat-icon>
+          <span>Edit Action</span>
+        </button>
+        <!--<button mat-menu-item (click)="viewDetails(node)">
+          <mat-icon class="menu-icon">visibility</mat-icon>
+          <span>View</span>
+        </button>-->
+        <!--<button mat-menu-item (click)="deleteNode(node)">
+          <mat-icon class="menu-icon">delete</mat-icon>
+          <span>Delete</span>
+        </button>-->
+      </mat-menu>
+    </div>
+
+    <div *ngIf="node.expanded && node.children?.length">
+      <ng-container *ngFor="let child of node.children">
+        <ng-container *ngTemplateOutlet="renderNode; context: { $implicit: child, level: level + 1 }"></ng-container>
+      </ng-container>
+    </div>
+  </ng-template>
+
+  <generic-modal
+    [isVisible]="isLookupVisible()"
+    [modalTitle]="lookupTitle()"
+    cssClass="modal-fullscreen"
+    [modalComponent]="modalComponent"
+    [modalComponentData]="modalComponentData"
+    (modalResult)="onLookupResult($event)"
+    (modalClosed)="onLookupClosed()">
+  </generic-modal>
+
+  <generic-modal
+    [isVisible]="isEditorVisible"
+    [modalTitle]="editorTitle"
+    cssClass="modal-xl"
+    [modalComponent]="editorComponent"
+    [modalComponentData]="editorComponentData"
+    (modalResult)="onEditorResult($event)"
+    (modalClosed)="closeEditor()">
+  </generic-modal>
+</div>

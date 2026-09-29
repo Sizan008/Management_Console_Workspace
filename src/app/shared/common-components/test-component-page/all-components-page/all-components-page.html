@@ -1,0 +1,654 @@
+<div class="flex-col-fill">
+
+  <!-- ── Page body — each section is an accent-rail card (app-expansion-panel-header) ── -->
+  <div class="scroll-area ">
+    @if(frmGroup) {
+    <form [formGroup]="frmGroup">
+
+      <!-- SECTION: Address Search -->
+      <app-expansion-panel-header [panelTitle]="'Address Search Component'" [isOpenSignal]="addressSearchPanel">
+        <div class="section-grid-2">
+          <input-address-search [frmGroup]="frmGroup" [controlName]="'deliveryAddress'"
+            [formControl]="$any(frmGroup.get('deliveryAddress'))" [label]="'Delivery Address'"
+            [placeholder]="'Type to search area, thana, post office, or district...'" [required]="true"
+            (addressSelected)="onAddressSelected($any($event))"
+            (searchChanged)="onAddressSearchChanged($any($event))"></input-address-search>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Field Components — Outline Mode -->
+      <app-expansion-panel-header [panelTitle]="'Field Components — Outline Mode'" [isOpenSignal]="outlineFieldsPanel">
+        <div class="section-grid-3">
+
+          <!-- Transaction Reference -->
+          <div>
+            <input-text-box [frmGroup]="frmGroup" [controlName]="'textBox'" [label]="'Transaction Reference'" [isReadonly]="true"
+              displayMode="outline" [tooltip]="'Auto-generated based on currency and category'"
+              (onBlurred)="onBlur($event)" (onChanged)="onTextBoxChanged($event)" [customErrorMessages]="{
+                  required: 'Transaction reference is requiredsss',
+                  minlength: 'Minimum 3 characters requiredssss',
+                  maxlength: 'Maximum 20 characters allowed',
+                  pattern: 'Only alphanumeric characters and underscores are allowed'
+                }"></input-text-box>
+          </div>
+
+          <div>
+            <input-time [frmGroup]="frmGroup" [controlName]="'reminderTime'" [isReadonly]="true" label="Reminder Time" displayMode="outline"
+              [minTime]="'09:00'" [maxTime]="'18:00'"></input-time>
+          </div>
+
+          <!-- Currency Selection -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'currency'" [label]="'Currency'"
+              displayMode="outline" [options]="currencyOptions"
+              [tooltip]="'Currency selection affects country and tax rate'"
+              (onSelect)="handleCategorySelection($event)"></input-select-option-field>
+          </div>
+
+          <div>
+            <input-amount [frmGroup]="frmGroup" [controlName]="'amount'" [label]="'Transaction Amount'"
+              displayMode="outline" [decimalPlaces]="2" [maxLen]="12"
+              [tooltip]="'Amount affects tax calculation and approval requirements'" (onBlurred)="onBlur($event)"
+              (onChanged)="onAmountChanged($event)"></input-amount>
+          </div>
+
+          <!-- Amount in Words -->
+          <div>
+            <input-amount-in-word [frmGroup]="frmGroup" [controlName]="'amountToWord'" [label]="'Amount in Words'"
+              displayMode="outline" [currency]="selectedCurrency()" [decimalPlaces]="2" [maxLen]="12"
+              [tooltip]="'Automatically synced with amount field'" (onBlurred)="onBlur($event)"
+              (onChanged)="onAmountToWordChanged($event)"></input-amount-in-word>
+          </div>
+
+          <!-- Priority Level -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'dropdown'" [label]="'Priority Level'"
+              displayMode="outline" [options]="dropdownOptions" [tooltip]="'Select transaction priority'"
+              [allowUnselect]="true" (onSelect)="handleCategorySelection($event)"></input-select-option-field>
+          </div>
+
+          <!-- Additional Services -->
+          <div>
+            <generic-multi-select-option [frmGroup]="frmGroup" [controlName]="'multiSelect'"
+              [label]="'Additional Services'" displayMode="outline"
+              [options]="dropdownOptions"></generic-multi-select-option>
+          </div>
+
+          <!-- Reference Number -->
+          <div>
+            <input-number [frmGroup]="frmGroup" [controlName]="'number'" [label]="'Reference Number'"
+              [isReadonly]="true" displayMode="outline" [minValue]="1" [maxValue]="9999" [maxLen]="4"
+              [placeholder]="'Auto-generated number'" (onBlurred)="onBlur($event)"
+              (onChanged)="onNumberChanged($event)"></input-number>
+          </div>
+
+          <!-- Office Code -->
+          <div>
+            <input-office-box [frmGroup]="frmGroup" [controlName]="'officeCode'" [label]="'Office Code'"
+              displayMode="outline" [enable]="true" [visible]="true" [maxLen]="4"
+              [placeholder]="'Auto-suggested based on currency'" (onBlurred)="onBlur($event)"
+              (onChanged)="onOfficeBoxChanged($event)"></input-office-box>
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Field Components — Vertical Mode (Configuration Fields) -->
+      <app-expansion-panel-header [panelTitle]="'Configuration Fields — Vertical Mode'" [isOpenSignal]="verticalFieldsPanel">
+        <div class="section-grid-3">
+
+          <!-- Account ID -->
+          <div>
+            <input-id-box [frmGroup]="frmGroup" [controlName]="'id'" [label]="'Account ID'"
+              [isAllowSpecialChars]="true" [isDotsVisible]="true" [tooltip]="'Click to select account ID'"
+              [tooltipPosition]="'above'" [tooltipDelay]="300" displayMode="vertical" (onBlurred)="onBlur($event)"
+              (dotsClicked)="openModal()" (onChanged)="onIdBoxChanged($event)"></input-id-box>
+          </div>
+
+          <!-- Currency (Vertical) -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'currency'" [label]="'Currency'"
+              [options]="currencyOptions" [tooltip]="'Currency selection affects country and tax rate'"
+              [searchable]="false" (onSelect)="handleCategorySelection($event)"></input-select-option-field>
+          </div>
+
+          <!-- Country -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'country'" [label]="'Country'"
+              [options]="countryOptions"
+              [tooltip]="'Country affects risk level and validation rules'"></input-select-option-field>
+          </div>
+
+          <!-- Product Category -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'productCategory'"
+              [label]="'Product Category'" [options]="productCategoryOptions"
+              [tooltip]="'Category affects subcategories and tax multiplier'"></input-select-option-field>
+          </div>
+
+          <!-- Subcategory -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'subCategory'" [label]="'Sub Category'"
+              [options]="getFilteredSubCategories()"
+              [tooltip]="'Subcategory sets minimum amount requirements'"></input-select-option-field>
+          </div>
+
+          <!-- Transaction Date -->
+          <div>
+            <input-date [frmGroup]="frmGroup" [controlName]="'date'" [minDate]="getTodayDate()"
+              [label]="'Transaction Date'" displayMode="vertical" [maxYear]="2034"
+              [includeTime]="2" [enableYearRangeValidation]="false" (onBlurred)="onBlur($event)"></input-date>
+          </div>
+
+          <div>
+            <month-year-picker [frmGroup]="frmGroup" controlName="dateField" [label]="'Select Date'"
+              (dateChange)="onDateSelected($event)">
+            </month-year-picker>
+          </div>
+
+          <!-- Tax Rate (Read-only) -->
+          <div>
+            <input-text-box [frmGroup]="frmGroup" [controlName]="'taxRate'" [label]="'Tax Rate (%)'"
+              [isReadonly]="true" [tooltip]="'Calculated based on currency and product category'"></input-text-box>
+          </div>
+
+          <!-- Calculated Tax (Read-only) -->
+          <div>
+            <input-text-box [frmGroup]="frmGroup" [controlName]="'calculatedTax'" [label]="'Tax Amount'"
+              [isReadonly]="true" [tooltip]="'Auto-calculated: Amount × Tax Rate'"></input-text-box>
+          </div>
+
+          <!-- Total Amount (Read-only) -->
+          <div>
+            <input-text-box [frmGroup]="frmGroup" [controlName]="'totalAmount'" [label]="'Total Amount'"
+              [isReadonly]="true" [tooltip]="'Auto-calculated: Amount + Tax'"></input-text-box>
+          </div>
+
+          <!-- PDF File Upload  -->
+          <div>
+            <input-file #pdfFileInput [id]="'pdf-upload'" [multipleFile]="false" [isVertical]="true"
+              style="width: 100%;height: 300px;" [isImageMode]="true" imageShape="square"
+              [cssClass]="'border-green-300 bg-green-50 '" [savePath]="'documents/transactions'"
+              [customFileName]="'transaction-document'" (selectedFilesChanged)="onPdfSelected($event)"
+              (onFileChanged)="onFileInputChanged('Transaction Document')" />
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Document Upload & Notes (Horizontal Mode) -->
+      <app-expansion-panel-header [panelTitle]="'Document Upload & Notes'" [isOpenSignal]="documentNotesPanel">
+        <div class="section-grid space-y-6">
+
+          <!-- Express Processing Switch -->
+          <div>
+            <generic-switch [frmGroup]="frmGroup"     [enable]="false"  displayMode="horizontal" [controlName]="'switch'"
+              [label]="'Express Processing'" [isChecked]="frmGroup.get('switch')?.value || false"></generic-switch>
+            <div class="text-xs text-gray-600 mt-1">
+              Express processing reduces validation requirements
+            </div>
+          </div>
+
+          <!-- Text Area  -->
+          <div>
+            <input-text-area [frmGroup]="frmGroup" [controlName]="'textArea'" [label]="'Transaction Notes'"
+              [minRows]="2" [width]="'100%'" displayMode="horizontal" [maxRows]="10" [maxCols]="80"
+              [placeholder]="'Enter transaction description and notes...'" [showRowCount]="true"
+              (onChanged)="onInputTextAreaChanged($event)"></input-text-area>
+          </div>
+
+          <!-- Tag Input Example -->
+          <div>
+            <input-tag [disabled]="false" [placeholder]="'Add tags (press Enter or comma)'" [maxItems]="5"
+              [draggable]="true" [removable]="true" [label]="'tag'" [editable]="true"
+              [autocompleteItems]="tagSuggestions" [tooltip]="'Add relevant tags for categorization'"
+              (onAdd)="onTagAdded($event)" (onRemove)="onTagRemoved($event)" [modelAsStrings]="true">
+              ></input-tag>
+          </div>
+
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Form Actions -->
+      <app-expansion-panel-header [panelTitle]="'Form Actions'" [isOpenSignal]="formActionsPanel">
+        <div class="section-grid">
+          <div class="flex gap-4">
+            <generic-button id="saveBtn" value="save" label="Save" (onClick)="addCurrentFormToGrid()">
+            </generic-button>
+            <generic-button id="openSelfBtn" [styles]="'background: blue;'" value="open" label="Open in Modal"
+              (onClick)="openModal()">
+            </generic-button>
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Field Components — Horizontal Mode -->
+      <app-expansion-panel-header [panelTitle]="'Field Components — Horizontal Mode'" [isOpenSignal]="horizontalFieldsPanel">
+        <div class="section-grid">
+
+          <!-- Text Input - Horizontal -->
+          <div>
+            <input-text-box [frmGroup]="frmGroup" [controlName]="'textBoxHorizontal'"
+              [label]="'Transaction Reference '" [isReadonly]="false" displayMode="horizontal"
+              [tooltip]="'Auto-generated based on currency and category'" [tooltipPosition]="'above'"
+              [tooltipDelay]="300" [tooltipClass]="'success-tooltip'" (onBlurred)="onBlur($event)"
+              (onChanged)="onTextBoxChanged($event)" [customErrorMessages]="{
+                  required: 'Transaction reference is required',
+                  minlength: 'Minimum 3 characters required',
+                  maxlength: 'Maximum 20 characters allowed',
+                  pattern: 'Only alphanumeric characters and underscores are allowed'
+                }"></input-text-box>
+          </div>
+
+          <!-- Currency Select - Horizontal -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'currencyHorizontal'"
+              [label]="'Currency '" displayMode="horizontal" [options]="currencyOptions"
+              [tooltip]="'Currency selection affects country and tax rate'" [searchable]="false"
+              (onSelect)="handleCategorySelection($event)"></input-select-option-field>
+          </div>
+
+          <!-- Amount in Words - Horizontal -->
+          <div>
+            <input-amount-in-word [frmGroup]="frmGroup" [controlName]="'amountToWordHorizontal'"
+              [label]="'Amount in Words '" displayMode="horizontal" [currency]="selectedCurrency()"
+              [decimalPlaces]="2" [maxLen]="12" [tooltip]="'Automatically synced with amount field'"
+              (onBlurred)="onBlur($event)" (onChanged)="onAmountToWordChanged($event)"></input-amount-in-word>
+          </div>
+
+          <!-- Priority Level - Horizontal -->
+          <div>
+            <input-select-option-field [frmGroup]="frmGroup" [controlName]="'dropdownHorizontal'"
+              [label]="'Priority Level '" displayMode="horizontal" [options]="dropdownOptions"
+              [tooltip]="'Select transaction priority'"
+              (onSelect)="handleCategorySelection($event)"></input-select-option-field>
+          </div>
+
+          <!-- Multi-Select Services - Horizontal -->
+          <div>
+            <generic-multi-select-option [frmGroup]="frmGroup" [controlName]="'multiSelectHorizontal'"
+              [label]="'Additional Services '" displayMode="horizontal"
+              [options]="dropdownOptions"></generic-multi-select-option>
+          </div>
+
+          <!-- Reference Number - Horizontal -->
+          <div>
+            <input-number [frmGroup]="frmGroup" [controlName]="'numberHorizontal'" [label]="'Reference Number '"
+              displayMode="horizontal" [minValue]="1" [maxValue]="9999" [maxLen]="4"
+              [placeholder]="'Auto-generated number'" (onBlurred)="onBlur($event)"
+              (onChanged)="onNumberChanged($event)"></input-number>
+          </div>
+
+          <!-- Office Code - Horizontal -->
+          <div>
+            <input-office-box [frmGroup]="frmGroup" [controlName]="'officeCodeHorizontal'" [label]="'Office Code '"
+              displayMode="horizontal" [enable]="true" [visible]="true" [maxLen]="4"
+              [placeholder]="'Auto-suggested based on currency'" (onBlurred)="onBlur($event)"
+              (onChanged)="onOfficeBoxChanged($event)"></input-office-box>
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Transaction Grid -->
+      <app-expansion-panel-header [panelTitle]="'Transaction Grid'" [isOpenSignal]="transactionGridPanel">
+        <div class="flex justify-end mb-4">
+          <generic-button labelText="Add Test Row (Auto-Edit)" (onClick)="addTestRow()">
+          </generic-button>
+        </div>
+        <generic-data-grid #transactionGrid [id]="'enhanced-transactions'" [autoEditOnAdd]="true" [dataSource]="sampleTransactions()"
+          [initPageSize]="8" [enableSelection]="true" [showEditButton]="true" [showDeleteButton]="true"
+          [showViewButton]="true" [searchEnabled]="true" [showPrintButton]="true" [useInlineEdit]="true"
+          [editableColumns]="['amount', 'status', 'priority', 'currency', 'country', 'productCategory', 'subCategory', 'assignedRole']"
+          [numberColumns]="['amount', 'calculatedTax', 'totalAmount', 'taxRate']"
+          [dropdownColumns]="transactionDropdownColumns()" [dropdownOptions]="transactionDropdownOptions()"
+          [selectedColumns]="['id', 'amount', 'currency', 'country', 'productCategory', 'subCategory', 'status', 'riskLevel', 'totalAmount', 'requiresApproval']"
+          [checkboxColumns]="checkStateColumns" [rowDesignerList]="transactionRowDesigners()"
+            [rowSelectionCondition]="isTransactionRowSelectable"
+          [checkboxSelectAllColumns]="['status']"
+          [readOnlyCheckboxColumns]="['status']"
+          [tblClass]="'enhanced-transaction-table'" [groupOptionEnabled]="true" [summaryGridEnabled]="true"
+          [summaryColumns]="['amount','calculatedTax']"
+          [groupByColumns]="['currency', 'country','productCategory', 'subCategory']"
+          [summaryGridPosition]="'above'" [gridTitle]="'Transaction Grid'"
+          [actionVisibility]="transactionActionVisibility" (onFHEditClick)="onTransactionEdit($event)"
+          (onFHDeleteClick)="onTransactionDelete($event)" (onFHViewClick)="onTransactionView($event)"
+          (onPrint)="onTransactionPrint($event)" [selectionStateField]="'isSelected'"
+          [selectionStateFunction]="isOrderProcessable" [selectionUpdateField]="'isSelected'"
+          (onPaginationChange)="loadDataFromServer($event)" (onChecked)="onTransactionRowSelect($event)"
+          (onSelectAllChange)="onTransactionSelectAll($event)" (onCellValueChange)="onCellValueChanged($event)"
+          (dataSourceChanged)="onTransactionDataChanged($event)"
+          (onCellButtonClick)="onGridCellButtonClick($event)"
+          (onRowEditStart)="handleRowEditStart($event)"></generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Enhanced Data Grid - Complete Feature Showcase -->
+      <app-expansion-panel-header [panelTitle]="'Enhanced Data Grid - Complete Feature Showcase'"
+        [isOpenSignal]="enhancedGridShowcase">
+        <generic-data-grid #enhancedShowcaseGrid [id]="'enhanced-showcase-grid'" [backendPaginationEnabled]="true"
+          [dataSource]="sampleTransactions()" [initPageSize]="6" [pageSizeOptions]="[5, 10, 15, 20]"
+          [enableSelection]="true" [showEditButton]="true" [showDeleteButton]="true" [showViewButton]="true"
+          [showCustomAction1]="showCustomActionButtons()" [customActionSvg1]="approveSvgIcon"
+          [customActionTooltip1]="'Approve Transaction'" (onExtraAction1Click)="onApproveTransaction($event)"
+          [showCustomAction2]="showCustomActionButtons()" [customActionSvg2]="downloadSvgIcon"
+          [customActionTooltip2]="'Download Report'" (onExtraAction2Click)="onDownloadTransaction($event)"
+          [searchEnabled]="true" [showPrintButton]="true" [useInlineEdit]="true"
+          [editableColumns]="['amount', 'status', 'priority', 'riskLevel']"
+          [numberColumns]="['amount', 'calculatedTax', 'totalAmount', 'taxRate']"
+          [dropdownColumns]="['status', 'priority', 'riskLevel']" [dropdownOptions]="enhancedDropdownOptions()"
+          [selectedColumns]="['id', 'profileCard', 'amount', 'currency', 'priorityAction', 'quickActions', 'riskLevel']"
+          [tblClass]="'showcase-enhanced-table'" [gridTitle]="'Enhanced Transaction Grid'"
+          [cellRenderFunctions]="enhancedCellRenderers()" [cellStyleResolvers]="enhancedCellStyleResolvers()"
+          [rowStyleResolvers]="enhancedRowStyleResolvers()" [backendPaginationEnabled]="true"
+          [actionVisibility]="enhancedActionVisibility" (onFHEditClick)="onTransactionEdit($event)"
+          (onFHDeleteClick)="onTransactionDelete($event)" (onFHViewClick)="onTransactionView($event)"
+          (onPrint)="onTransactionPrint($event)" (onPaginationChange)="onEnhancedPaginationChange($event)"
+          (onDataGridStateChange)="onEnhancedStateChange($event)" (onCellValueChange)="onCellValueChanged($event)"
+          (dataSourceChanged)="onTransactionDataChanged($event)" (onChecked)="onTransactionRowSelect($event)"
+          (onSelectAllChange)="onTransactionSelectAll($event)">
+        </generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Data Entry Grid - starts empty, one row at a time -->
+      <app-expansion-panel-header [panelTitle]="'Data Entry Grid — Start Empty, Add Rows One at a Time'"
+        [isOpenSignal]="entryGridPanel">
+        <div class="flex items-start justify-between gap-2 mb-3 px-1">
+          <div class="text-[11px] text-slate-600 leading-2">
+
+          </div>
+          <generic-button icon="add" label="Add" (onClick)="addEntryRow()"></generic-button>
+        </div>
+        <generic-data-grid #entryGrid [id]="'data-entry-lines'" [dataSource]="entryRows()"
+          [autoEditOnAdd]="true" [uniqueIdField]="'id'" [useInlineEdit]="true" [showPaginator]="false"
+          [initPageSize]="50" [showEditButton]="true" [showDeleteButton]="true"
+          [selectedColumns]="['id', 'itemName', 'unit', 'quantity', 'rate', 'amount']"
+          [editableColumns]="['itemName', 'unit', 'quantity', 'rate']"
+          [numberColumns]="['rate', 'amount']"
+          [dropdownColumns]="['unit']" [dropdownOptions]="entryDropdownOptions"
+          [columnValidations]="entryValidations" [computedColumns]="entryComputedColumns"
+          [customColumnNames]="{
+            id: '#',
+            itemName: 'Item',
+            unit: 'Unit',
+            quantity: 'Qty',
+            rate: 'Rate',
+            amount: 'Amount'
+          }"
+          [columnWidths]="{ id: '60px', itemName: '260px', unit: '130px', quantity: '100px', rate: '120px', amount: '130px' }"
+          [gridTitle]="'Data Entry'" [tblClass]="'data-entry-table'"
+          (dataSourceChanged)="onEntryRowsChanged($event)" (onFHDeleteClick)="onEntryRowDelete($event)">
+        </generic-data-grid>
+
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Data Grid - Validation, Computed & Dependent Cells -->
+      <app-expansion-panel-header [panelTitle]="'Data Grid — Validation, Computed & Dependent Cells'"
+        [isOpenSignal]="validationGridPanel">
+        <div class="text-[11px] text-slate-600 leading-5 mb-3 px-1">
+          Hit the edit icon on a row, then: <b>Enter</b> saves, <b>Escape</b> discards, <b>Tab</b> off the last
+          cell saves. Product, Category, Sub Product, Qty and Unit Price are required; Qty is 1–999 and Discount
+          stops at 50%. <b>Line Total</b> is derived and read-only. <b>Sub Product</b> reloads its options from the
+          chosen <b>Category</b>, and <b>Discount Reason</b> only appears — and only becomes required — once a
+          discount is entered.
+        </div>
+        <generic-data-grid #validationGrid [id]="'order-lines-validation'" [dataSource]="orderLines()"
+          [initPageSize]="5" [pageSizeOptions]="[5, 10]" [uniqueIdField]="'id'" [useInlineEdit]="true"
+          [searchEnabled]="true" [showEditButton]="true" [showDeleteButton]="true"
+          [selectedColumns]="['id', 'product', 'category', 'subProduct', 'quantity', 'unitPrice', 'discountPercent', 'discountReason', 'lineTotal']"
+          [editableColumns]="['product', 'category', 'subProduct', 'quantity', 'unitPrice', 'discountPercent', 'discountReason']"
+          [numberColumns]="['unitPrice', 'lineTotal']"
+          [dropdownColumns]="['category', 'subProduct']" [dropdownOptions]="orderLineDropdownOptions"
+          [columnValidations]="orderLineValidations" [computedColumns]="orderLineComputedColumns"
+          [cellVisibilityResolvers]="orderLineCellVisibility" [cellChangeHandlers]="orderLineCellChangeHandlers"
+          [customColumnNames]="{
+            id: 'Line',
+            product: 'Product',
+            category: 'Category',
+            subProduct: 'Sub Product',
+            quantity: 'Qty',
+            unitPrice: 'Unit Price',
+            discountPercent: 'Discount %',
+            discountReason: 'Discount Reason',
+            lineTotal: 'Line Total'
+          }"
+          [columnWidths]="{
+            id: '70px',
+            quantity: '90px',
+            unitPrice: '120px',
+            discountPercent: '110px',
+            lineTotal: '130px'
+          }"
+          [gridTitle]="'Order Lines'" [tblClass]="'order-lines-table'"
+          (dataSourceChanged)="onOrderLinesChanged($event)" (onFHDeleteClick)="onOrderLineDelete($event)">
+        </generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Time Picker Data Grid Example -->
+      <app-expansion-panel-header [panelTitle]="'Time Picker Data Grid Example'" [isOpenSignal]="timePickerHeaderPanel">
+        <generic-data-grid #timePickerGrid [id]="'time-picker-schedule'" [dataSource]="sampleScheduleData()"
+          [pageSizeOptions]="[4,8,12]" [showEditButton]="true" [showDeleteButton]="true" [showViewButton]="true"
+          [searchEnabled]="true" [useInlineEdit]="true"
+          [editableColumns]="['name', 'startTime', 'endTime', 'breakTime', 'status']"
+          [timeColumns]="['startTime', 'endTime', 'breakTime']" [dropdownColumns]="['status']"
+          [checkboxColumns]="['status']" [multiSelectColumns]="['status']"
+          [dropdownOptions]="scheduleDropdownOptions()"
+          [selectedColumns]="['id', 'name', 'startTime', 'endTime', 'breakTime', 'totalHours', 'status']"
+          [customColumnNames]="{
+              id: 'User ID',
+              name: 'Full Name',
+              email: 'Email Address',
+              isActive: 'Status'
+            }" [tblClass]="'schedule-table'" (dataSourceChanged)="onScheduleDataChanged($event)">
+        </generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Date Picker Data Grid Example -->
+      <app-expansion-panel-header [panelTitle]="'Date Picker Data Grid Example'" [isOpenSignal]="datePickerHeaderPanel">
+        <generic-data-grid #datePickerGrid [id]="'date-picker-transactions'"
+          [dataSource]="sampleDateTransactions()" [initPageSize]="5" [pageSizeOptions]="[4, 8, 12]"
+          [enableSelection]="true" [showEditButton]="true" [showDeleteButton]="true" [showViewButton]="true"
+          [searchEnabled]="true" [useInlineEdit]="true"
+          [editableColumns]="['description', 'transactionDate', 'dueDate', 'completionDate', 'status']"
+          [dateColumns]="['transactionDate', 'dueDate', 'completionDate']" [dropdownColumns]="['status']"
+          [dropdownOptions]="dateGridDropdownOptions()"
+          [selectedColumns]="['id', 'description', 'transactionDate', 'dueDate', 'completionDate', 'status', 'amount']"
+          [numberColumns]="['amount']" [customColumnNames]="{
+              id: 'Transaction ID',
+              description: 'Description',
+              transactionDate: 'Transaction Date',
+              dueDate: 'Due Date',
+              completionDate: 'Completion Date',
+              status: 'Status',
+              amount: 'Amount'
+            }" [tblClass]="'date-transaction-table'" (dataSourceChanged)="onDateTransactionDataChanged($event)">
+        </generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Generic Table Component - Auto-Generation Examples -->
+      <app-expansion-panel-header [panelTitle]="'Generic Table Component - Auto-Generation Examples'"
+        [isOpenSignal]="genericTableHeaderPanel">
+        <generic-table [config]="genericTableConfig()" [showHeader]="true" [showFooter]="true"
+          [customTitle]="'Account Information'" [customSubtitle]="'Sample banking account data - ' ">
+        </generic-table>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Rich Text Editor -->
+      <app-expansion-panel-header [panelTitle]="'Rich Text Editor'" [isOpenSignal]="quillPanel">
+        <common-quill-editor [formGroup]="frmGroup" [controlName]="'quillEditor'" [labelName]="'Detailed Notes'">
+        </common-quill-editor>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Alerts -->
+      <app-expansion-panel-header [panelTitle]="'Alert Components'" [isOpenSignal]="alertsPanel">
+        <app-alert-example-page></app-alert-example-page>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Display Components - Generic Label -->
+      <app-expansion-panel-header [panelTitle]="'Display Components - Generic Label'"
+        [isOpenSignal]="displayComponentsPanel">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+
+          <!-- Basic Label (Static Text) -->
+          <div class="component-demo">
+            <h4 class="component-title">Basic Label</h4>
+            <generic-label [labelKey]="'Transaction Status'" [visible]="true" />
+          </div>
+
+          <!-- Label with Form Control (Simple Display) -->
+          <div class="component-demo">
+            <h4 class="component-title">Form Control Display</h4>
+            <generic-label [frmGroup]="frmGroup" [controlName]="'currency'" [labelKey]="'Selected Currency'"
+              [displayMode]="'vertical'" [visible]="true" [customStyle]="{ color: '#6366f1', textDecoration: 'underline' }"
+              [tooltip]="'Displays the currently selected currency value'" />
+          </div>
+
+          <!-- Selectable Label (Mapped Display) -->
+          <div class="component-demo">
+            <h4 class="component-title">Mapped Value Display</h4>
+            <generic-label [frmGroup]="frmGroup" [controlName]="'dropdown'" [labelKey]="'Priority Level'"
+              [displayMode]="'vertical'" [isSelectable]="true" [options]="dropdownOptions" [visible]="true"
+              [tooltip]="'Shows the human-readable priority level based on the selected key'" />
+          </div>
+
+          <!-- Required Field Indicator -->
+          <div class="component-demo">
+            <h4 class="component-title">Required Field Display</h4>
+            <generic-label [frmGroup]="frmGroup" [controlName]="'textBox'" [labelKey]="'Transaction Reference'"
+              [displayMode]="'vertical'" [isRequired]="true" [visible]="true"
+              [tooltip]="'Displays the transaction reference with required indicator'" />
+          </div>
+
+          <!-- Horizontal Display Mode -->
+          <div class="component-demo">
+            <h4 class="component-title">Horizontal Layout</h4>
+            <generic-label [frmGroup]="frmGroup" [controlName]="'amount'" [labelKey]="'Amount'" [displayMode]="'horizontal'"
+              [visible]="true" [tooltip]="'Amount displayed in horizontal layout'" />
+          </div>
+
+          <!-- Hidden Component Demo -->
+          <div class="component-demo">
+            <h4 class="component-title">Conditional Visibility</h4>
+            <generic-label [frmGroup]="frmGroup" [controlName]="'totalAmount'" [labelKey]="'Total Amount'"
+              [displayMode]="'vertical'" [visible]="false" [tooltip]="'This component is hidden (visible=false)'" />
+            <p class="text-sm text-gray-500 mt-2">This label is hidden due to visible="false"</p>
+          </div>
+
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Expansion Panel Hierarchy Demo -->
+      <app-expansion-panel-header [panelTitle]="'Expansion Panel Hierarchy Demo'" [isOpenSignal]="hierarchyDemoPanel">
+        <div class="bg-blue-50 p-6 rounded-lg">
+          <p class="text-sm text-gray-700 mb-6">
+            This section demonstrates the three-level expansion panel hierarchy for organizing content in a hierarchical
+            structure.
+          </p>
+
+          <!-- LEVEL 1: Main Header -->
+          <div class="mb-4">
+            <app-expansion-panel-header [panelTitle]="'Section 1: Product Configuration'" [isOpenSignal]="subPanel1" />
+
+            @if(subPanel1()) {
+            <div class="bg-white p-4 rounded border border-gray-200 ml-4">
+              <!-- LEVEL 2: Sub Header -->
+              <div class="mb-4">
+                <app-expansion-sub-panel-header [subPanelTitle]="'Basic Settings'" [isOpenSignal]="subSubPanel1" />
+
+                @if(subSubPanel1()) {
+                <div class="bg-gray-50 p-4 rounded border-l-4 border-blue-400 ml-4">
+                  <!-- LEVEL 3: Sub-Sub Header -->
+                  <div class="mb-3">
+                    <app-expansion-sub-sub-panel-header [subSubPanelTitle]="'General Information'"
+                      [isOpenSignal]="subSubPanel1" />
+                  </div>
+
+                  <div class="ml-4 text-sm text-gray-700 space-y-2">
+                    <p>✓ Product name and description</p>
+                    <p>✓ SKU and barcode</p>
+                    <p>✓ Category and subcategory</p>
+                  </div>
+
+                  <!-- Second nested Sub-Sub Header -->
+                  <div class="mt-4">
+                    <app-expansion-sub-sub-panel-header [subSubPanelTitle]="'Pricing Details'"
+                      [isOpenSignal]="subSubPanel2" />
+                  </div>
+
+                  @if(subSubPanel2()) {
+                  <div class="ml-4 text-sm text-gray-700 space-y-2 mt-2">
+                    <p>✓ Cost price and selling price</p>
+                    <p>✓ Markup percentage</p>
+                    <p>✓ Currency and tax rate</p>
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+
+              <!-- LEVEL 2: Second Sub Header -->
+              <div class="mt-4">
+                <app-expansion-sub-panel-header [subPanelTitle]="'Advanced Settings'" [isOpenSignal]="subPanel1" />
+
+                @if(subPanel1()) {
+                <div class="bg-gray-50 p-4 rounded border-l-4 border-green-400 ml-4">
+                  <div class="text-sm text-gray-700 space-y-2">
+                    <p>✓ Inventory management rules</p>
+                    <p>✓ Supplier information</p>
+                    <p>✓ Quality standards</p>
+                    <p>✓ Shipping specifications</p>
+                  </div>
+                </div>
+                }
+              </div>
+            </div>
+            }
+          </div>
+
+          <!-- Usage Guide -->
+          <div class="mt-6 p-4 bg-yellow-50 rounded border border-yellow-200">
+            <h4 class="font-semibold text-gray-800 mb-2">Component Hierarchy Levels:</h4>
+            <ul class="text-sm text-gray-700 space-y-2">
+              <li><strong>Level 1 (expansion-panel-header):</strong> Main sections with blue primary theme</li>
+              <li><strong>Level 2 (expansion-sub-panel-header):</strong> Subsections with info icon and smaller styling</li>
+              <li><strong>Level 3 (expansion-sub-sub-panel-header):</strong> Sub-subsections with left border and compact
+                layout</li>
+            </ul>
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: API Data Grid (extra actions + server-like pagination) -->
+      <app-expansion-panel-header [panelTitle]="'API Data Grid — Extra Actions & Pagination'" [isOpenSignal]="apiGridPanel">
+        <generic-data-grid [dataSource]="sampleApiData()" [initPageSize]="5" [pageSizeOptions]="[5, 10, 20]"
+          [showCustomAction1]="true" [customActionIcon1]="'apps.svg'" [customActionTooltip1]="'Flag row'"
+          (onExtraAction1Click)="handleExtra1($event)" [enableSelection]="true" [selectionStateField]="'email'"
+          [editableColumns]="['status']" [checkboxColumns]="['status']" (onPaginationChange)="loadDataFromServer($event)"
+          [showCustomAction2]="true" [customActionIcon2]="'report'" [customActionTooltip2]="'Download row data'"
+          (onExtraAction2Click)="handleExtra2($event)" (onDataGridStateChange)="onEnhancedStateChange($event)"
+          [uniqueIdField]="'id'" (dataSourceChanged)="onDateTransactionDataChanged($event)"
+          [iconPathPrefix]="'/asset/icons'">
+        </generic-data-grid>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: Loader Demo -->
+      <app-expansion-panel-header [panelTitle]="'Loader Demo'" [isOpenSignal]="loaderDemoPanel">
+        <div class="section-grid">
+          <generic-button id="deleteBtn" value="delete" label="loader" (onClick)="showLoader()" />
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION: File Preview Component -->
+      <app-expansion-panel-header [panelTitle]="'File Preview Component'" [isOpenSignal]="filePreviewPanel">
+        <div class="section-grid">
+          <file-preview-card [fileData]="excelData" (previewClicked)="openFilePreviewModal($event)">
+          </file-preview-card>
+        </div>
+      </app-expansion-panel-header>
+
+    </form>
+
+    <!-- Data Selection Modal -->
+    <generic-modal [isVisible]="showModal" [modalTitle]="'Account Selection'" [cssClass]="'modal-sm'"
+      [okButtonText]="'Process'" [showDefaultFooter]="true" [showOkButton]="true" [modalComponent]="modalComponent"
+      [modalComponentData]="modalComponentData" (modalClosed)="onModalClose(false)"
+      (modalResult)="onModalResult($event)"></generic-modal>
+    }
+  </div>
+</div>

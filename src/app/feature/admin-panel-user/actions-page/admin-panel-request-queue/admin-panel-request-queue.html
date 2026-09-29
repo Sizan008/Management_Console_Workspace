@@ -1,0 +1,210 @@
+<section
+  class="flex min-w-0 flex-col bg-white"
+  aria-label="Request Queue"
+  [attr.aria-busy]="busy()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-5">
+    @if (errorMessage()) {
+      <p
+        role="alert"
+        class="break-words rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (warningMessage()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
+      >
+        {{ warningMessage() }}
+      </p>
+    }
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Request Queue Filter"
+        [isOpenSignal]="filterOpen"
+      />
+
+      @if (filterOpen()) {
+        <div
+          class="grid min-w-0 grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 xl:grid-cols-4"
+        >
+          <input-text-box
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="userId"
+            label="User ID"
+            displayMode="outline"
+            [isReadonly]="true"
+          />
+
+          <input-select-option-field
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="branchName"
+            label="Branch Name"
+            displayMode="outline"
+            [options]="branchOptions()"
+            [allowUnselect]="false"
+          />
+
+          <input-select-option-field
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="requestType"
+            label="Request Type"
+            displayMode="outline"
+            [options]="requestTypeOptions()"
+          />
+
+          <input-select-option-field
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="status"
+            label="Status"
+            displayMode="outline"
+            [options]="statusOptions()"
+          />
+
+          <input-date
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="startDate"
+            label="Start Date"
+            displayMode="outline"
+          />
+
+          <input-date
+            class="w-full min-w-0"
+            [frmGroup]="requestForm"
+            controlName="endDate"
+            label="End Date"
+            displayMode="outline"
+          />
+
+          <div
+            class="flex min-w-0 flex-wrap items-start gap-2 sm:col-span-2 xl:col-span-2"
+          >
+            <generic-button
+              [label]="searching() ? 'Searching…' : 'Search'"
+              [enable]="canSearch()"
+              (onClick)="search()"
+            />
+            <generic-button
+              label="Reset"
+              [enable]="!searching()"
+              (onClick)="reset()"
+            />
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Request Queue Details"
+        [isOpenSignal]="gridOpen"
+      />
+
+      @if (gridOpen()) {
+        @if (searching()) {
+          <p
+            role="status"
+            class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600"
+          >
+            Loading request queue…
+          </p>
+        }
+
+        <div class="min-w-0 overflow-x-auto">
+          <generic-data-grid
+            class="block min-w-[1000px]"
+            id="admin-panel-request-queue-grid"
+            [dataSource]="requestQueueData()"
+            [selectedColumns]="columns"
+            [customColumnNames]="columnNames"
+            [showViewButton]="true"
+            [showDeleteButton]="false"
+            [showEditButton]="false"
+            [useInlineEdit]="false"
+            [enableSelection]="true"
+            [searchEnabled]="true"
+            [showPaginator]="true"
+            [initPageSize]="10"
+            [pageSizeOptions]="[10, 25, 50]"
+            uniqueIdField="requesT_ID"
+            (onFHViewClick)="onView($event)"
+          />
+        </div>
+      }
+    </div>
+  </div>
+
+  <div
+    class="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 p-3 sm:px-5"
+  >
+    <generic-button
+      label="Close"
+      [enable]="!searching()"
+      (onClick)="onClose()"
+    />
+  </div>
+</section>
+
+<generic-modal
+  [isVisible]="detailsOpen()"
+  modalTitle="Request Details"
+  [closeOnBackdropClick]="true"
+  [showDefaultFooter]="false"
+  (modalClosed)="closeDetails()"
+>
+  <div
+    class="min-w-0 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain p-2 pr-3 sm:p-3 sm:pr-4"
+  >
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Request Information"
+        [isOpenSignal]="detailsInformationOpen"
+      />
+      @if (detailsInformationOpen()) {
+        <case-summary-details
+          title="Request Information"
+          [details]="requestDetails()"
+        />
+      }
+    </div>
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="User Information"
+        [isOpenSignal]="detailsUserOpen"
+      />
+      @if (detailsUserOpen()) {
+        <case-summary-details
+          title="User Information"
+          [details]="userDetails()"
+        />
+      }
+    </div>
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Request Parameters"
+        [isOpenSignal]="detailsParametersOpen"
+      />
+      @if (detailsParametersOpen()) {
+        <case-summary-details
+          title="Request Parameters"
+          [details]="parameterDetails()"
+        />
+      }
+    </div>
+
+    <div class="flex justify-end">
+      <generic-button label="Close" (onClick)="closeDetails()" />
+    </div>
+  </div>
+</generic-modal>

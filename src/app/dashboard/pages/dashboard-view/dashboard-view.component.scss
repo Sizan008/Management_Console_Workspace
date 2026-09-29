@@ -1,0 +1,570 @@
+.view-root {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.view-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  gap: 12px;
+  color: #64748b;
+}
+
+.view-header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px;
+  }
+}
+
+.view-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.view-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 80px 24px;
+  text-align: center;
+
+  .empty-icon { font-size: 48px; line-height: 1; }
+
+  .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+  }
+
+  .empty-sub {
+    font-size: 14px;
+    color: #94a3b8;
+    max-width: 420px;
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.view-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 20px 12px;
+}
+
+.vw-layout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  &:active {
+    background: #f1f5f9;
+  }
+}
+
+.view-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: 90px;
+  gap: 16px;
+}
+
+.view-widget {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.vw-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.vw-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  svg { width: 20px; height: 20px; display: block; }
+}
+
+.vw-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vw-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+
+  app-widget-preview {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+  }
+}
+
+.vw-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  color: #94a3b8;
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: opacity 0.15s, color 0.12s, background 0.12s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled) {
+    color: #475569;
+    background: #f1f5f9;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0 !important;
+    cursor: default;
+  }
+
+  &.spinning svg {
+    animation: spin 0.75s linear infinite;
+    color: #2563eb;
+  }
+}
+
+.vw-icon-btn:hover:not(:disabled) { opacity: 1; }
+.vw-icon-btn:disabled { opacity: 0.2 !important; cursor: default; }
+
+// ── Runtime filter bar ─────────────────────────────────────────────────────────
+.vw-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.vw-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vw-filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.vw-filter-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: 12px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  height: 26px;
+  max-width: 160px;
+
+  &:focus { border-color: #3b82f6; }
+}
+
+// Filter bar inside zoom modal — slightly tighter padding, white bg
+.zoom-filter-bar {
+  background: #fff !important;
+  padding: 8px 20px !important;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+// ── Zoom modal ────────────────────────────────────────────────────────────────
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 14000;
+  padding: 40px;
+  animation: zfade 0.15s ease;
+}
+
+@keyframes zfade { from { opacity: 0; } to { opacity: 1; } }
+
+.zoom-card {
+  background: #fff;
+  border-radius: 16px;
+  width: min(960px, 92vw);
+  height: min(660px, 86vh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  animation: zpop 0.18s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes zpop {
+  from { transform: scale(0.93); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.zoom-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fafbfc;
+  flex-shrink: 0;
+
+  .zoom-icon {
+    display: inline-flex;
+    align-items: center;
+    svg { width: 28px; height: 28px; display: block; }
+  }
+  .zoom-title { flex: 1; font-size: 17px; font-weight: 700; color: #1e293b; }
+}
+
+.zoom-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #94a3b8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  &:hover { background: #f1f5f9; color: #334155; }
+}
+
+.zoom-body {
+  flex: 1;
+  min-height: 0;
+  padding: 28px 32px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+
+  app-widget-preview { flex: 1; display: flex; width: 100%; height: 100%; }
+}
+
+.vw-not-configured {
+  font-size: 12px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.vw-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.vw-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vw-table-wrap {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  padding: 0 4px;
+}
+
+.vw-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th {
+    background: #f8fafc;
+    padding: 5px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+  }
+
+  td {
+    padding: 4px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+}
+
+.vw-chart-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #94a3b8;
+  font-size: 28px;
+}
+
+.chart-rows {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+// ── Spinner ──────────────────────────────────────────────────────────────────
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+
+  &.sm { width: 18px; height: 18px; border-width: 2px; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ── Per-widget date range controls ────────────────────────────────────────────
+
+.vw-date-select {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 3px 8px;
+  cursor: pointer;
+  outline: none;
+  appearance: auto;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: #dbeafe; }
+}
+
+.zoom-date-select {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.vw-custom-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.zoom-custom-bar {
+  background: #fafbfc;
+  padding: 6px 20px;
+}
+
+.vw-custom-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.vw-custom-sep {
+  font-size: 11px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.vw-date-input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  height: 26px;
+
+  &:focus { border-color: #2563eb; }
+}
+
+.vw-date-apply {
+  padding: 3px 10px;
+  border-radius: 5px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 26px;
+  flex-shrink: 0;
+
+  &:hover { background: #1d4ed8; }
+}
+
+// ── Drill-down badge bar ──────────────────────────────────────────────────────
+.vw-drill-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  flex-shrink: 0;
+}
+
+.vw-drill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 2px 6px 2px 8px;
+  font-size: 11px;
+
+  .drill-col { color: #92400e; font-weight: 600; }
+  .drill-val { color: #b45309; }
+}
+
+.drill-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b45309;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 1px;
+  &:hover { color: #92400e; }
+}
+
+.drill-clear-all {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 600;
+  color: #d97706;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  &:hover { background: #fde68a; }
+}
+
+// ── KPI threshold coloring (live view) ───────────────────────────────────────
+.kpi-value {
+  &.kpi-good   { color: #16a34a !important; }
+  &.kpi-warn   { color: #d97706 !important; }
+  &.kpi-danger { color: #dc2626 !important; }
+}

@@ -1,0 +1,136 @@
+<!-- chat-box.html -->
+<div
+  class="h-[370px] max-h-[370px] max-w-[320px] pb-16 bg-gradient-to-br from-green-50 to-blue-50 flex flex-col shadow-xl rounded-xl">
+  <div class="sticky top-0 z-20">
+    <!-- Chat header -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 text-white px-3 py-2 flex items-center shadow-md">
+      <div
+        class="w-8 h-8 rounded-full bg-white/20 mr-2 flex items-center justify-center text-white font-semibold text-sm shadow">
+        {{ partner[0] }}
+      </div>
+      <div class="flex-1">
+        <h2 class="text-sm font-semibold leading-tight">{{ partner }}</h2>
+        <div class="flex items-center">
+          <div class="w-1.5 h-1.5 rounded-full bg-green-300 mr-1 animate-pulse"></div>
+          <p class="text-[10px] text-green-100">Online</p>
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex space-x-2">
+        <button (click)="toggleSearch()"
+                class="text-xs px-2 py-1 bg-white/20 rounded hover:bg-white/30 transition">Search</button>
+        <button (click)="onCloseClick()"
+                class="text-xs px-2 py-1 bg-white/20 rounded hover:bg-white/30 transition">Close</button>
+      </div>
+    </div>
+
+
+    <!-- Search Box -->
+    <div class="bg-white border-b border-gray-200 px-2 transition-all duration-500 ease-in-out"
+         [style.opacity]="isSearchOpen ? '1' : '0'" [style.max-height]="isSearchOpen ? '60px' : '0px'"
+         [class.py-2]="isSearchOpen" [class.pointer-events-auto]="isSearchOpen">
+
+      <div class="flex items-center space-x-2">
+
+        <button (click)="closeSearch()" class="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 transition">
+          X
+        </button>
+
+        <input [(ngModel)]="searchQuery" (keydown)="onSearchEnter($event)" type="text" placeholder="Search messages..."
+               #searchInput
+               class="flex-1 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-500">
+
+        <button class="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition">
+          Search
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Messages (scroll container) -->
+  <div #messagesContainer class="flex-1 p-4 pb-8 space-y-4 overflow-y-auto">
+    <div class="flex justify-center">
+      <span class="bg-white/80 backdrop-blur-sm text-gray-500 text-xs px-3 py-1 rounded-full shadow-sm">Today</span>
+    </div>
+
+    @for (msg of messages; track msg.timestamp) {
+    <div class="animate-fadeInUp">
+      <!-- Received Message -->
+      @if (getSender(msg) === 'other') {
+    <div class="flex items-start">
+      <div
+        class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 mr-3 mt-1 flex items-center justify-center text-sm font-semibold text-white shadow-md">
+        {{ msg.senderUserId }}
+      </div>
+      <div class="bg-white p-3 rounded-2xl shadow-sm max-w-[75%] hover:shadow-md transition-shadow">
+        <p class="text-sm text-gray-800">{{ msg.notificationBody }}</p>
+        <p class="text-xs text-gray-400 text-right mt-1">{{ formatTime(msg.timestamp) }}</p>
+      </div>
+    </div>
+    }
+
+    <!-- Sent Message -->
+    @if (getSender(msg) === 'me') {
+    <div class="flex justify-end">
+      <div
+        class="bg-gradient-to-r from-green-100 to-green-50 p-2 rounded-2xl shadow-sm max-w-[75%] hover:shadow-md transition-shadow">
+        <p class="text-sm text-gray-800">{{ msg.notificationBody }}</p>
+        <div class="flex justify-end items-center mt-2 space-x-1">
+          <p class="text-xs text-gray-400">{{ formatTime(msg.timestamp) }}</p>
+          <div class="flex">
+            <!-- You can change icons based on msg.status (pending/failed/sent) -->
+            @if (msg.status === 'pending') {
+            <span class="text-xs text-yellow-600 ml-2">Sending…</span>
+            } @else if (msg.status === 'failed') {
+            <span class="text-xs text-red-600 ml-2">Failed</span>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+    </div>
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping) {
+    <div class="flex items-start">
+    <div
+      class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 mr-3 mt-1 flex items-center justify-center text-sm font-semibold text-white shadow-md">
+    {{ partner[0].toUpperCase() }}
+    </div>
+    <div class="bg-white p-3 rounded-2xl shadow-sm">
+      <div class="flex space-x-1">
+        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+        <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+      </div>
+    </div>
+  </div>
+    }
+  </div>
+
+  <!-- Input area -->
+  <div
+    class="bg-white/90 backdrop-blur-sm border-t border-gray-200 p-2 fixed bottom-0 left-0 right-0 shadow-md max-w-md mx-auto">
+    <div class="flex items-center space-x-2">
+      <input [(ngModel)]="messageText" (keydown)="onEnterKey($event)" type="text" placeholder="Type a message..."
+             class="flex-1 border border-gray-300 rounded-full px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-gray-50 focus:bg-white transition-all">
+
+      <button (click)="sendMessage()"
+              class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm rounded-full hover:from-green-600 hover:to-green-700 transition-all shadow">
+        Send
+      </button>
+    </div>
+  </div>
+
+</div>
+

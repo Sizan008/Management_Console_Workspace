@@ -1,0 +1,87 @@
+<div
+  class="font-roboto w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 px-3 py-3 sm:px-4 lg:px-6"
+>
+  <div class="space-y-3">
+    <section
+      class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        [isOpenSignal]="isNewsPanelOpen"
+        panelTitle="News & Events"
+      >
+      </app-expansion-panel-header>
+      @if (isNewsPanelOpen()) {
+        <div class="border-t border-slate-100 p-4">
+          <form
+            id="news-event-form"
+            [formGroup]="newsEventForm"
+            class="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            <div class="min-w-0">
+              <input-text-box
+                [frmGroup]="newsEventForm"
+                controlName="title"
+                label="Title"
+                displayMode="outline"
+              >
+              </input-text-box>
+            </div>
+            <div class="min-w-0">
+              <input-text-box
+                [frmGroup]="newsEventForm"
+                controlName="url"
+                label="URL"
+                displayMode="outline"
+              >
+              </input-text-box>
+            </div>
+            <div class="min-w-0">
+              <input-date
+                [frmGroup]="newsEventForm"
+                controlName="date"
+                label="Date"
+                displayMode="outline"
+              >
+              </input-date>
+            </div>
+          </form>
+        </div>
+      }
+    </section>
+    <section
+      class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        [isOpenSignal]="isNewsListOpen"
+        panelTitle="News & Events List"
+      >
+      </app-expansion-panel-header>
+      @if (isNewsListOpen()) {
+        <div class="border-t border-slate-100 p-3">
+          <div class="min-w-0 overflow-x-auto">
+            <div class="min-w-[650px]">
+              <generic-data-grid
+                id="news-event-grid"
+                [dataSource]="newsEventList()"
+                [selectedColumns]="columns"
+                [customColumnNames]="columnNames"
+                [showEditButton]="true"
+                [showDeleteButton]="true"
+                [useInlineEdit]="false"
+                [uniqueIdField]="'id'"
+                [initPageSize]="5"
+                [pageSizeOptions]="[5, 10, 20, 50]"
+                [showPaginator]="true"
+                [searchEnabled]="true"
+                (onFHEditClick)="onEdit($event)"
+                (onFHDeleteClick)="onDelete($event)"
+              >
+              </generic-data-grid>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

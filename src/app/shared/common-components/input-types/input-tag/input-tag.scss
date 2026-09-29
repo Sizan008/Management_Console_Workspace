@@ -1,0 +1,227 @@
+.tag-input-wrapper {
+  width: 100%;
+  position: relative;
+
+  .tag-chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 1px;
+  }
+
+  mat-chip-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    &.cdk-drag-preview {
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      opacity: 0.8;
+    }
+
+    &.cdk-drag-placeholder {
+      opacity: 0.3;
+    }
+
+    &[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+
+      &:hover {
+        transform: none;
+        box-shadow: none;
+      }
+    }
+  }
+
+  .error-message {
+    margin-top: 4px;
+    min-height: 20px;
+  }
+}
+
+// Minimal Theme
+.tag-input-theme-minimal {
+  mat-form-field {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+
+  mat-chip-row {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    font-size: 13px;
+    padding: 4px 8px;
+    height: auto;
+    min-height: 28px;
+
+    &:hover {
+      background-color: #e8e8e8;
+    }
+
+    .mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Dark Theme
+.tag-input-theme-dark {
+  mat-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: #2d2d2d;
+    }
+  }
+
+  mat-chip-row {
+    background-color: #3d3d3d;
+    color: #fff;
+    border: 1px solid #555;
+
+    &:hover {
+      background-color: #4d4d4d;
+    }
+
+    .mat-icon {
+      color: #fff;
+    }
+  }
+
+  input {
+    color: #fff;
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+}
+
+// Bootstrap Theme
+.tag-input-theme-bootstrap {
+  mat-chip-row {
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 6px 12px;
+
+    &:hover {
+      background-color: #0b5ed7;
+    }
+
+    .mat-icon {
+      color: #fff;
+    }
+  }
+}
+
+// Bootstrap 3 Info Theme
+.tag-input-theme-bootstrap3-info {
+  mat-chip-row {
+    background-color: #5bc0de;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid #46b8da;
+
+    &:hover {
+      background-color: #46b8da;
+    }
+
+    .mat-icon {
+      color: #fff;
+    }
+  }
+}
+
+// Foundation Theme
+.tag-input-theme-foundation-theme {
+  mat-chip-row {
+    background-color: #008CBA;
+    color: #fff;
+    border-radius: 3px;
+    font-size: 14px;
+    padding: 6px 12px;
+
+    &:hover {
+      background-color: #007095;
+    }
+
+    .mat-icon {
+      color: #fff;
+    }
+  }
+}
+
+// Drag and drop animations
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-animating {
+  transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Custom scrollbar for autocomplete
+mat-autocomplete {
+  .mat-mdc-autocomplete-panel {
+    max-height: 256px;
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .tag-input-wrapper {
+    .tag-chip-grid {
+      gap: 4px;
+    }
+
+    mat-chip-row {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  }
+}
+
+::ng-deep {
+    .mdc-notched-outline__leading {
+      border-right: none !important; 
+    }
+    .mdc-notched-outline__notch {
+      border-left: none !important;
+      border-right: none !important;
+    }
+    .mdc-notched-outline__trailing {
+      border-left: none !important;
+    }
+    .mdc-notched-outline--notched .mdc-notched-outline__notch {
+      border-top: none !important;
+    }
+  }

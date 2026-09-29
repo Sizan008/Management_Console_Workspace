@@ -1,0 +1,90 @@
+@if (isVisible) {
+  <div class="modal-backdrop"
+       [class.show]="isVisible"
+       (click)="onBackdropClick()">
+  </div>
+
+  <!-- Modal Dialog -->
+  <div class="modal-wrapper"
+       [class.show]="isVisible"
+       role="dialog"
+       [attr.aria-labelledby]="modalTitle"
+       [attr.aria-modal]="true"
+       tabindex="-1"
+       (click)="onBackdropClick()">
+    <div class="modal-dialog"
+         [class]="cssClass"
+         role="document"
+         (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <!-- Rest of your modal content -->
+        <div class="modal-header">
+          <div class="header-content">
+            <div class="title-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18"/>
+              </svg>
+            </div>
+            <h5 class="modal-title" id="modalTitle">{{ modalTitle }}</h5>
+          </div>
+          <button type="button"
+                  class="btn-close"
+                  aria-label="Close"
+                  (click)="onCancelClick()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <!-- Dynamic Component Container -->
+          @if (modalComponent) {
+            <div class="component-wrapper">
+              <ng-container #modalContainer></ng-container>
+            </div>
+          } @else {
+            <!-- Projected / inline content -->
+            <ng-content></ng-content>
+            @if (bodyContentTemplate) {
+              <ng-container *ngTemplateOutlet="bodyContentTemplate"></ng-container>
+            }
+          }
+        </div>
+
+        <!-- Modal Footer -->
+        @if (hasFooterContent) {
+          <div class="modal-footer">
+            @if (footerNote) {
+              <span class="footer-note">{{ footerNote }}</span>
+            }
+            <ng-content select="[slot=footer]"></ng-content>
+            @if (!hasCustomFooter) {
+              <div class="default-footer">
+                @if (showCancelButton) {
+                  <generic-button
+                    type="button"
+                    class="btn-cancel"
+                    [label]="cancelButtonText"
+                    (onClick)="onCancelClick()">
+                  </generic-button>
+                }
+                @if (showOkButton) {
+                  <generic-button
+                    type="button"
+                    class="btn-ok"
+                    [label]="okButtonText"
+                    (onClick)="onOkClick()">
+                  </generic-button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,102 @@
+<section
+  class="flex min-w-0 flex-col bg-white"
+  aria-label="QR Cash Generator"
+  [attr.aria-busy]="busy()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-5">
+    @if (pageError()) {
+      <p
+        role="alert"
+        class="break-words rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        {{ pageError() }}
+      </p>
+    }
+
+    @if (pageNotice()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
+      >
+        {{ pageNotice() }}
+      </p>
+    }
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="QR Cash Generator"
+        [isOpenSignal]="searchPanelOpen"
+      />
+
+      @if (searchPanelOpen()) {
+        <div class="min-w-0 space-y-3">
+          <div class="grid min-w-0 grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-[minmax(240px,1fr)_minmax(220px,1fr)_auto]">
+            <input-select-option-field
+              class="w-full min-w-0"
+              [frmGroup]="searchForm"
+              controlName="branchId"
+              label="Branch"
+              displayMode="outline"
+              [options]="branchOptions()"
+              [allowUnselect]="true"
+            />
+
+            <input-text-box
+              class="w-full min-w-0"
+              [frmGroup]="searchForm"
+              controlName="tellerId"
+              label="Teller ID"
+              displayMode="outline"
+            />
+
+            <div class="flex min-w-0 flex-wrap items-center gap-2 xl:self-end xl:pb-4 xl:justify-end">
+              <generic-button
+                [label]="generating() ? 'Generating…' : 'Generate QR Code'"
+                [enable]="!busy()"
+                (onClick)="generateQrCode()"
+              />
+            </div>
+          </div>
+
+          @if (loadingBranches()) {
+            <p class="text-xs text-slate-500">Loading branches…</p>
+          }
+        </div>
+      }
+    </div>
+
+    @if (qrCode()) {
+      <div class="min-w-0 space-y-3">
+        <app-expansion-panel-header
+          panelTitle="Generated QR Code"
+          [isOpenSignal]="qrPanelOpen"
+        />
+
+        @if (qrPanelOpen()) {
+          <div class="flex min-w-0 flex-col items-center gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 sm:p-6">
+            <div class="flex h-64 w-64 max-w-full items-center justify-center overflow-hidden rounded-lg bg-white p-3 shadow-sm">
+              <img
+                [src]="qrCode()"
+                alt="QR Cash Code"
+                class="h-full w-full object-contain"
+              />
+            </div>
+
+            <generic-button
+              label="Download QR Code"
+              [enable]="!busy()"
+              (onClick)="requestDownload()"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<confirmation-dialogue
+  [isOpen]="downloadConfirmationOpen()"
+  [config]="downloadConfirmationConfig"
+  (close)="downloadConfirmationOpen.set(false)"
+  (buttonClick)="onDownloadConfirmation($event)"
+/>

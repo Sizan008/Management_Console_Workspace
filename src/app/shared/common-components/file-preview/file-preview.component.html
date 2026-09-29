@@ -1,0 +1,108 @@
+<div class="file-preview-container" [style.width]="width()" [style.height]="height()">
+
+  <!-- Loading State -->
+  @if (isLoading() || loading()) {
+    <div class="preview-loading">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading preview...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (error()) {
+    <div class="preview-error">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <h3>Preview Error</h3>
+      <p>{{ error() }}</p>
+      <button mat-raised-button color="primary" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  }
+
+  <!-- No File State -->
+  @else if (!fileData()) {
+    <div class="preview-placeholder">
+      <mat-icon class="placeholder-icon">insert_drive_file</mat-icon>
+      <p>{{ placeholder() }}</p>
+    </div>
+  }
+
+  <!-- File Preview -->
+  @else {
+    <div class="preview-content">
+
+      <!-- Controls -->
+      @if (showControls()) {
+        <div class="preview-controls">
+          <div class="file-info">
+            <mat-icon>{{ fileIcon() }}</mat-icon>
+            <span class="file-name">{{ fileData()?.fileName || 'Unknown file' }}</span>
+          </div>
+
+          <div class="control-buttons">
+            @if (showDownload()) {
+              <button mat-icon-button
+                      matTooltip="Download"
+                      (click)="downloadFile()">
+                <mat-icon>download</mat-icon>
+              </button>
+            }
+
+            @if (showFullscreen() && canPreview()) {
+              <button mat-icon-button
+                      matTooltip="Open in fullscreen"
+                      (click)="openFullscreen()">
+                <mat-icon>fullscreen</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Preview Area -->
+      <div class="preview-area">
+        @if (canPreview() && previewUrl()) {
+
+          <!-- PDF Preview -->
+          @if (fileType() === 'pdf') {
+            <iframe
+              [src]="previewUrl()"
+              class="pdf-preview"
+              frameborder="0"
+              width="100%"
+              height="100%">
+            </iframe>
+          }
+
+          <!-- Image Preview -->
+          @else if (fileType() === 'image') {
+            <img
+              [src]="previewUrl()"
+              class="image-preview"
+              alt="File preview"
+              (load)="onLoad.emit()"
+              (error)="error.set('Failed to load image')" />
+          }
+
+        } @else {
+          <!-- Non-previewable file -->
+          <div class="no-preview">
+            <mat-icon class="large-icon">{{ fileIcon() }}</mat-icon>
+            <h3>{{ fileData()?.fileName || 'File' }}</h3>
+            <p>Preview not available for this file type</p>
+
+            @if (showDownload()) {
+              <button mat-raised-button color="primary" (click)="downloadFile()">
+                <mat-icon>download</mat-icon>
+                Download File
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+</div>

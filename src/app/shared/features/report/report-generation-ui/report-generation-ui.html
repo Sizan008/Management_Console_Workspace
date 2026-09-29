@@ -1,0 +1,269 @@
+<div class="page-wrapper">
+
+    <!-- Loading Indicator -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p class="ml-4 text-gray-600">Loading report configuration...</p>
+      </div>
+    }
+
+    <!-- Report Selection Panel -->
+    <div class="panel">
+      <app-expansion-panel-header
+        [panelTitle]="'Report Selection'"
+        [isOpenSignal]="selectionPanel"
+      >
+
+          <form [formGroup]="selectionForm" class="form-grid-2-col my-2">
+            <!-- Report ID with Lookup -->
+
+            <input-id-box
+              [frmGroup]="selectionForm"
+              [controlName]="'reportName'"
+              [label]="'Report Name'"
+              [tooltip]="'Click 3 Dots to select from available reports'"
+              [isDotsVisible]="true"
+              [tooltipPosition]="'above'"
+              [placeholder]="'Select Report'"
+              [tooltipDelay]="300"
+              (dotsClicked)="openModal()"
+              (keyup.enter)="loadReportByFunctionId()"
+              (onChanged)="onIdBoxChanged($event)"
+             ></input-id-box>
+            <!-- <input-id-box
+              [frmGroup]="selectionForm"
+              [controlName]="'functionId'"
+              [label]="'Function ID'"
+
+              [isDotsVisible]="true"
+              [tooltip]="'Enter Function ID as alternative to report name or click to select'"
+              [tooltipPosition]="'above'"
+              [placeholder]="'Enter Function ID or Click to Select'"
+              [tooltipDelay]="300"
+              (dotsClicked)="openReportModal()"
+              (keyup.enter)="loadReportByFunctionId()"
+             ></input-id-box> -->
+          </form>
+      </app-expansion-panel-header>
+    </div>
+
+    <!-- Main Content -->
+    @if (!loading()&&reportMetadata()) {
+
+        <form [formGroup]="parameterForm"  class="p-6">
+
+          <!-- Section 1: Report Parameters -->
+          <div class="mb-8">
+            <app-expansion-panel-header [isOpenSignal]="parametersPanel" [panelTitle]="'Report Parameters'">
+
+                <div class="grid grid-col-2 grid-section  gap-3">
+
+                  <!-- Dynamic Parameter Rendering -->
+                  @for (param of sortedParameters(); track param.parameterName) {
+
+                    <!-- TEXT/STRING Parameter -->
+                    @if (isTextInput(param)) {
+                      @if (isInputTextArea(param)) {
+                        <!-- Multi-line Text -->
+                        <div class="col-span-2">
+                          <input-text-area
+                            [frmGroup]="parameterForm"
+                            [controlName]="param.parameterName"
+                            [label]="param.parameterLabel"
+
+                            [placeholder]="'Enter ' + param.parameterLabel"
+                            [rows]="3"
+                            [maxLen]="param.maxLength || 500"
+                            [enable]="!isParameterReadOnly(param)"
+                            [hidden]="!isParameterVisible(param)"
+                          ></input-text-area>
+
+                        </div>
+                      } @else {
+                        <!-- Single-line Text -->
+                        <div>
+                        <input-text-box
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+                            [hidden]="!param?.visible"
+                            [maxLength]="param.maxLength"
+                            [placeholder]="'Enter ' + param.parameterLabel"
+                            [isReadonly]="isParameterReadOnly(param)"
+                            [hidden]="!isParameterVisible(param)"
+                          ></input-text-box>
+
+                        </div>
+                      }
+                    }
+
+                    <!-- NUMBER Parameter -->
+                    @if (isInputNumber(param)) {
+                      <div>
+                        <input-number
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+
+                          [minValue]="param.minValue"
+                          [maxValue]="param.maxValue"
+                          [placeholder]="'Enter ' + param.parameterLabel"
+                          [isReadonly]="isParameterReadOnly(param)"
+                          [hidden]="!isParameterVisible(param)"
+                        ></input-number>
+
+                      </div>
+                    }
+
+                    <!-- AMOUNT Parameter -->
+                    @if (isInputAmount(param)) {
+                      <div>
+                        <input-amount
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+                          [minAmt]="param.minValue"
+                          [maxAmt]="param.maxValue"
+                          [placeholder]="'Enter ' + param.parameterLabel"
+                          [isReadonly]="isParameterReadOnly(param)"
+                        ></input-amount>
+                      </div>
+                    }
+
+                    <!-- DATE Parameter -->
+                    @if (isInputDate(param)) {
+                      <div>
+                        <input-date
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+
+                          [isReadonly]="isParameterReadOnly(param)"
+                          [hidden]="!isParameterVisible(param)"
+                        ></input-date>
+
+                      </div>
+                    }
+
+                    <!-- DROPDOWN/SELECT Parameter -->
+                    @if (param.inputType === 'DROPDOWN' || param.inputType === 'SELECT') {
+                      <div>
+                        <input-select-option-field
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+                          [options]="getParameterOptions(param)"
+
+                          [searchable]="true"
+                          [placeholder]="'-- Select ' + param.parameterLabel + ' --'"
+                          [isReadonly]="isParameterDisabled(param) || isParameterReadOnly(param)"
+                          [hidden]="!isParameterVisible(param)"
+                        ></input-select-option-field>
+
+                        @if (isParameterLoading(param.parameterName)) {
+                          <p class="text-xs text-blue-600 mt-1 flex items-center gap-1">
+                            <span class="animate-spin">⟳</span>
+                            Loading options...
+                          </p>
+                        }
+
+                        @if (param.dependsOnParameter && isParameterDisabled(param)) {
+                          <p class="text-xs text-orange-600 mt-1 flex items-center gap-1">
+                            Please select parent parameter first
+                          </p>
+                        }
+                      </div>
+                    }
+
+                    <!-- SWITCH Parameter (BOOLEAN) -->
+                    @if (param.inputType === 'SWITCH') {
+                      <div class="form-grid-1-col mt-2">
+                        <generic-switch
+                          [frmGroup]="parameterForm"
+                          [controlName]="param.parameterName"
+                          [label]="param.parameterLabel"
+                          [isChecked]="parameterForm.get(param.parameterName)?.value || false"
+                          [enable]="!isParameterReadOnly(param)"
+                          [visible]="isParameterVisible(param)"
+                        ></generic-switch>
+                      </div>
+                    }
+
+                  }
+
+                </div>
+            </app-expansion-panel-header>
+          </div>
+
+          <!-- Section 2: Output Format -->
+          <div class="mb-8">
+            <app-expansion-panel-header [isOpenSignal]="outputFormatPanel" [panelTitle]="'Output Format'">
+
+                <div class="mt-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-3">
+                    Select Output Format <span class="text-red-500">*</span>
+                  </label>
+
+                  <div class="flex gap-4 flex-wrap">
+                    @for (format of availableFormats(); track format) {
+                      <label
+                        class="flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50"
+                        [class.border-blue-600]="selectedFormat() === format"
+                        [class.bg-blue-50]="selectedFormat() === format"
+                        [class.border-gray-300]="selectedFormat() !== format"
+                      >
+                        <input
+                          type="radio"
+                          name="outputFormat"
+                          [value]="format"
+                          [checked]="selectedFormat() === format"
+                          (change)="selectedFormat.set(format)"
+                          class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        />
+
+                        <!-- Format Icons -->
+                        @if (format === 'PDF') {
+                          <mat-icon class="text-red-600">picture_as_pdf</mat-icon>
+                        } @else if (format === 'EXCEL') {
+                          <mat-icon class="text-green-600">table_chart</mat-icon>
+                        }
+                        <span class="font-medium text-gray-700">{{ format }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+            </app-expansion-panel-header>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 border-t pt-6">
+            <generic-button
+              [label]="generating() ? 'Generating...' : 'Preview Report'"
+              [icon]="generating() ? 'hourglass_empty' : 'visibility'"
+              [enable]="!generating() && parameterForm.valid"
+              (onClick)="onGenerateReport()"
+              [cssClass]="'bg-blue-600 hover:bg-blue-700 text-white'"
+            ></generic-button>
+
+            <generic-button
+              [label]="'Download Report'"
+              [icon]="'file_download'"
+              [enable]="!generating() && parameterForm.valid"
+              (onClick)="onDownloadReport()"
+              [cssClass]="'bg-green-600 hover:bg-green-700 text-white'"
+            ></generic-button>
+          </div>
+
+        </form>
+    }
+    <generic-modal
+      [isVisible]="showModal"
+      [modalTitle]="'Select Report'"
+      [cssClass]="'modal-lg'"
+      [modalComponent]="modalComponent"
+      [modalComponentData]="modalComponentData"
+      (modalClosed)="onModalClose(false)"
+      (modalResult)="onModalResult($event)"
+  ></generic-modal>
+</div>

@@ -1,0 +1,27 @@
+<div [class.blur-screen]="isBlurred" class="bg-gray-50 font-inter h-screen flex flex-col overflow-hidden">
+  <!-- Navbar -->
+  <div class="flex-shrink-0">
+    <app-navbar></app-navbar>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="flex flex-1 min-h-0">
+    <!-- Sidebar (fixed 220px width; manages its own responsive behaviour internally) -->
+    <div class="flex-shrink-0">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Content column: action bar (below navbar) + scrollable page content -->
+    <!-- min-w-0 lets this flex column shrink below its widest child so wide page
+         content (e.g. data-grid tables) scrolls inside its own container instead
+         of forcing the whole page — and its cards — past the viewport width. -->
+    <div class="flex-1 min-w-0 min-h-0 flex flex-col">
+      <app-action-bar></app-action-bar>
+
+      <!-- Main Content -->
+      <div class="flex-1 min-h-0 overflow-y-auto bg-gray-100 p-2">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>

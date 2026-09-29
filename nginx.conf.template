@@ -1,0 +1,57 @@
+worker_processes auto;
+
+events {
+    worker_connections 8000;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    log_format compression '$remote_addr - $remote_user [$time_local] '
+        '"$request" $status $upstream_addr '
+        '"$http_referer" "$http_user_agent"';
+
+    # HTTP → HTTPS redirect
+    server {
+        listen 80;
+        server_name ${NGINX_SERVER_NAME};
+        return 301 https://$host$request_uri;
+    }
+
+    # HTTPS SERVER
+    server {
+        listen ${NGINX_HTTPS_PORT} ssl;
+        server_name ${NGINX_SERVER_NAME};
+
+        ssl_certificate     ${NGINX_SSL_CERT};
+        ssl_certificate_key ${NGINX_SSL_KEY};
+
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+        access_log /var/log/nginx/access.log compression;
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+            expires 1M;
+            access_log off;
+            add_header Cache-Control "public";
+        }
+
+        location ~* \.(?:css|js)$ {
+            expires -1;
+            access_log off;
+            add_header Cache-Control "no-store, no-cache, must-revalidate";
+        }
+
+        location = /index.html {
+            add_header Cache-Control "no-store, no-cache, must-revalidate";
+        }
+    }
+}

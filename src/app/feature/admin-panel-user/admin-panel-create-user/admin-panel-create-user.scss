@@ -1,0 +1,83 @@
+:host { display: block; }
+
+.create-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.auth-level-row {
+  display: flex;
+}
+
+.auth-level-field {
+  flex: 0 1 320px;
+  max-width: 320px;
+}
+
+.customer-info-card {
+  font-size: 12px;
+}
+
+.customer-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.perm-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  background: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+}
+
+.perm-th {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+  border-bottom: 2px solid #cbd5e1;
+  box-shadow: 0 4px 4px -3px rgba(15, 23, 42, 0.12);
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.perm-th--check { width: 36px; padding: 8px 4px; text-align: center; }
+.perm-th--center { text-align: center; }
+.perm-th--left   { text-align: left; }
+
+.perm-td {
+  color: #1f2937;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 4px 8px;
+  vertical-align: middle;
+  line-height: 18px;
+}
+
+.perm-td--check { text-align: center; padding: 4px 4px; }
+.perm-td--center { text-align: center; }
+.perm-td--left   { text-align: left; }
+
+.perm-row:hover td { background: #f8fafc; }
+
+.perm-num-input {
+  width: 96px;
+  padding: 4px 8px;
+  text-align: center;
+  font-size: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
+  }
+}

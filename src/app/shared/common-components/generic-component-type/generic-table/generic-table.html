@@ -1,0 +1,67 @@
+<!-- generic-table.html -->
+
+<!-- ======================== LOADING STATE ======================== -->
+@if (isLoading()) {
+  <div class="gt-state">
+    <span class="gt-spinner" aria-hidden="true"></span>
+    <p class="gt-state__text">Loading Information...</p>
+  </div>
+}
+
+<!-- ======================== ERROR STATE ======================== -->
+@else if (errorMessage()) {
+  <div class="gt-state gt-state--error" role="alert">
+    <h2 class="gt-state__title">Error Loading Data</h2>
+    <p class="gt-state__text">{{ errorMessage() }}</p>
+  </div>
+}
+
+<!-- ======================== MAIN CONTENT ======================== -->
+@else if (tableConfig()) {
+  <div class="gt-root">
+
+    <!-- Optional heading. Sizing lives in the stylesheet only, so it can't be
+         contradicted by utility classes in the template. -->
+    @if (showHeader) {
+      <header class="gt-header">
+        <h1 class="gt-header__title">{{ customTitle || 'Data Overview' }}</h1>
+        <p class="gt-header__subtitle">{{ customSubtitle || 'Complete information display' }}</p>
+      </header>
+    }
+
+    <!-- All sections share one card; a hairline rule separates each group. -->
+    <div class="gt-card">
+      @for (section of tableConfig()!.sections; track trackByIndex($index)) {
+        <section class="gt-group">
+
+          <!-- Group caption -->
+          <h2 class="gt-group__title" [ngClass]="section.headerClass || ''">{{ section.title }}</h2>
+
+          <!-- Fields -->
+          <table class="gt-table">
+            <tbody>
+              @for (row of section.rows; track trackByIndex($index)) {
+                <tr [ngClass]="getRowClass(row, hasHighlightedCell(row))">
+
+                  @for (cell of row.cells; track trackByIndex($index)) {
+                    <td
+                      [ngClass]="getCellClass(cell)"
+                      [attr.colspan]="cell.colspan && cell.colspan > 1 ? cell.colspan : null"
+                      [attr.rowspan]="cell.rowspan && cell.rowspan > 1 ? cell.rowspan : null"
+                      [style]="cell.style"
+                      [style.width]="cell.width || null">
+                      <!-- The text is wrapped so a highlight can hug the value
+                           itself; tinting the cell would band the whole colspan. -->
+                      <span class="gt-cell__text">{{ displayValue(cell) }}</span>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+    </div>
+
+  </div>
+}

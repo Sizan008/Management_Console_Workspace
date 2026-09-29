@@ -1,0 +1,51 @@
+<!-- Header Section (title + buttons) -->
+<div class="flex items-center justify-between mb-6">
+  <h3 class="text-xl text-gray-800">{{ headerTitle }}</h3>
+
+  @if ((showWeekly && has('weekly')) || (showMonthly && has('monthly')) || (showYearly && has('yearly'))) {
+    <div class="flex gap-2">
+      @if (showWeekly && has('weekly')) {
+        <button (click)="setRange('weekly')"
+                [ngClass]="range==='weekly'
+                  ? 'px-4 py-2 bg-blue-500 text-white rounded-lg text-sm'
+                  : 'px-4 py-2 bg-gray-100 rounded-lg text-sm'">
+          Weekly
+        </button>
+      }
+      @if (showMonthly && has('monthly')) {
+        <button (click)="setRange('monthly')"
+                [ngClass]="range==='monthly'
+                  ? 'px-4 py-2 bg-blue-500 text-white rounded-lg text-sm'
+                  : 'px-4 py-2 bg-gray-100 rounded-lg text-sm'">
+          Monthly
+        </button>
+      }
+      @if (showYearly && has('yearly')) {
+        <button (click)="setRange('yearly')"
+                [ngClass]="range==='yearly'
+                  ? 'px-4 py-2 bg-blue-500 text-white rounded-lg text-sm'
+                  : 'px-4 py-2 bg-gray-100 rounded-lg text-sm'">
+          Yearly
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Chart -->
+<apx-chart
+  [series]="series"
+  [chart]="chart"
+  [xaxis]="xaxis"
+  [yaxis]="yaxis"
+  [dataLabels]="dataLabels"
+  [stroke]="stroke"
+  [grid]="grid"
+  [tooltip]="tooltip"
+  [legend]="legend"
+  [markers]="markers"
+  [colors]="colors"
+  [fill]="fill"
+  [title]="apexTitle"
+  [annotations]="annotations">
+</apx-chart>

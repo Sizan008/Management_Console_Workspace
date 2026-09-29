@@ -1,0 +1,88 @@
+<div class="bdp">
+
+  <!-- Trigger pill -->
+  <button type="button" class="bdp-trigger" (click)="toggle()" [class.is-open]="open()">
+    <span class="bdp-trigger-label">{{ triggerLabel() }}</span>
+    <svg class="bdp-cal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  </button>
+
+  <!-- Calendar card -->
+  @if (open()) {
+    <div class="bdp-card" role="dialog" aria-label="Select transaction date" (click)="$event.stopPropagation()">
+
+      <!-- Month header -->
+      <div class="bdp-head">
+        <button type="button" class="bdp-nav" (click)="prevMonth()" [disabled]="!canPrev()" aria-label="Previous month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        </button>
+        <span class="bdp-title">{{ monthLabel() }}</span>
+        <button type="button" class="bdp-nav" (click)="nextMonth()" [disabled]="!canNext()" aria-label="Next month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+        </button>
+      </div>
+
+      <!-- Weekday row -->
+      <div class="bdp-grid bdp-dow">
+        @for (d of WEEKDAYS; track d) { <span>{{ d }}</span> }
+      </div>
+
+      <!-- Day grid -->
+      @for (week of weeks(); track $index; let wi = $index) {
+        <div class="bdp-grid bdp-week">
+          @for (c of week; track c.iso) {
+            <div
+              class="bdp-day"
+              [class.out]="!c.inMonth"
+              [class.today]="c.isToday"
+              [class.selected]="c.isSelected"
+              [class.holiday]="c.isHoliday"
+              [class.weekend]="c.isWeekend"
+              [class.selectable]="c.isSelectable"
+              [class.has-markers]="c.markers.length > 0"
+              (click)="selectDay(c)">
+
+              <span class="bdp-day-num">{{ c.day }}</span>
+
+              @if (c.markers.length) {
+                <span class="bdp-dots">
+                  @for (mk of c.markers; track $index) {
+                    <span class="bdp-dot" [ngClass]="'dot-' + mk.type"></span>
+                  }
+                </span>
+
+                <!-- Hover popover: first row opens downward, the rest upward -->
+                <div class="bdp-pop" [class.pop-down]="wi === 0" [class.pop-up]="wi !== 0">
+                  <div class="bdp-pop-date">{{ c.day }} {{ monthLabel() }}</div>
+                  @for (mk of c.markers; track $index) {
+                    <div class="bdp-pop-row">
+                      <span class="bdp-dot" [ngClass]="'dot-' + mk.type"></span>
+                      <span class="bdp-pop-text">
+                        <span class="bdp-pop-title">{{ mk.title }}</span>
+                        <span class="bdp-pop-cat" [ngClass]="'cat-' + mk.type">{{ TYPE_LABEL[mk.type] }}</span>
+                      </span>
+                    </div>
+                  }
+                  <span class="bdp-caret"></span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Legend footer -->
+      <div class="bdp-legend">
+        <span><i class="lg dot-business"></i>Business</span>
+        <span><i class="lg dot-holiday"></i>Holiday</span>
+        <span><i class="lg dot-event"></i>Event</span>
+      </div>
+
+    </div>
+  }
+</div>

@@ -1,0 +1,31 @@
+{
+  "production": true,
+
+  "appId": "${APP_ID}",
+  "appName": "${APP_NAME}",
+
+  "keycloak": {
+    "url": "${KC_URL}",
+    "realm": "${KC_REALM}",
+    "clientId": "${KC_CLIENT_ID}"
+  },
+
+  "kcService": "${KC_SERVICE}",
+
+  "loginUrl": "${LOGIN_URL}",
+  "redirectUri": "${REDIRECT_URI}",
+
+  "apiBaseUrl": "${API_BASE}",
+  "myBaseUrl": "${MY_BASE}",
+
+  "centrinoUrl": "${CENTRINO_URL}",
+  "sentinelUrl": "${SENTINEL_URL}",
+  "workspaceSessionApp": ${WORKSPACE_SESSION_APP},
+
+  "reportManagementApiUrl": "${REPORT_MGMT_URL}",
+  "reportGenerationApiUrl": "${REPORT_GEN_URL}",
+
+  "novuIdentifier": "${NOVU_IDENTIFIER}",
+  "novuSocket": "${NOVU_SOCKET}",
+  "novuApi": "${NOVU_API}"
+}

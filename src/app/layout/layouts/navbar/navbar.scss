@@ -1,0 +1,181 @@
+.Workspace-dropdown {
+  animation: Workspace-menu-in 0.15s ease-out;
+}
+
+/* Notification bell on the navbar's right side */
+.navbar-notif-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Chat window launched from the message popover — floats bottom-right and
+   slides out of view when closed (same treatment as the profile drawer's). */
+.navbar-chat-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 10px;
+  width: 300px;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  z-index: 50;
+  transform: translateY(110%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
+
+  &--open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Logout button on the navbar's right side */
+.navbar-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.85);
+    color: #fff;
+  }
+}
+
+/* Unread count pill anchored to the bell's top-right corner */
+.navbar-notif-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.Workspace-option {
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+
+  /* Unavailable workspaces keep the blocked cursor set in the template */
+  &.cursor-not-allowed {
+    cursor: not-allowed;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #f8fafc;
+  }
+
+  &--active {
+    background-color: #eff6ff;
+  }
+}
+
+.wb-star-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: #cbd5e1;
+  transition: color 0.15s ease, transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: #f59e0b;
+    background-color: #fffbeb;
+    transform: scale(1.15);
+  }
+
+  &--active {
+    color: #f59e0b;
+    background-color: #fef3c7;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+
+    svg {
+      filter: drop-shadow(0 1px 1px rgba(217, 119, 6, 0.45));
+    }
+
+    &:hover {
+      color: #d97706;
+      background-color: #fde68a;
+    }
+  }
+}
+
+.Workspace-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+
+  span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+}
+
+@keyframes Workspace-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

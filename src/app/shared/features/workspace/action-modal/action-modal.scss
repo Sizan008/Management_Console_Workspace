@@ -1,0 +1,18 @@
+.lookup-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+:host ::ng-deep input-select-option-field,
+:host ::ng-deep generic-button {
+  display: block;
+}
+
+.lookup-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}

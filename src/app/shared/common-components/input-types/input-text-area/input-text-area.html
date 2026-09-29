@@ -1,0 +1,41 @@
+<div [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+  <label class="input-label">
+    {{ label() }}
+    @if (isRequired()) {
+      <span class="text-red-500">*</span>
+    }
+  </label>
+
+  <div class="textarea-wrapper" [ngClass]="widthClass()">
+    <textarea
+      #textareaRef
+      [id]="id()"
+      [formControlName]="controlName()"
+      [attr.controlName]="controlName()"
+      [rows]="textareaAttributes().rows"
+      [attr.cols]="textareaAttributes().cols || null"
+      [placeholder]="placeholder()"
+      [ngClass]="inputClasses()"
+      [attr.style]="textareaAttributes().style"
+      (input)="autoResizes(textareaRef); onInputChange($event)"
+      (paste)="onPaste($event)"
+      [matTooltip]="tooltip()"
+      [matTooltipPosition]="tooltipPosition()"
+      [matTooltipClass]="tooltipClass()"
+      [matTooltipDisabled]="!tooltip()"
+      class="custom-inputs transition-colors duration-200 placeholder-gray-400"
+      >
+    </textarea>
+
+    @if (isInvalidState() && errorMessage()) {
+      <div class="text-red-500 text-[10px] mt-1">
+        {{ errorMessage() }}
+      </div>
+    }
+  </div>
+</div>

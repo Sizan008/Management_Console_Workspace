@@ -1,0 +1,185 @@
+<!-- select-base-input.html -->
+<div [formGroup]="frmGroup()" [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+  <div #selectWrapper class="select-wrapper relative">
+    @if (searchable()) {
+    <!-- SEARCHABLE OUTLINE SELECT -->
+    <input #searchInput id="select_outlined" [attr.controlName]="controlName()" type="text"
+      [disabled]="isReadonly() ?? false" [value]="searchTerm()" [placeholder]="' '"
+      [ngClass]="{ 'readonly-input': isReadonly(), 'has-swatch': !!selectedSwatchColor(), 'input-error': isInvalid() }" (input)="onSearchInput($event)" (focus)="openDropdown()"
+      (blur)="onInputBlur()" (keydown)="onKeyDown($event)" [matTooltip]="tooltip()"
+      [matTooltipPosition]="tooltipPosition()" [matTooltipClass]="tooltipClass()" [matTooltipDisabled]="!tooltip()"
+      class="custom-select peer block px-3 pt-4 pb-2 text-sm text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+      autocomplete="off" />
+    @if (swatchColor() && selectedSwatchColor()) {
+      <span class="option-swatch option-swatch--in-input" [style.background-color]="selectedSwatchColor()"></span>
+    }
+
+    <!-- FLOATING LABEL -->
+    <label for="select_outlined" class="floating-input-label">
+      {{ label() }}
+      @if (isRequired()) { <span class="text-red-500">*</span> }
+    </label>
+
+    <!-- DROPDOWN TOGGLE -->
+    <button type="button" class="dropdown-toggle" (mousedown)="onToggleMouseDown($event)" (click)="toggleDropdown()" [disabled]="isReadonly() ?? false"
+      tabindex="-1">
+      <svg class="dropdown-icon" [ngClass]="{'rotate-180': isOpen()}" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+          clip-rule="evenodd" />
+      </svg>
+    </button>
+
+    <!-- DROPDOWN MENU -->
+    @if (isOpen()) {
+    <div class="dropdown-menu" [ngStyle]="menuStyle()">
+      @if (filteredOptions().length === 0) {
+      <div class="no-options">No options found</div>
+      } @else {
+      @for (option of filteredOptions(); track option.key; let i = $index) {
+      <div class="dropdown-option" [ngClass]="{
+                    'selected': option.key === selectedValue(),
+                    'highlighted': i === highlightedIndex()
+                  }" (mousedown)="onOptionMouseDown($event)" (click)="selectOption(option)"
+        (mouseenter)="highlightedIndex.set(i)">
+        @if (swatchColor() && option.key !== '') {
+          <span class="option-swatch" [style.background-color]="resolveSwatch(option)"></span>
+        }
+        <span class="option-label">{{ option.value }}</span>
+      </div>
+      }
+      }
+    </div>
+    }
+
+    <!-- HIDDEN SELECT FOR FORM CONTROL -->
+    <select [compareWith]="compareFN" [formControlName]="controlName()" class="hidden-select" tabindex="-1">
+      <option value="">{{ placeholder() ?? 'Select ' + label() }}</option>
+      @for (option of options(); track option.key) {
+      <option [value]="option.key">{{ option.value }}</option>
+      }
+    </select>
+
+    } @else {
+    <!-- NON-SEARCHABLE OUTLINE SELECT -->
+    <select id="select_outlined" [formControlName]="controlName()" [attr.controlName]="controlName()"
+      [compareWith]="compareFN" [disabled]="isReadonly() ?? false" [ngClass]="{ 'readonly-input': isReadonly() }"
+      [matTooltip]="tooltip()" [matTooltipPosition]="tooltipPosition()" [matTooltipClass]="tooltipClass()"
+      [matTooltipDisabled]="!tooltip()" (mousedown)="onGuardedMouseDown($event)" (keydown)="onGuardedKeyDown($event)"
+      (change)="onStaticSelectChange($event)"
+      class="custom-select peer block px-3 pt-4 pb-2 text-sm text-gray-900 bg-transparent border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200">
+      <option value="">{{ placeholder() ?? 'Select ' + label() }}</option>
+      @for (option of options(); track option.key) {
+      <option [value]="option.key">{{ option.value }}</option>
+      }
+    </select>
+
+    <!-- FLOATING LABEL -->
+    <label for="select_outlined" class="floating-input-label absolute text-sm text-gray-700 duration-300 transform -translate-y-4 scale-75 top-2 z-1 origin-[0] bg-white px-2
+                 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2
+                 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-blue-600 start-1">
+      {{ label() }}
+      @if (isRequired()) { <span class="text-red-500">*</span> }
+    </label>
+    }
+  </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+  @if (displayMode() === 'vertical') {
+  <label class="input-label block leading-tight">
+    {{ label() }}
+    @if (isRequired()) { <span class="text-red-500">*</span> }
+  </label>
+  }
+
+  @if (displayMode() === 'horizontal') {
+  <label class="input-label relative">
+    {{ label() }}
+    @if (isRequired()) { <span class="text-red-500">*</span> }
+  </label>
+  }
+
+  <div #selectWrapper class="select-wrapper relative">
+    @if (searchable()) {
+    <!-- SEARCHABLE REGULAR SELECT -->
+    <input #searchInput type="text" [attr.controlName]="controlName()" [disabled]="isReadonly() ?? false"
+      [placeholder]="placeholder() ?? ' Search ' + label().toLowerCase()" [value]="searchTerm()"
+      [ngClass]="{ 'readonly-input': isReadonly(), 'has-swatch': !!selectedSwatchColor(), 'input-error': isInvalid() }" (input)="onSearchInput($event)" (focus)="openDropdown()"
+      (blur)="onInputBlur()" (keydown)="onKeyDown($event)" [matTooltip]="tooltip()"
+      [matTooltipPosition]="tooltipPosition()" [matTooltipClass]="tooltipClass()" [matTooltipDisabled]="!tooltip()"
+      class="custom-select" autocomplete="off" />
+    @if (swatchColor() && selectedSwatchColor()) {
+      <span class="option-swatch option-swatch--in-input" [style.background-color]="selectedSwatchColor()"></span>
+    }
+
+    <button type="button" class="dropdown-toggle" (mousedown)="onToggleMouseDown($event)" (click)="toggleDropdown()" [disabled]="isReadonly() ?? false"
+      tabindex="-1">
+      <svg class="dropdown-icon" [ngClass]="{'rotate-180': isOpen()}" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+          clip-rule="evenodd" />
+      </svg>
+    </button>
+
+    @if (isOpen()) {
+    <div class="dropdown-menu" [ngStyle]="menuStyle()">
+      @if (filteredOptions().length === 0) {
+      <div class="no-options">No options found</div>
+      } @else {
+      @for (option of filteredOptions(); track option.key; let i = $index) {
+      <div class="dropdown-option" [ngClass]="{
+                    'selected': option.key === selectedValue(),
+                    'highlighted': i === highlightedIndex()
+                  }" (mousedown)="onOptionMouseDown($event)" (click)="selectOption(option)"
+        (mouseenter)="highlightedIndex.set(i)">
+        @if (swatchColor() && option.key !== '') {
+          <span class="option-swatch" [style.background-color]="resolveSwatch(option)"></span>
+        }
+        <span class="option-label">{{ option.value }}</span>
+      </div>
+      }
+      }
+    </div>
+    }
+
+    <select [compareWith]="compareFN" [formControlName]="controlName()" class="hidden-select" tabindex="-1">
+      <option value="">{{ placeholder() ?? 'Select ' + label() }}</option>
+      @for (option of options(); track option.key) {
+      <option [value]="option.key">{{ option.value }}</option>
+      }
+    </select>
+    } @else {
+    <!-- NON-SEARCHABLE REGULAR SELECT -->
+    <select [formControlName]="controlName()" [attr.controlName]="controlName()" [compareWith]="compareFN"
+      [disabled]="isReadonly() ?? false" [ngClass]="{ 'readonly-input': isReadonly() }" [matTooltip]="tooltip()"
+      [matTooltipPosition]="tooltipPosition()" [matTooltipClass]="tooltipClass()" [matTooltipDisabled]="!tooltip()"
+      (mousedown)="onGuardedMouseDown($event)" (keydown)="onGuardedKeyDown($event)"
+      (change)="onStaticSelectChange($event)" class="custom-select">
+      <option value="">{{ placeholder() ?? 'Select ' + label() }}</option>
+      @for (option of options(); track option.key) {
+      <option [value]="option.key">{{ option.value }}</option>
+      }
+    </select>
+    }
+  </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+  <div class="mt-0 min-h-[1rem]">
+    @if (!isReadonly() && !frmGroup().get(controlName())?.disabled && frmGroup().get(controlName())?.invalid && (frmGroup().get(controlName())?.touched ||
+    frmGroup().get(controlName())?.dirty)) {
+    <p class="text-[10px] text-red-500 leading-4 ms-1">
+      {{ label() }} is required..!
+    </p>
+    }
+  </div>
+</div>

@@ -1,0 +1,48 @@
+@if (isOpen() && showBackdropValue) {
+  <div class="fixed inset-0 bg-black opacity-60 backdrop-blur-sm z-40" 
+       (click)="onBackdropClick($event)">
+  </div>
+}
+
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 grid place-items-center p-4 flex justify-center items-center bg-opacity-100" 
+       (click)="onBackdropClick($event)">
+    
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transition-all duration-200 ease-out scale-95 opacity-0 animate-[fadeIn_0.2s_ease-out_forwards] border border-gray-100">
+      
+      <div class="p-6 space-y-4">
+        <!-- Icon -->
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-50 border-2 border-red-200">
+          <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+
+        <!-- Text Content -->
+        <div class="text-center space-y-2">
+          <h3 class="text-lg text-gray-900 leading-6">{{ titleText }}</h3>
+          @if (messageText) {
+            <p class="text-sm text-gray-700" [innerHTML]="messageText"></p>
+          }
+        </div>
+      </div>
+
+      <!-- Actions -->
+      @if (buttons.length > 0) {
+        <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end gap-3">
+          @for (button of buttons; track i; let i = $index) {
+            <button
+              type="button"
+              [disabled]="button.disabled"
+              class="inline-flex justify-center rounded-md border px-6 py-2 text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer min-w-[80px]"
+              [class]="getButtonClasses(button, i)"
+              (click)="onButtonClick(button)"
+            >
+              {{ button.text }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+} 

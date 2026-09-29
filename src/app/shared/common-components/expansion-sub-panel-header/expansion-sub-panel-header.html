@@ -1,0 +1,51 @@
+<div [attr.panelId]="panelId" class="expansion-sub-header" (click)="togglePanel()">
+  <div class="flex gap-2 items-center relative justify-between">
+    <div class="flex gap-2 items-center">
+      <div class="w-5 h-5 mr-3 -mt-[1px]">
+        <!-- Modern panel icon using SVG -->
+        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13 16h-1v-4h-1m1-4h.01M12 20.5C6.753 20.5 2.5 16.247 2.5 11S6.753 1.5 12 1.5 21.5 5.753 21.5 11 17.247 20.5 12 20.5z"/>
+        </svg>
+      </div>
+      <div>
+        <span>{{ subPanelTitle() }}</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Optional Action Button -->
+      <!--      @if (isButton()) {-->
+      <!--        <button-->
+      <!--          (click)="onActionClick($event)"-->
+      <!--          class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 bg-transparent border-2 border-slate-300 rounded-lg hover:text-blue-600 hover:border-blue-400 hover:bg-blue-50 hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:translate-y-0 transition-all duration-200 ease-in-out group"-->
+      <!--          type="button">-->
+      <!--          <mat-icon class="text-base w-4 h-4 group-hover:rotate-90 group-hover:scale-110 transition-transform duration-200">{{buttonIcon()}}</mat-icon>-->
+      <!--          {{buttonText()}}-->
+      <!--        </button>-->
+      <!--      }-->
+
+      @if (isButton()) {
+        <button
+          (click)="onActionClick($event)"
+          class="group relative w-7 h-7 flex items-center justify-center rounded-full border-2 border-emerald-300 text-emerald-700 bg-emerald-100 hover:border-emerald-500 hover:text-emerald-800 hover:bg-emerald-200 hover:shadow-emerald-200/50 hover:shadow-lg hover:scale-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 active:scale-95 transition-all duration-200 ease-in-out overflow-hidden"
+          type="button">
+
+          <!-- Plus Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+        </button>
+      }
+
+      <!-- Toggle Arrow Icon -->
+      <!-- <mat-icon class="text-gray-500 transition-transform duration-200"
+                [class.rotate-180]="isOpenSignal()()">
+        keyboard_arrow_down
+      </mat-icon> -->
+          <svg xmlns="http://www.w3.org/2000/svg" [class.rotate-180]="isOpenSignal()()"  class=" transition-transform duration-200" height="24px" viewBox="0 -960 960 960"  fill="black"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
+
+
+
+    </div>
+  </div>
+</div>

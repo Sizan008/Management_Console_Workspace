@@ -1,0 +1,18 @@
+<!-- <button class="exit-btn">
+  <mat-icon>arrow_back</mat-icon>
+  <p class="text">Exit</p>
+</button> -->
+
+
+<!-- 
+<button class="btn_elevated" (click)="exit()" [disabled]="frmGroup().invalid">
+  <div style=" background: linear-gradient(135deg, #9ca3af 0%, #374151 100%);" class="icon_container_elevated">
+    <mat-icon>arrow_back</mat-icon>
+  </div>
+  <span class="btn_text">Exit</span>
+</button> -->
+
+<button (click)="exit()" [disabled]="disabled || frmGroup().invalid" class="a_demo_four icon-exit">
+  <img src="/asset/icons/exit.svg" alt="" class="icon" />
+  Exit
+</button>

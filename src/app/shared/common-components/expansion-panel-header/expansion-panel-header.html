@@ -1,0 +1,28 @@
+<section class="section-card"
+         [attr.data-panel-id]="panelId"
+         [style.--rail-color]="accentColor() || null">
+
+  <!-- Clickable header: accent rail + title + chevron. No icon, no bottom border. -->
+  <button type="button"
+          class="section-card__header"
+          [attr.aria-expanded]="open()"
+          (click)="togglePanel()">
+    <span class="section-card__rail" aria-hidden="true"></span>
+    <h2 class="section-card__title">{{ panelTitle() }}</h2>
+    <svg class="section-card__chevron"
+         [class.section-card__chevron--open]="open()"
+         xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 -960 960 960" width="15" height="15"
+         fill="currentColor" aria-hidden="true">
+      <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/>
+    </svg>
+  </button>
+
+  <!-- Collapsible body: page content is projected here.
+       ng-content is unconditional (reliable projection); we collapse via a
+       CSS class so the projected content never has to remount. -->
+  <div class="section-card__body" [class.section-card__body--collapsed]="!open()">
+    <ng-content></ng-content>
+  </div>
+
+</section>

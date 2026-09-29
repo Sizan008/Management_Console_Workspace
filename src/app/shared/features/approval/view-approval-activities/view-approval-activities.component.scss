@@ -1,0 +1,386 @@
+// ── Approval activities (approval-progress modal) ───────────────────────────
+// Same convention as dashboard-list.component.scss: the component declares its
+// own palette on :host and feeds it from the app-wide theme tokens, so every
+// rule below reads a local name and the theme swap happens in exactly one place.
+
+:host {
+  display: block;
+
+  --aa-accent:      var(--theme-primary,    #086AD8);
+  --aa-accent-soft: color-mix(in srgb, var(--aa-accent) 14%, #fff);
+  --aa-accent-tint: color-mix(in srgb, var(--aa-accent) 6%,  #fff);
+
+  --aa-text:        var(--theme-text,       #374151);
+  --aa-text-light:  var(--theme-text-light, #6b7280);
+  --aa-border:      var(--theme-border,     #e5e7eb);
+  --aa-surface:     #ffffff;
+
+  /* Status colours are deliberately NOT derived from --theme-primary. Several
+     themes ship a very dark, low-saturation primary (#010035 navy, #4b4949
+     grey, #301934 plum); tinted against white those collapse to grey, and an
+     "Approved" chip that reads grey is worse than one ignoring the theme.
+     Approved / rejected / pending therefore stay fixed semantic colours — only
+     the neutral "waiting" state below leans on the theme accent. */
+  --aa-approved: #059669;
+  --aa-rejected: #dc2626;
+  --aa-pending:  #d97706;
+
+  color: var(--aa-text);
+  font-size: 13px;
+}
+
+// ── Status tokens ───────────────────────────────────────────────────────────
+// One class per status defines every colour markers, rails, chips, avatars and
+// row tints read from, so a status lives in a single place.
+.is-approved { --aa-status: var(--aa-approved); --aa-status-tint: color-mix(in srgb, var(--aa-approved) 10%, #fff); }
+.is-rejected { --aa-status: var(--aa-rejected); --aa-status-tint: color-mix(in srgb, var(--aa-rejected) 10%, #fff); }
+.is-pending  { --aa-status: var(--aa-pending);  --aa-status-tint: color-mix(in srgb, var(--aa-pending)  12%, #fff); }
+.is-waiting  { --aa-status: var(--aa-accent);   --aa-status-tint: var(--aa-accent-tint); }
+
+.aa-root {
+  // Default for anything not carrying an is-* class (tallies, empty states).
+  --aa-status: var(--aa-text-light);
+  --aa-status-tint: #f8fafc;
+  padding: 4px 2px 2px;
+}
+
+// ── Loading / empty / error ─────────────────────────────────────────────────
+.aa-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--aa-text-light);
+  border: 1px dashed var(--aa-border);
+  border-radius: 10px;
+  background: var(--aa-status-tint);
+
+  &.is-rejected {
+    color: var(--aa-status);
+    border-style: solid;
+    border-color: color-mix(in srgb, var(--aa-status) 35%, #fff);
+  }
+}
+
+.aa-state-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--aa-status);
+}
+
+.aa-spin { animation: aa-spin 1.2s linear infinite; }
+
+@keyframes aa-spin { to { transform: rotate(360deg); } }
+
+// ── Summary bar ─────────────────────────────────────────────────────────────
+.aa-summary {
+  border: 1px solid color-mix(in srgb, var(--aa-status) 28%, #fff);
+  border-left: 3px solid var(--aa-status);
+  background: var(--aa-status-tint);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.aa-summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.aa-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aa-status);
+}
+
+.aa-outcome-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.aa-summary-count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--aa-text-light);
+  white-space: nowrap;
+}
+
+.aa-meter {
+  height: 6px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--aa-status) 16%, #fff);
+  overflow: hidden;
+}
+
+.aa-meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aa-status);
+  transition: width 0.35s ease;
+}
+
+.aa-context {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--aa-text-light);
+}
+
+// ── Timeline ────────────────────────────────────────────────────────────────
+.aa-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.aa-level {
+  position: relative;
+  padding-left: 44px;
+  padding-bottom: 14px;
+
+  // The rail is anchored to the marker column of the level itself, so the dot
+  // and the line can never drift apart however tall the expanded body grows.
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 30px;
+    bottom: 0;
+    width: 2px;
+    background: color-mix(in srgb, var(--aa-status) 45%, #fff);
+  }
+}
+
+.aa-marker {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--aa-surface);
+  border: 2px solid var(--aa-status);
+  color: var(--aa-status);
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+  }
+}
+
+.aa-level-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: 1px solid color-mix(in srgb, var(--aa-status) 30%, #fff);
+  border-radius: 10px;
+  background: var(--aa-surface);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+  &:hover { background: var(--aa-status-tint); }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--aa-accent) 30%, transparent);
+  }
+}
+
+// Subtle halo on the level the user has open.
+.aa-level.is-open .aa-level-btn {
+  border-color: var(--aa-status);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--aa-status) 12%, transparent);
+}
+
+.aa-level-order {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--aa-status);
+  background: var(--aa-status-tint);
+}
+
+.aa-level-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.aa-level-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--aa-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aa-level-meta {
+  font-size: 11px;
+  color: var(--aa-text-light);
+}
+
+.aa-caret {
+  flex: 0 0 auto;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--aa-text-light);
+  transition: transform 0.2s ease;
+}
+
+.aa-level.is-open .aa-caret { transform: rotate(180deg); }
+
+.aa-chip {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--aa-status);
+  background: var(--aa-status-tint);
+  border: 1px solid color-mix(in srgb, var(--aa-status) 30%, #fff);
+  white-space: nowrap;
+}
+
+// ── Approver rows ───────────────────────────────────────────────────────────
+.aa-approvers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.aa-approver {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--aa-border);
+  border-left: 2px solid var(--aa-status);
+  border-radius: 8px;
+  background: var(--aa-status-tint);
+}
+
+.aa-avatar {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--aa-status);
+  background: var(--aa-surface);
+  border: 1px solid color-mix(in srgb, var(--aa-status) 35%, #fff);
+}
+
+.aa-approver-main {
+  flex: 1 1 120px;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.aa-approver-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--aa-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aa-role {
+  flex: 0 0 auto;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--aa-text-light);
+  background: var(--aa-surface);
+  border: 1px solid var(--aa-border);
+}
+
+.aa-time,
+.aa-remark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--aa-text-light);
+  min-width: 0;
+
+  mat-icon {
+    font-size: 13px;
+    width: 13px;
+    height: 13px;
+    line-height: 13px;
+  }
+}
+
+.aa-time { flex: 0 0 auto; white-space: nowrap; }
+
+.aa-remark {
+  flex: 1 1 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+// ── Tallies ─────────────────────────────────────────────────────────────────
+.aa-tallies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--aa-border);
+}
+
+.aa-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--aa-text-light);
+  background: var(--aa-status-tint);
+  border: 1px solid color-mix(in srgb, var(--aa-status) 22%, #fff);
+
+  b {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--aa-status);
+  }
+}

@@ -1,0 +1,620 @@
+<div class="flex h-full overflow-hidden bg-slate-50 flex-col lg:flex-row">
+
+  <!-- Backdrop: closes action menu when clicking outside the popup -->
+  <div *ngIf="activeActionMenuId !== null"
+       class="fixed inset-0 z-[9998]"
+       (click)="closeActionMenu()">
+  </div>
+
+  <!-- Floating Action Popup — rendered at the component root (NOT inside the sticky action
+       cell, whose `position: sticky` creates a stacking context that would trap this popup). -->
+  <div *ngIf="activeActionMenuId !== null"
+       (click)="$event.stopPropagation()"
+       [style.top.px]="activeActionMenuPos?.top"
+       [style.left.px]="activeActionMenuPos?.left"
+       [class.slide-in-from-top-1]="!activeActionMenuPos?.upward"
+       [class.slide-in-from-bottom-1]="activeActionMenuPos?.upward"
+       class="fixed w-48 bg-white border border-slate-200 rounded-lg shadow-xl py-1.5 z-[9999] text-left divide-y divide-slate-50 animate-in fade-in duration-100">
+    <div class="px-3 py-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+      Actions
+    </div>
+    <div class="py-0">
+      <!-- Loading spinner -->
+      <div *ngIf="actionsLoading" class="px-3 py-2 flex items-center gap-2 text-xs text-slate-400">
+        <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        Loading...
+      </div>
+      <!-- Action buttons -->
+      <button *ngFor="let act of activeItemActions"
+              (click)="onActionClick(act, activeItem)"
+              class="w-full px-3 py-1.5 text-xs text-slate-700 hover:bg-blue-50/50 hover:text-blue-700 transition-colors flex items-center gap-2 font-medium">
+        <span *ngIf="act.icon" [innerHTML]="act.icon" class="flex items-center justify-center"></span>
+        {{ act.label }}
+      </button>
+      <!-- Empty state -->
+      <div *ngIf="!actionsLoading && activeItemActions.length === 0"
+           class="px-3 py-2 text-xs text-slate-400 italic">
+        No actions available
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT COLUMN: Table Workspace (Dynamic Width governed by resizer) -->
+  <div *ngIf="(!isSmallScreen || !isChildRouteActive()) && !workspaceState.isFullscreen()"
+       class="h-full flex flex-col min-w-0"
+       [class.w-full]="isSmallScreen"
+       [style.width.%]="isChildRouteActive() && !isSmallScreen ? leftWidth : 100"
+       [class.border-r]="!isSmallScreen && isChildRouteActive()"
+       [class.border-slate-200]="!isSmallScreen && isChildRouteActive()"
+       [class.bg-white]="isChildRouteActive()">
+
+    <!-- Fixed Header Section inside Left Column -->
+    <!-- Fixed Header Section inside Left Column -->
+    <div class="p-3 bg-white flex-shrink-0 border-b border-slate-100">
+      <!-- ── Row 1: Title + primary workspace actions ─────────────────────────── -->
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
+        <!-- Title & Subtitle -->
+        <div class="min-w-0">
+          <h1 class="text-sm font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
+            {{ config?.title }}
+            <span *ngIf="config?.statusFilterField" class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded-full border border-slate-200/60">
+              {{ headerCount }}
+            </span>
+          </h1>
+          <p class="text-[11px] text-slate-500 font-semibold hidden md:block mt-0.5">{{ config?.subtitle }}</p>
+        </div>
+
+        <!-- Primary workspace actions (Search / Register) -->
+        <div *ngIf="newMasterPage || searchMasterPage" class="flex items-center gap-2 flex-shrink-0">
+          <!-- "Search" master page — advanced search (opens modal when configured) -->
+          <button *ngIf="searchMasterPage"
+                  type="button"
+                  (click)="onSearchMasterPage(searchMasterPage)"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 cursor-pointer whitespace-nowrap transition-colors">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            {{ searchMasterPage.label }}
+          </button>
+
+          <!-- "Clear Filter" — appears only when an advanced-search filter is active -->
+          <button *ngIf="advancedFilterActive"
+                  type="button"
+                  (click)="clearAdvancedSearch()"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-red-50 border border-red-100 text-red-600 rounded-lg shadow-sm hover:bg-red-100 hover:border-red-200 cursor-pointer whitespace-nowrap transition-colors animate-in fade-in duration-200">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Clear Filter
+          </button>
+
+          <!-- "New" master page — a single create page renders as one button;
+               multiple create pages render as a split dropdown (primary action
+               + caret listing every create page). -->
+          <button *ngIf="newMasterPages.length === 1"
+                  type="button"
+                  (click)="openMasterPage(newMasterPages[0])"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold btn-theme-primary rounded-lg shadow-sm hover:shadow cursor-pointer whitespace-nowrap transition-all">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+            </svg>
+            {{ newMasterPages[0].label }}
+          </button>
+
+          <div *ngIf="newMasterPages.length > 1" class="relative flex-shrink-0">
+            <div class="inline-flex rounded-lg shadow-sm">
+              <!-- Primary segment: navigates to the first create page -->
+              <button type="button"
+                      (click)="openMasterPage(newMasterPages[0])"
+                      class="inline-flex items-center gap-1.5 pl-3.5 pr-3 py-2 text-xs font-bold btn-theme-primary rounded-l-lg hover:shadow cursor-pointer whitespace-nowrap transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+                </svg>
+                {{ newMasterPages[0].label }}
+              </button>
+              <!-- Caret segment: opens the list of every create page -->
+              <button type="button"
+                      (click)="toggleNewMenu($event)"
+                      [attr.aria-expanded]="newMenuOpen"
+                      aria-label="More create options"
+                      class="inline-flex items-center px-2 py-2 btn-theme-primary rounded-r-lg border-l border-white/25 hover:shadow cursor-pointer transition-all">
+                <svg class="w-3.5 h-3.5 transition-transform" [class.rotate-180]="newMenuOpen"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Dropdown: one row per create page -->
+            <div *ngIf="newMenuOpen"
+                 class="absolute right-0 z-30 mt-1 w-56 py-1 bg-white border border-slate-200 rounded-lg shadow-lg">
+              <button *ngFor="let page of newMasterPages"
+                      type="button"
+                      (click)="openMasterPage(page)"
+                      class="flex items-center gap-2 w-full px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer text-left transition-colors">
+                <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14"/>
+                </svg>
+                {{ page.label }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Row 2: Filter toolbar (quick search + status tabs) ───────────────── -->
+      <div class="flex flex-col md:flex-row md:items-center gap-2 mt-3">
+        <!-- Quick Search Box -->
+        <div class="relative w-full md:w-64 lg:w-72 flex-shrink-0">
+          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input type="text"
+                 [(ngModel)]="searchQuery"
+                 (ngModelChange)="onSearchChange()"
+                 class="w-full pl-8 pr-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-lg placeholder-slate-400 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-sm"
+                 [placeholder]="config?.searchPlaceholder || 'Search...'">
+        </div>
+
+        <!-- Status Tab Segment Filter — first statusTabLimit statuses stay inline,
+             anything past that moves into the "More" dropdown at the end of the bar.
+             With the detail panel open the whole strip collapses to that one button. -->
+        <div *ngIf="config?.statusFilterField"
+             class="flex items-center flex-wrap p-1 rounded-xl gap-1.5 md:ml-auto"
+             [ngClass]="statusTabsCollapsed ? '' : 'bg-slate-100/90 border border-slate-200/60 shadow-inner'">
+          <button *ngFor="let item of visibleStatusTabs; trackBy: trackStatusTab"
+                  (click)="setStatusFilter(item.key)"
+                  [ngClass]="activeStatusFilter === item.key ?
+                             'status-filter-active' :
+                             'text-slate-700 hover:text-slate-900 hover:bg-slate-200/60'"
+                class="px-3 py-1 text-xs font-extrabold rounded-lg transform cursor-pointer whitespace-nowrap flex items-center gap-2 focus:ring-0 active:shadow-none">
+            <span>{{ statusLabel(item.key) }}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold transition-all duration-300"
+                  [ngClass]="activeStatusFilter === item.key ?
+                             'bg-white/25 text-white' :
+                             'bg-slate-200/80 text-slate-700'">
+              {{ item.value }}
+            </span>
+          </button>
+
+          <!-- Overflow dropdown — an ellipsis chip; it takes the active styling and
+               names the status when the selected one lives in this menu -->
+          <div *ngIf="overflowStatusTabs.length" class="relative flex-shrink-0">
+            <button type="button"
+                    (click)="toggleStatusMenu($event)"
+                    [attr.aria-expanded]="statusMenuOpen"
+                    [attr.title]="isStatusMenuActive ? statusLabel(activeStatusFilter) : 'More status filters'"
+                    aria-label="More status filters"
+                    [ngClass]="statusMenuButtonClass"
+                    class="px-2 py-1.5 text-xs font-extrabold rounded-lg transform cursor-pointer whitespace-nowrap flex items-center gap-2 focus:ring-0 active:shadow-none">
+              <ng-container *ngIf="isOverflowStatusActive">
+                <span>{{ statusLabel(activeStatusFilter) }}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold bg-white/25 text-white">
+                  {{ statusCounts[activeStatusFilter] }}
+                </span>
+              </ng-container>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="5" cy="12" r="2"/>
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="19" cy="12" r="2"/>
+              </svg>
+            </button>
+
+            <!-- One row per hidden status; scrolls internally so 20+ stages stay usable -->
+            <div *ngIf="statusMenuOpen"
+                 class="absolute right-0 z-30 mt-1.5 w-60 max-h-72 overflow-y-auto py-1 bg-white border border-slate-200 rounded-lg shadow-lg">
+              <button *ngFor="let item of overflowStatusTabs; trackBy: trackStatusTab"
+                      type="button"
+                      (click)="setStatusFilter(item.key)"
+                      [ngClass]="activeStatusFilter === item.key ?
+                                 'bg-slate-100 text-slate-900' :
+                                 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'"
+                      class="flex items-center justify-between gap-3 w-full px-3 py-2 text-xs font-semibold cursor-pointer text-left transition-colors">
+                <span class="truncate">{{ statusLabel(item.key) }}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-extrabold flex-shrink-0"
+                      [ngClass]="activeStatusFilter === item.key ?
+                                 'status-count-active' :
+                                 'bg-slate-200/80 text-slate-700'">
+                  {{ item.value }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Filter Chips Bar -->
+      <div *ngIf="getActiveFilterCount() > 0 || advancedFilterActive" class="flex flex-wrap items-center gap-1.5 mt-2 pt-2 border-t border-slate-100 animate-in fade-in duration-200">
+        <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider mr-1">Active Filters:</span>
+
+        <!-- Advanced-search filter chips -->
+        <div *ngFor="let f of activeAdvancedFilters"
+             class="inline-flex items-center space-x-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5 text-[8px] font-bold shadow-sm">
+          <span>{{ f.label }}:</span>
+          <span class="text-blue-800 font-extrabold">{{ f.value }}</span>
+          <button (click)="removeAdvancedFilter(f.field)"
+                  class="ml-1 text-blue-400 hover:text-blue-600 focus:outline-none transition-colors">
+            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <ng-container *ngFor="let filterKey of activeFilters | keyvalue">
+          <div *ngIf="filterKey.value.enabled && filterKey.value.value.trim() !== ''"
+               class="inline-flex items-center space-x-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5 text-[8px] font-bold shadow-sm">
+            <span>{{ getColumnHeader(filterKey.key) }}:</span>
+            <span class="text-blue-800 font-extrabold">{{ filterKey.value.value }}</span>
+            <button (click)="removeFilter(filterKey.key)"
+                    class="ml-1 text-blue-400 hover:text-blue-600 focus:outline-none transition-colors">
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </ng-container>
+        <button (click)="clearAllFilters(); clearAdvancedSearch()"
+                class="text-[8px] font-bold text-slate-500 hover:text-red-500 hover:underline ml-2 transition-colors">
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Grid Body Section inside Left Column -->
+    <div class="flex-1 min-h-0 px-1 py-1 flex flex-col">
+      <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
+        <div class="overflow-auto flex-1 min-h-0 relative">
+          <!-- Refresh overlay: only while replacing rows that are already on screen,
+               so a page change reads as an update rather than an empty flash -->
+          <div *ngIf="rowsLoading && pagedItems.length > 0"
+               class="absolute inset-0 z-10 bg-white/60 flex items-start justify-center pt-16 pointer-events-none">
+            <svg class="w-5 h-5 animate-spin text-blue-500" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          </div>
+          <table class="w-full table-auto text-left border-collapse">
+            <!-- Table Header -->
+            <thead>
+              <!-- Row stays sticky while the body scrolls; the bottom divider is drawn
+                   by an inset shadow in SCSS (collapsed borders don't stick). -->
+              <tr class="bg-slate-50 text-[11px] font-extrabold text-slate-700 select-none">
+                <th *ngFor="let col of config?.columns"
+                    [class.col-sticky-status]="config?.statusFilterField && col.field === config?.statusFilterField"
+                    [ngClass]="{'hidden': col.hideCondition && col.hideCondition(leftWidth, isChildRouteActive()), 'text-right': (col.alignment === 'right' || col.type === 'number') && col.alignment !== 'center', 'text-center': col.alignment === 'center', 'cursor-pointer hover:text-blue-600': col.sortable}"
+                    [attr.aria-sort]="!col.sortable ? null : (sortField === col.field ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none')"
+                    (click)="toggleSort(col)"
+                    class="py-3 px-4 whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1 align-middle">
+                    {{ col.header }}
+                    <!-- Sort indicator: a caret pair, both dimmed while idle and the
+                         active direction highlighted. Solid triangles stay legible at 10px
+                         where thin chevron strokes blur together. -->
+                    <svg *ngIf="col.sortable" class="w-2.5 h-3.5 shrink-0" viewBox="0 0 10 14"
+                         fill="currentColor" aria-hidden="true">
+                      <path d="M5 2 L8.5 6 H1.5 Z"
+                            [ngClass]="sortField === col.field && sortDir === 'asc' ? 'text-blue-600' : 'text-slate-400'"></path>
+                      <path d="M5 12 L1.5 8 H8.5 Z"
+                            [ngClass]="sortField === col.field && sortDir === 'desc' ? 'text-blue-600' : 'text-slate-400'"></path>
+                    </svg>
+                  </span>
+                </th>
+                <th *ngIf="hasActions" class="py-3 px-4 text-center col-sticky-action">Action</th>
+              </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody class="divide-y divide-slate-100">
+              <tr *ngFor="let item of pagedItems"
+                  (click)="onRowClick(item)"
+                  class="hover:bg-blue-50/20 cursor-pointer transition-colors duration-150 relative group"
+                  [ngClass]="{'bg-blue-50/30': isRowActive(item)}">
+
+                <!-- Dynamic Columns -->
+                <td *ngFor="let col of config?.columns"
+                    [class.col-sticky-status]="config?.statusFilterField && col.field === config?.statusFilterField"
+                    [ngClass]="{'hidden': col.hideCondition && col.hideCondition(leftWidth, isChildRouteActive()), 'text-right': (col.alignment === 'right' || col.type === 'number') && col.alignment !== 'center', 'text-center': col.alignment === 'center'}"
+                    class="py-1.5 px-4 text-xs">
+
+                  <ng-container [ngSwitch]="col.type">
+                    <!-- Number -->
+                    <span *ngSwitchCase="'number'" class="font-bold text-slate-800">
+                      {{ item[col.field] | number:'1.2-2' }}
+                    </span>
+
+                    <!-- Badge -->
+                    <span *ngSwitchCase="'badge'"
+                          class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold transition-all duration-150"
+                          [ngClass]="col.badgeClassMap ? col.badgeClassMap(item[col.field]) : 'bg-slate-100 text-slate-600'">
+                      {{ item[col.field] }}
+                    </span>
+
+                    <!-- Custom Slot (Injected externally) -->
+                    <ng-container *ngSwitchCase="'custom'">
+                      <ng-container *ngTemplateOutlet="customTemplates[col.field]; context: { $implicit: item }">
+                      </ng-container>
+                    </ng-container>
+
+                    <!-- Text Default -->
+                    <span *ngSwitchDefault
+                          [class.font-semibold]="col.field === 'applicant'"
+                          [class.font-medium]="col.field === 'beneficiary' || col.field === 'issueDate' || col.field === 'expiryDate'"
+                          [class.text-slate-700]="col.field === 'applicant'"
+                          [class.text-slate-500]="col.field === 'beneficiary' || col.field === 'currency' || col.field === 'issueDate' || col.field === 'expiryDate'">
+                      {{ item[col.field] }}
+                    </span>
+                  </ng-container>
+                </td>
+
+                <!-- Actions Column -->
+                <td *ngIf="hasActions"
+                    class="py-1.5 px-4 text-center text-xs relative col-sticky-action" (click)="$event.stopPropagation()">
+                  <button (click)="toggleActionMenu(item, $event)"
+                          class="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600
+                                 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300
+                                 focus:outline-none inline-flex items-center justify-center
+                                 transition-colors shadow-sm">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                  </button>
+                </td>
+
+              </tr>
+
+              <!-- Loading State — first load, or any load with no rows to keep on screen -->
+              <tr *ngIf="rowsLoading && pagedItems.length === 0">
+                <td [attr.colspan]="columnSpan" class="py-12 text-center">
+                  <span class="inline-flex items-center gap-2 text-xs font-bold text-slate-400">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Loading records…
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Error State (server-side mode) — offers a retry of the same request -->
+              <tr *ngIf="!rowsLoading && loadError">
+                <td [attr.colspan]="columnSpan" class="py-12 text-center">
+                  <p class="text-xs font-bold text-red-500">{{ loadError }}</p>
+                  <button type="button" (click)="retry()"
+                          class="mt-2 px-3 py-1 text-[11px] font-bold text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
+                    Retry
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="!rowsLoading && !loadError && pagedItems.length === 0">
+                <td [attr.colspan]="columnSpan"
+                    class="py-12 text-center text-xs font-bold text-slate-400">
+                  No records match your filter criteria.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- ── Pagination Footer ──────────────────────────────────────────────── -->
+    <div class="flex-shrink-0 bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-between gap-2 flex-wrap">
+
+      <!-- Left: record info + page size selector -->
+      <div class="flex items-center gap-3">
+        <span class="text-[11px] text-slate-500">
+          Showing
+          <span class="font-bold text-slate-700">{{ startRecord }}</span>–<span class="font-bold text-slate-700">{{ endRecord }}</span>
+          of <span class="font-bold text-slate-700">{{ totalRecords }}</span> records
+        </span>
+        <select
+          [value]="pageSize"
+          (change)="onPageSizeChange(+$any($event.target).value)"
+          class="text-[11px] border border-slate-200 rounded-md px-2 py-1 text-slate-600 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size" [selected]="size === pageSize">{{ size }} / page</option>
+          }
+        </select>
+      </div>
+
+      <!-- Right: prev / page numbers / next -->
+      <div class="flex items-center gap-1">
+
+        <!-- Prev -->
+        <button
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1 || rowsLoading"
+          class="pagination-nav-btn flex items-center justify-center w-7 h-7 rounded-md border transition-colors text-sm">
+          ‹
+        </button>
+
+        <!-- Page number buttons -->
+        @for (p of getPageNumbers(); track p) {
+          @if (p !== '...') {
+            <button
+              (click)="goToPage(+p)"
+              [disabled]="rowsLoading"
+              [ngClass]="currentPage === p
+                ? 'pagination-page-active'
+                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-800'"
+              class="pagination-page-btn w-7 h-7 text-[11px] font-bold rounded-md border flex items-center justify-center
+                     transition-colors cursor-pointer">
+              {{ p }}
+            </button>
+          } @else {
+            <span class="w-5 text-center text-xs text-slate-400 select-none">…</span>
+          }
+        }
+
+        <!-- Next -->
+        <button
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages || rowsLoading"
+          class="pagination-nav-btn flex items-center justify-center w-7 h-7 rounded-md border transition-colors text-sm">
+          ›
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INTERACTIVE RESIZER DIVIDER BAR (Only shows when child route is active) -->
+  <div *ngIf="isChildRouteActive() && !workspaceState.isFullscreen()"
+       (mousedown)="startResizing($event)"
+       class="hidden lg:flex w-[6px] h-full cursor-col-resize hover:bg-blue-500/50 active:bg-blue-600 bg-slate-200/60 flex-shrink-0 transition-colors duration-150 relative z-30 select-none items-center justify-center group">
+    <div class="h-6 w-[2px] bg-slate-400/50 rounded group-hover:bg-blue-400 group-active:bg-white transition-colors"></div>
+  </div>
+
+  <!-- RIGHT COLUMN: Detail Workspace (Dynamic Width governed by resizer) -->
+  <div *ngIf="isChildRouteActive()"
+       class="h-full bg-white flex flex-col min-w-0 flex-1 w-full overflow-hidden">
+    <!-- Persistent panel header: written once here so detail pages never repeat it -->
+    <case-panel-header *ngIf="config?.managedPanelHeader"
+      [title]="panelTitle"
+      [subtitle]="panelSubtitle"
+      (action)="closePanel()">
+    </case-panel-header>
+    <!-- `@container` makes THIS element the query container for detail pages, so their
+         layouts respond to the panel's own (resizable / fullscreen) width instead of the
+         viewport. Pages use `@md:` / `@3xl:` / `@5xl:` variants rather than `md:` / `lg:`. -->
+    <div #panelScroll class="@container flex-1 min-h-0 overflow-y-auto scrollbar-none">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- ── Advanced Search Modal ─────────────────────────────────────────────── -->
+  <div *ngIf="advancedSearchOpen"
+       class="fixed inset-0 z-[10000] flex items-start justify-center p-4 pt-[10vh]">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] animate-in fade-in duration-150"
+         (click)="closeAdvancedSearch()"></div>
+
+    <!-- Dialog (width is config-driven via advancedSearchModalSize) -->
+    <div class="relative w-full bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
+         [ngClass]="advancedSearchModalWidthClass"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-50 text-blue-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </span>
+          <h2 class="text-sm font-extrabold text-slate-800 tracking-tight">{{ searchMasterPage?.label || 'Advanced Search' }}</h2>
+        </div>
+        <button type="button" (click)="closeAdvancedSearch()"
+                class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filter fields -->
+      <div class="px-5 py-4 max-h-[55vh] overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div *ngFor="let f of config?.advancedSearch" class="flex flex-col gap-1"
+               [ngSwitch]="f.type">
+
+            <!-- Select → custom searchable select control -->
+            <input-select-option-field *ngSwitchCase="'select'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [placeholder]="'All ' + f.label"
+                   [options]="advancedSelectOptions[f.field]"
+                   [displayMode]="'vertical'">
+            </input-select-option-field>
+
+            <!-- Number (integer) -->
+            <input-number *ngSwitchCase="'number'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [placeholder]="f.placeholder || ''"
+                   [displayMode]="'vertical'">
+            </input-number>
+
+            <!-- Amount (decimal) -->
+            <input-amount *ngSwitchCase="'amount'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [placeholder]="f.placeholder || ''"
+                   [decimalPlaces]="f.decimalPlaces ?? 2"
+                   [displayMode]="'vertical'">
+            </input-amount>
+
+            <!-- Date -->
+            <input-date *ngSwitchCase="'date'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [dateFormat]="f.dateFormat"
+                   [displayMode]="'vertical'">
+            </input-date>
+
+            <!-- Time -->
+            <input-time *ngSwitchCase="'time'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [displayMode]="'vertical'">
+            </input-time>
+
+            <!-- Month / Year -->
+            <month-year-picker *ngSwitchCase="'month-year'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [displayMode]="'vertical'">
+            </month-year-picker>
+
+            <!-- Textarea -->
+            <input-text-area *ngSwitchCase="'textarea'"
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [placeholder]="f.placeholder || ''"
+                   [displayMode]="'vertical'">
+            </input-text-area>
+
+            <!-- Text (default) → custom text-box control -->
+            <input-text-box *ngSwitchDefault
+                   [frmGroup]="advancedForm"
+                   [controlName]="f.field"
+                   [label]="f.label"
+                   [placeholder]="f.placeholder || ''"
+                   [displayMode]="'vertical'">
+            </input-text-box>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-2 px-5 py-3.5 border-t border-slate-100 bg-slate-50/60">
+        <button type="button" (click)="resetAdvancedDraft()"
+                class="px-4 py-1.5 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded-lg
+                       hover:bg-slate-50 transition-colors cursor-pointer">
+          Reset
+        </button>
+        <button type="button" (click)="applyAdvancedSearch()"
+                class="px-5 py-1.5 text-xs font-bold btn-theme-primary rounded-lg shadow-sm cursor-pointer flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Search
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,52 @@
+<!-- Stats bar (sticky) -->
+<div class="sticky top-0 z-10 flex items-center gap-4 px-5 py-3 border-b"
+     style="background-color: var(--theme-background); border-color: var(--theme-border)">
+  <div>
+    <p class="text-[10px] font-medium uppercase tracking-wide" style="color: var(--theme-primary)">Assigned Groups</p>
+    <p class="text-sm font-bold" style="color: var(--theme-secondary)">{{ assignedCount }} / {{ groups.length }}</p>
+  </div>
+  <div class="h-6 w-px" style="background-color: var(--theme-accent)"></div>
+  <div>
+    <p class="text-[10px] font-medium uppercase tracking-wide" style="color: var(--theme-primary)">User</p>
+    <p class="text-sm font-bold" style="color: var(--theme-secondary)">{{ userData?.fullName ?? '-' }}</p>
+  </div>
+</div>
+
+<!-- Body -->
+<div class="p-5 space-y-2">
+  @for (group of groups; track group.id) {
+    <div (click)="toggle(group)"
+         class="flex items-center gap-3 border rounded-lg px-4 py-3 cursor-pointer transition-all"
+         [class.border-slate-200]="!group.assigned"
+         [style.border-color]="group.assigned ? 'var(--theme-primary)' : null"
+         [style.background-color]="group.assigned ? 'var(--theme-background)' : null">
+      <div class="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+           [class.border-slate-300]="!group.assigned"
+           [style.border-color]="group.assigned ? 'var(--theme-primary)' : null"
+           [style.background-color]="group.assigned ? 'var(--theme-primary)' : null">
+        @if (group.assigned) {
+          <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+        }
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-slate-800">{{ group.name }}</p>
+        <p class="text-[11px] text-slate-500 mt-0.5">{{ group.description }}</p>
+      </div>
+      <span class="text-[10px] text-slate-400">{{ group.id }}</span>
+    </div>
+  }
+</div>
+
+<!-- Footer (sticky) -->
+<div class="sticky bottom-0 z-10 bg-slate-50 border-t border-slate-100 p-3 flex items-center justify-end gap-2.5">
+  <button (click)="onClose()"
+    class="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded hover:bg-slate-50 transition-colors shadow-sm">
+    Cancel
+  </button>
+  <button (click)="save()"
+    class="px-4 py-2 text-xs font-bold btn-theme-primary rounded shadow-sm">
+    Save
+  </button>
+</div>

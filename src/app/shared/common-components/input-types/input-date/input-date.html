@@ -1,0 +1,129 @@
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        id="date_outlined"
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        matInput
+        [matDatepicker]="datePicker"
+        [min]="getMinDate()"
+        [max]="getMaxDate()"
+        [placeholder]="' '"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        class="custom-input has-suffix-icon peer block px-3 pt-4 pb-2  text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+        (input)="onInputChange($event)"
+        (keydown)="onKeyDown($event)"
+        (focus)="onFocus($event)"
+        (blur)="onBlur()"
+        (dateChange)="onDateSelected($event)"
+
+      />
+
+      <!-- FLOATING LABEL -->
+      <label
+        for="date_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- DATE PICKER TOGGLE -->
+      <mat-datepicker-toggle
+        [disabled]="isReadonly()"
+        matSuffix 
+        [for]="datePicker"
+        class="datepicker-toggle">
+      </mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+
+
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    @if (displayMode() === 'vertical') {
+      <label class="input-label block leading-tight">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    @if (displayMode() === 'horizontal') {
+      <label class="input-label relative">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    <div class="input-wrapper relative select-date" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        matInput
+        [matDatepicker]="datePicker"
+        [min]="getMinDate()"
+        [max]="getMaxDate()"
+        [placeholder]="dateFormat()"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        (input)="onInputChange($event)"
+        (focus)="onFocus($event)"
+        (blur)="onBlur()"
+        (keydown)="onKeyDown($event)"
+        (dateChange)="onDateSelected($event)"
+        class="custom-input has-suffix-icon"
+
+      />
+
+      <mat-datepicker-toggle
+        [disabled]="isReadonly()"
+        matSuffix
+        [for]="datePicker"
+        class="datepicker-toggle">
+      </mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+
+      <!-- @if (frmGroup().get(controlName())?.value && !isReadonly()) {
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearInput()"
+          [attr.aria-label]="'Clear ' + label()">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#000000">
+                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                  </svg>
+        </button>
+      } -->
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+    <div
+    class="mt-0 min-h-[1rem]">
+    @if (!isReadonly() && !frmGroup().get(controlName())?.disabled && frmGroup().get(controlName())?.invalid && (frmGroup().get(controlName())?.touched || frmGroup().get(controlName())?.dirty)) {
+            <p
+      class="text-[10px] text-red-500 leading-4 ms-1">
+        {{ getDetailedErrorMessage() }}
+      </p>
+    }
+  </div>
+</div>

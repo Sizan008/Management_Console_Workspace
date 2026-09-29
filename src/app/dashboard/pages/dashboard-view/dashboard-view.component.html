@@ -1,0 +1,72 @@
+<div class="view-root">
+
+  @if (loading()) {
+    <div class="view-loading">
+      <div class="spinner"></div>
+      <p>Loading dashboard…</p>
+    </div>
+  } @else {
+    @if (widgets().length === 0) {
+      <div class="view-empty">
+        <div class="empty-icon">🔒</div>
+        <p class="empty-title">No widgets available</p>
+        <p class="empty-sub">Your current roles don't grant access to any widgets on this dashboard. Contact your administrator to request access.</p>
+      </div>
+    } @else {
+      <div class="view-toolbar">
+        <button class="vw-layout-btn" (click)="openLayoutDesigner()" title="Arrange widget positions and sizes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          Design Layout
+        </button>
+      </div>
+      <div class="view-grid" [ngStyle]="getGridStyle()">
+        @for (widget of widgets(); track widget.id) {
+          <app-widget-card
+            [ngStyle]="getWidgetGridStyle(widget.id)"
+            [widgetId]="widget.id"
+            [widgetType]="widget.widgetType"
+            [widgetName]="widget.name"
+            [isConfigured]="!!widget.isConfigured"
+            [data]="getWidgetData(widget.id)"
+            [isRefreshing]="isRefreshing(widget.id)"
+            [filterDefs]="getFilterDefs(widget)"
+            [filterValues]="getFilterValues(widget.id)"
+            [rangeOptions]="rangeOptions"
+            [currentRange]="getWidgetRange(widget.id)"
+            [customFrom]="getWidgetCustomFrom(widget.id)"
+            [customTo]="getWidgetCustomTo(widget.id)"
+            [renderConfig]="getChartConfig(widget.id)"
+            [chartStyle]="getChartStyle(widget.id)"
+            [enableDateSort]="isDateSortingEnabled(widget)"
+            (refresh)="refreshWidget(widget)"
+            (rangeChange)="setWidgetRange(widget, $any($event))"
+            (customFromChange)="setWidgetCustomFrom(widget, $event)"
+            (customToChange)="setWidgetCustomTo(widget, $event)"
+            (applyCustomRange)="applyWidgetCustomRange(widget)"
+            (filterChange)="updateFilter(widget, $event.paramName, $event.value)">
+          </app-widget-card>
+        }
+      </div>
+    }
+  }
+
+</div>
+
+@if (layoutDesignerOpen() && dashboard()) {
+  <div class="fixed inset-0 bg-black bg-opacity-40 z-50 overflow-auto">
+    <div class="min-h-screen flex items-start justify-center pt-4 pb-10">
+      <div class="bg-white rounded-lg shadow-xl w-11/12 max-w-6xl relative">
+        <button (click)="closeLayoutDesigner()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 text-xl leading-none">✕</button>
+        <app-layout-designer
+          [layoutConfigJson]="localLayoutConfigJson()"
+          [widgets]="widgets()"
+          (layoutSaved)="onLayoutSaved($event)">
+        </app-layout-designer>
+      </div>
+    </div>
+  </div>
+}

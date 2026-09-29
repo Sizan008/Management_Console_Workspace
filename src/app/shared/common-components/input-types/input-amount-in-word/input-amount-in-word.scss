@@ -1,0 +1,17 @@
+.amount-in-words {
+  font-size: 0.875rem; /* text-sm */
+  margin-top: 0.25rem; /* mt-1 */
+  color: #4b5563; /* gray-600 */
+  white-space: normal; /* allow wrapping */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;   /* ⬅️ restricts it inside parent (input width) */
+}
+
+
+.validation {
+ max-width: 100%;          /* don’t exceed input width */
+  white-space: normal;      /* allow wrapping */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}

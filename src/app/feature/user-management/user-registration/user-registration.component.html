@@ -1,0 +1,155 @@
+<div class="flex-col-fill">
+
+  <!-- ── Form Body — each section is an accent-rail card (app-expansion-panel-header) ── -->
+  <div class="scroll-area">
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+
+      <!-- SECTION 1: Personal Information -->
+      <app-expansion-panel-header
+        [panelTitle]="'Personal Information'"
+        [isOpenSignal]="isPersonalOpen">
+        <div class="section-grid-3">
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'fullName'"
+            [label]="'Full Name'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Full name is required', minlength: 'Minimum 3 characters' }">
+          </input-text-box>
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'email'"
+            [label]="'Email Address'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Email is required', email: 'Enter a valid email' }">
+          </input-text-box>
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'phone'"
+            [label]="'Phone Number'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Phone number is required' }">
+          </input-text-box>
+          <input-date
+            [frmGroup]="registrationForm"
+            [controlName]="'dateOfBirth'"
+            [label]="'Date of Birth'"
+            [dateFormat]="'YYYY-MM-DD'"
+            displayMode="vertical">
+          </input-date>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION 2: Work Information -->
+      <app-expansion-panel-header
+        [panelTitle]="'Work Information'"
+        [isOpenSignal]="isWorkOpen">
+        <div class="section-grid-3">
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'employeeId'"
+            [label]="'Employee ID'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Employee ID is required' }">
+          </input-text-box>
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'designation'"
+            [label]="'Designation'"
+            displayMode="vertical">
+          </input-text-box>
+          <input-select-option-field
+            [frmGroup]="registrationForm"
+            [controlName]="'department'"
+            [label]="'Department'"
+            [options]="departmentOptions"
+            [searchable]="true"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Department is required' }">
+          </input-select-option-field>
+          <input-select-option-field
+            [frmGroup]="registrationForm"
+            [controlName]="'branch'"
+            [label]="'Branch'"
+            [options]="branchOptions"
+            [searchable]="true"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Branch is required' }">
+          </input-select-option-field>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION 3: System Access -->
+      <app-expansion-panel-header
+        [panelTitle]="'System Access & Credentials'"
+        [isOpenSignal]="isAccessOpen">
+        <div class="section-grid-3">
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'userId'"
+            [label]="'Username / User ID'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'User ID is required' }">
+          </input-text-box>
+          <input-select-option-field
+            [frmGroup]="registrationForm"
+            [controlName]="'role'"
+            [label]="'Role'"
+            [options]="roleOptions"
+            [searchable]="false"
+            displayMode="vertical">
+          </input-select-option-field>
+          <input-select-option-field
+            [frmGroup]="registrationForm"
+            [controlName]="'status'"
+            [label]="'Initial Status'"
+            [options]="statusOptions"
+            [searchable]="false"
+            displayMode="vertical">
+          </input-select-option-field>
+          <input-text-box
+            [frmGroup]="registrationForm"
+            [controlName]="'password'"
+            [label]="'Password'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Password is required', minlength: 'Minimum 8 characters' }">
+          </input-text-box>
+          <div>
+            <input-text-box
+              [frmGroup]="registrationForm"
+              [controlName]="'confirmPassword'"
+              [label]="'Confirm Password'"
+              displayMode="vertical"
+              [customErrorMessages]="{ required: 'Please confirm password' }">
+            </input-text-box>
+            @if (passwordMismatch) {
+              <p class="mt-1 text-xs text-red-500">Passwords do not match</p>
+            }
+          </div>
+        </div>
+      </app-expansion-panel-header>
+
+    </form>
+  </div>
+
+  <!-- ── Bottom Action Bar — sticky at the bottom ──────────────────────────── -->
+  <!-- <div class="bg-white border-t border-slate-200 px-5 py-3 flex items-center justify-between flex-shrink-0">
+    <p class="text-xs text-slate-400">All fields marked with * are required</p>
+    <div class="flex items-center gap-2.5">
+      <button type="button"
+        (click)="registrationForm.reset({ role: 'Officer', status: 'Pending' })"
+        class="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+        Reset
+      </button>
+      <button type="button" (click)="onCancel()"
+        class="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">
+        Cancel
+      </button>
+      <button type="submit"
+        class="px-5 py-2 text-xs font-bold btn-theme-primary rounded-lg shadow-sm cursor-pointer">
+        Register User
+      </button>
+    </div>
+  </div> -->
+
+</div>

@@ -1,0 +1,17 @@
+<div [formGroup]="formGroup" [class]="classProperty" class="grid gap-x-2">
+  <span [class]="labelClass">
+    {{ labelName }}
+    @if (isRequired) {
+      <span class="required">*</span>
+    }
+  </span>
+
+  <div>
+    <quill-editor
+      [modules]="modules"
+      [formControlName]="controlName"
+      class="w-full col-span-2 break-words break-all whitespace-pre-wrap"
+      (onEditorCreated)="handleEditorCreated($event)">
+    </quill-editor>
+  </div>
+</div>

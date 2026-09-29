@@ -1,0 +1,23 @@
+<!-- <button
+  (click)="view()"
+  [disabled]="frmGroup().invalid"
+  class="a_demo_three flex items-center gap-2 relative"
+>
+  <div class="icon-box flex items-center justify-center  left-0 h-full w-9 rounded-l-md">
+    <mat-icon>saved_search</mat-icon>
+  </div>
+  <span class="ml-9 text-sm">View</span>
+</button> -->
+
+
+<!-- <button class="btn_elevated" (click)="view()" [disabled]="frmGroup().invalid">
+  <div style=" background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);" class="icon_container_elevated">
+    <mat-icon>saved_search</mat-icon>
+  </div>
+  <span class="btn_text">View</span>
+</button> -->
+
+<button (click)="view()" [disabled]="disabled || frmGroup().invalid" class="a_demo_four icon-view">
+  <img src="/asset/icons/view.svg" alt="" class="icon" />
+  View
+</button>

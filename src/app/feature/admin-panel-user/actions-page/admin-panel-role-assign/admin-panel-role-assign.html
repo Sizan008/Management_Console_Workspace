@@ -1,0 +1,101 @@
+<section class="min-w-0 space-y-4 p-3 sm:p-5" aria-label="Role Assign" [attr.aria-busy]="busy()">
+  @if (loading()) { <p role="status" class="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">Loading user and roles…</p> }
+  @if (error()) { <p role="alert" class="break-words rounded-lg bg-red-50 p-3 text-sm text-red-700">{{ error() }}</p> }
+  @if (notice()) { <p role="status" class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">{{ notice() }}</p> }
+  @if (success()) { <p role="status" class="rounded-lg bg-green-50 p-3 text-sm text-green-800">{{ success() }}</p> }
+  <app-expansion-panel-header panelTitle="User Information" [isOpenSignal]="informationOpen" />
+  @if (informationOpen()) { <case-summary-details title="Selected User" [details]="userDetails()" /> }
+  @if (user()) {
+    <app-expansion-panel-header panelTitle="Role Assignment" [isOpenSignal]="rolesOpen" />
+    @if (rolesOpen()) {
+      <div class="grid min-w-0 grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1fr)_140px_minmax(0,1fr)] 2xl:items-center">
+        <article class="min-w-0 rounded-lg border border-slate-200 p-3">
+          <h3 class="mb-3 text-sm font-semibold text-slate-700">Unassigned Roles ({{ available().length }})</h3>
+          <div class="overflow-x-auto" [class.pointer-events-none]="!editable()" [class.opacity-60]="!editable()">
+            <generic-data-grid #availableGrid id="role-available-grid"
+              [dataSource]="available()" [selectedColumns]="columns" [customColumnNames]="columnNames"
+              [initPageSize]="5" [pageSizeOptions]="[5, 10, 20, 50]" [showPaginator]="true"
+              [searchEnabled]="true" [useInlineEdit]="false" [enableSelection]="editable()"
+              [showCustomAction1]="true" [customActionSvg1]="detailsSvg" customActionTooltip1="Details"
+              uniqueIdField="roleId" (onChecked)="checked('available', $event)"
+              (onSelectAllChange)="selectAll('available', $event)" (onExtraAction1Click)="openDetails($event)" />
+          </div>
+        </article>
+        <div class="flex flex-wrap justify-center gap-2 2xl:flex-col">
+          <generic-button label="Assign selected" [enable]="editable() && selectedAvailable().length > 0" (onClick)="transfer(true)" />
+          <generic-button label="Remove selected" [enable]="editable() && selectedAssigned().length > 0" (onClick)="transfer(false)" />
+          <generic-button label="Assign all" [enable]="editable() && available().length > 0" (onClick)="transfer(true, true)" />
+          <generic-button label="Remove all" [enable]="editable() && assigned().length > 0" (onClick)="transfer(false, true)" />
+        </div>
+        <article class="min-w-0 rounded-lg border border-slate-200 p-3">
+          <h3 class="mb-3 text-sm font-semibold text-slate-700">Assigned Roles ({{ assigned().length }})</h3>
+          <div class="overflow-x-auto" [class.pointer-events-none]="!editable()" [class.opacity-60]="!editable()">
+            <generic-data-grid #assignedGrid id="role-assigned-grid"
+              [dataSource]="assigned()" [selectedColumns]="columns" [customColumnNames]="columnNames"
+              [initPageSize]="5" [pageSizeOptions]="[5, 10, 20, 50]" [showPaginator]="true"
+              [searchEnabled]="true" [useInlineEdit]="false" [enableSelection]="editable()"
+              [showCustomAction1]="true" [customActionSvg1]="detailsSvg" customActionTooltip1="Details"
+              uniqueIdField="roleId" (onChecked)="checked('assigned', $event)"
+              (onSelectAllChange)="selectAll('assigned', $event)" (onExtraAction1Click)="openDetails($event)" />
+          </div>
+        </article>
+      </div>
+    }
+  }
+  <div class="sticky bottom-0 z-10 flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-slate-50 p-3">
+    <generic-button label="Close" [enable]="!saving()" (onClick)="onClose()" />
+    <generic-button label="Refresh" [enable]="!busy() && !confirmOpen()" (onClick)="refresh()" />
+    <generic-button [label]="saving() ? 'Saving…' : 'Save'" [enable]="editable() && changed()" (onClick)="requestSave()" />
+  </div>
+</section>
+<generic-modal
+  [isVisible]="detailsOpen()"
+  modalTitle="Role Details"
+  [closeOnBackdropClick]="true"
+  [showDefaultFooter]="false"
+  (modalClosed)="closeDetails()"
+>
+  <div
+    class="min-w-0 max-h-[58vh] space-y-4 overflow-y-auto overscroll-contain p-2 pr-3 sm:p-3 sm:pr-4"
+  >
+    <case-summary-details title="Role Information" [details]="roleDetails()" />
+
+    @if (detailLoading()) {
+      <p role="status" class="text-sm text-slate-600">Loading access methods…</p>
+    }
+
+    @if (detailError()) {
+      <p role="alert" class="text-sm text-red-700">{{ detailError() }}</p>
+    }
+
+    <div class="min-w-0 overflow-x-auto">
+      <generic-data-grid
+        id="role-method-details-grid"
+        [dataSource]="methods()"
+        [selectedColumns]="methodColumns"
+        [customColumnNames]="methodNames"
+        [initPageSize]="10"
+        [pageSizeOptions]="[10, 20, 50]"
+        [useInlineEdit]="false"
+        [enableSelection]="false"
+        uniqueIdField="methodId"
+      />
+    </div>
+
+    <div class="flex justify-end">
+      <generic-button label="Close" (onClick)="closeDetails()" />
+    </div>
+  </div>
+</generic-modal>
+<generic-modal [isVisible]="confirmOpen()" modalTitle="Confirm Role Assignment" [showDefaultFooter]="false" (modalClosed)="confirmOpen.set(false)">
+  <div class="space-y-4 p-3 sm:p-5">
+    <p class="text-sm text-slate-700">Submit the updated role assignment for this user?</p>
+    <case-summary-details title="Selected User" [details]="userDetails()" />
+    <p class="text-sm font-semibold text-slate-700">Total assigned roles: {{ assigned().length }}</p>
+    @if (!assigned().length) { <p class="text-sm text-amber-800">This request removes all assigned roles.</p> }
+    <div class="flex flex-wrap justify-end gap-2">
+      <generic-button label="Cancel" (onClick)="confirmOpen.set(false)" />
+      <generic-button label="Confirm" [enable]="!busy()" (onClick)="save()" />
+    </div>
+  </div>
+</generic-modal>

@@ -1,0 +1,254 @@
+<section class="min-w-0 space-y-4 p-3 sm:p-4 lg:p-5" aria-label="Authorization" [attr.aria-busy]="busy()">
+  @if (pageError()) {
+    <div role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+      {{ pageError() }}
+    </div>
+  }
+
+  @if (pageNotice()) {
+    <div role="status" class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+      {{ pageNotice() }}
+    </div>
+  }
+
+  <div class="flex min-w-0 flex-wrap items-center justify-between gap-2">
+    <p class="m-0 text-sm font-semibold text-slate-700">
+      Selected User: <span class="break-all text-slate-900">{{ selectedUserId() || '—' }}</span>
+    </p>
+    @if (selectedFeature()) {
+      <p class="m-0 text-xs text-slate-500">Function: {{ selectedFeature()?.featureDesc }}</p>
+    }
+  </div>
+
+  <div class="min-w-0 space-y-3">
+    <app-expansion-panel-header panelTitle="Authorization" [isOpenSignal]="authorizationPanelOpen" />
+
+    @if (authorizationPanelOpen()) {
+      <div class="min-w-0 space-y-4 rounded-lg border border-slate-200 bg-white p-3 sm:p-4">
+        <form class="mx-auto w-full max-w-[420px]" [formGroup]="filterForm">
+          <input-select-option-field
+            class="block w-full min-w-0"
+            [frmGroup]="filterForm"
+            controlName="featureId"
+            label="Function Name"
+            displayMode="outline"
+            [options]="functionOptions()"
+          />
+        </form>
+
+        @if (loadingFeatures()) {
+          <p role="status" class="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+            Loading authorization functions…
+          </p>
+        }
+
+        @if (loadingQueue()) {
+          <p role="status" class="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+            Loading authorization queue…
+          </p>
+        }
+
+        <div class="min-w-0 overflow-x-auto">
+          <generic-data-grid
+            class="block min-w-[900px]"
+            id="admin-panel-authorization-grid"
+            [dataSource]="authorizationRows()"
+            [selectedColumns]="authorizationColumns"
+            [customColumnNames]="authorizationColumnNames"
+            [initPageSize]="10"
+            [pageSizeOptions]="pageSizeOptions"
+            [showPaginator]="true"
+            [searchEnabled]="true"
+            [useInlineEdit]="false"
+            [enableSelection]="false"
+            [showCustomAction1]="true"
+            [showCustomAction2]="true"
+            [customActionSvg1]="detailActionSvg"
+            [customActionSvg2]="authorizerDetailActionSvg"
+            customActionTooltip1="Detail"
+            customActionTooltip2="Authorizer Detail"
+            uniqueIdField="queueId"
+            (onExtraAction1Click)="openDetails($event)"
+            (onExtraAction2Click)="showAuthorizerDetails($event)"
+          />
+        </div>
+
+        @if (!selectedFeatureId() && !loadingFeatures()) {
+          <p class="m-0 rounded-lg bg-slate-50 p-4 text-center text-sm text-slate-500">
+            Select a Function Name to view authorization requests for this user.
+          </p>
+        }
+      </div>
+    }
+  </div>
+
+  @if (authorizerDetailsVisible()) {
+    <div #authorizerDetailsSection class="min-w-0 space-y-3 scroll-mt-4">
+      <app-expansion-panel-header
+        panelTitle="Authorizer Details Information"
+        [isOpenSignal]="authorizerDetailsPanelOpen"
+      />
+
+      @if (authorizerDetailsPanelOpen()) {
+        <div class="min-w-0 overflow-x-auto rounded-lg border border-slate-200 bg-white p-3 sm:p-4">
+          <generic-data-grid
+            class="block min-w-[700px]"
+            id="admin-panel-authorization-history-grid"
+            [dataSource]="authorizerHistoryRows()"
+            [selectedColumns]="authorizerHistoryColumns"
+            [customColumnNames]="authorizerHistoryColumnNames"
+            [initPageSize]="10"
+            [pageSizeOptions]="pageSizeOptions"
+            [showPaginator]="true"
+            [searchEnabled]="false"
+            [useInlineEdit]="false"
+            [enableSelection]="false"
+            uniqueIdField="authOrDecDt"
+          />
+        </div>
+      }
+    </div>
+  }
+
+  <div class="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 p-3">
+    <generic-button label="Close" [enable]="!processingDecision()" (onClick)="onClose()" />
+    <generic-button label="Reset" [enable]="!busy()" (onClick)="reset()" />
+    <generic-button
+      label="Refresh"
+      [enable]="!busy() && !!selectedFeatureId()"
+      (onClick)="refresh()"
+    />
+  </div>
+</section>
+
+<generic-modal
+  [isVisible]="detailModalVisible()"
+  modalTitle="Details Information"
+  [showDefaultFooter]="false"
+  [closeOnBackdropClick]="!processingDecision()"
+  (modalClosed)="closeDetailModal()"
+>
+  <div class="min-w-0 max-h-[62vh] space-y-4 overflow-y-auto overscroll-contain p-2 pr-3 sm:p-4 sm:pr-5">
+    <div class="flex min-w-0 flex-wrap items-center justify-between gap-2">
+      <p class="m-0 text-sm font-semibold text-slate-800">
+        {{ selectedFeature()?.featureDesc || 'Authorization Request' }}
+      </p>
+      <p class="m-0 text-xs text-slate-500">
+        Queue ID: {{ selectedRequest()?.queueId || '—' }}
+      </p>
+    </div>
+
+    @if (loadingDetails()) {
+      <p role="status" class="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
+        Loading request details…
+      </p>
+    }
+
+    @if (detailModalError()) {
+      <p role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ detailModalError() }}
+      </p>
+    }
+
+    <div class="min-w-0 overflow-x-auto">
+      <generic-data-grid
+        class="block min-w-[620px]"
+        id="admin-panel-authorization-detail-grid"
+        [dataSource]="detailRows()"
+        [selectedColumns]="detailGridColumns"
+        [customColumnNames]="detailGridColumnNames"
+        [initPageSize]="10"
+        [pageSizeOptions]="pageSizeOptions"
+        [showPaginator]="true"
+        [searchEnabled]="false"
+        [useInlineEdit]="false"
+        [enableSelection]="false"
+        uniqueIdField="columnName"
+      />
+    </div>
+
+    <form class="w-full max-w-[420px]" [formGroup]="decisionForm">
+      <input-text-box
+        class="block w-full"
+        [frmGroup]="decisionForm"
+        controlName="remarks"
+        label="*Remarks"
+        placeholder="Enter authorization remarks"
+        displayMode="outline"
+        [maxLength]="500"
+      />
+      @if (decisionForm.controls.remarks.invalid && decisionForm.controls.remarks.touched) {
+        <p class="mt-1 text-xs text-red-600">Remarks is required.</p>
+      }
+    </form>
+
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <generic-button label="Close" [enable]="!processingDecision()" (onClick)="closeDetailModal()" />
+      <generic-button
+        label="Approve"
+        [enable]="!busy()"
+        (onClick)="openDecisionConfirmation('Authorize')"
+      />
+      <generic-button
+        label="Decline"
+        [enable]="!busy()"
+        (onClick)="openDecisionConfirmation('Decline')"
+      />
+    </div>
+  </div>
+</generic-modal>
+
+<generic-modal
+  [isVisible]="confirmModalVisible()"
+  modalTitle="Confirm Authorization Decision"
+  [showDefaultFooter]="false"
+  [closeOnBackdropClick]="!processingDecision()"
+  (modalClosed)="closeConfirmModal()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-4">
+    <p class="m-0 text-sm leading-6 text-slate-800">
+      Are you sure you want to <strong>{{ pendingDecision() }}</strong> this authorization request?
+    </p>
+
+    <div class="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2">
+      <div>
+        <p class="m-0 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Selected User</p>
+        <p class="mt-1 break-all text-sm font-semibold text-slate-800">{{ selectedUserId() || '—' }}</p>
+      </div>
+      <div>
+        <p class="m-0 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Function Name</p>
+        <p class="mt-1 text-sm font-semibold text-slate-800">{{ selectedFeature()?.featureDesc || '—' }}</p>
+      </div>
+      <div class="sm:col-span-2">
+        <p class="m-0 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Remarks</p>
+        <p class="mt-1 break-words text-sm font-semibold text-slate-800">
+          {{ decisionForm.controls.remarks.value }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-end gap-2">
+      <generic-button label="Cancel" [enable]="!processingDecision()" (onClick)="closeConfirmModal()" />
+      <generic-button
+        [label]="processingDecision() ? 'Processing…' : 'Confirm'"
+        [enable]="!processingDecision()"
+        (onClick)="confirmDecision()"
+      />
+    </div>
+  </div>
+</generic-modal>
+
+<generic-modal
+  [isVisible]="successModalVisible()"
+  modalTitle="Authorization Updated"
+  [showDefaultFooter]="false"
+  (modalClosed)="closeSuccessModal()"
+>
+  <div class="space-y-4 p-3 text-center sm:p-4">
+    <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-700">✓</div>
+    <p class="m-0 break-words text-sm text-slate-800">{{ successMessage() }}</p>
+    <div class="flex justify-center">
+      <generic-button label="OK" (onClick)="closeSuccessModal()" />
+    </div>
+  </div>
+</generic-modal>

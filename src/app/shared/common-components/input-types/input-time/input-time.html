@@ -1,0 +1,114 @@
+<div
+  [formGroup]="frmGroup"
+  [ngClass]="{
+    'input-container-vertical': displayMode === 'vertical',
+    'input-container-horizontal': displayMode === 'horizontal',
+    'input-container-outline': displayMode === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  <ng-container *ngIf="displayMode === 'outline'">
+    <div class="input-wrapper relative" [class.has-value]="frmGroup.get(controlName())?.value">
+      <input
+        type="time"
+
+        [attr.controlName]="controlName()"
+        [formControlName]="controlName()"
+        [readonly]="isReadonly"
+        [disabled]="isReadonly"
+        [min]="minTime"
+        [max]="maxTime"
+        [placeholder]="' '"
+        [ngClass]="{'readonly-input': isReadonly}"
+        class="custom-input peer block px-3 pt-4 pb-2 text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      <!-- FLOATING LABEL -->
+      <label
+        [for]="controlName()"
+        class="floating-input-label">
+        {{ label }}
+        <span *ngIf="frmGroup.get(controlName())?.errors?.['required']" class="text-red-500">*</span>
+      </label>
+
+      <!-- CLEAR BUTTON -->
+      <button
+        *ngIf="!isReadonly && !frmGroup.get(controlName())?.disabled && frmGroup.get(controlName())?.value"
+        type="button"
+        class="clear-button"
+        (click)="clearInput()"
+        [attr.aria-label]="'Clear ' + label">
+        <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+          <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+        </svg>
+      </button>
+
+      <!-- TIME PICKER ICON -->
+      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3 pointer-events-none" *ngIf="!frmGroup.get(controlName())?.value">
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" d="M2 12C2 6.477..." clip-rule="evenodd" />
+        </svg>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  <ng-container *ngIf="displayMode !== 'outline'">
+    <label *ngIf="displayMode === 'vertical'" [for]="controlName()" class="input-label block leading-tight">
+      {{ label }}
+      <span *ngIf="frmGroup.get(controlName())?.errors?.['required']" class="text-red-500">*</span>
+    </label>
+
+    <div class="input-wrapper relative" [class.has-value]="frmGroup.get(controlName())?.value">
+      <label *ngIf="displayMode === 'horizontal'" class="input-label">
+        {{ label }}
+        <span *ngIf="frmGroup.get(controlName())?.errors?.['required']" class="text-red-500">*</span>
+      </label>
+
+      <input
+        type="time"
+        [id]="controlName()"
+        [formControlName]="controlName()"
+        [readonly]="isReadonly"
+        [disabled]="isReadonly"
+        [min]="minTime"
+        [max]="maxTime"
+        [placeholder]="placeholder"
+        [ngClass]="{'readonly-input': isReadonly}"
+        class="custom-input"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      <button
+        *ngIf="!isReadonly && !frmGroup.get(controlName())?.disabled && frmGroup.get(controlName())?.value"
+        type="button"
+        class="clear-button"
+        (click)="clearInput()"
+        [attr.aria-label]="'Clear ' + label">
+        <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+          <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+        </svg>
+      </button>
+
+      <div class="absolute inset-y-0 end-0 top-0 flex items-center pe-3 pointer-events-none" *ngIf="!frmGroup.get(controlName())?.value">
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" d="M2 12C2 6.477..." clip-rule="evenodd" />
+        </svg>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ======================== VALIDATION ======================== -->
+    <div
+    class="mt-0 min-h-[1.5rem]">
+    <div *ngIf="!isReadonly && !frmGroup.get(controlName())?.disabled && frmGroup.get(controlName())?.errors && (frmGroup.get(controlName())?.touched || frmGroup.get(controlName())?.dirty)" class="text-red-500 text-[10px] leading-4 ms-1">
+      <span *ngIf="frmGroup.get(controlName())?.hasError('required')">
+        {{ label }} is required!
+      </span>
+    </div>
+  </div>
+
+</div>

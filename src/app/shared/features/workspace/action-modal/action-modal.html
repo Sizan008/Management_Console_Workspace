@@ -1,0 +1,75 @@
+<div class="lookup-modal">
+  <div class="lookup-modal__header">
+  </div>
+  <div class="panel bg-white">
+    <div class="lookup-filters" *ngIf="showFilters">
+      <div class="modal-search-section my-4">
+        <div class="modal-search-wrapper flex items-center gap-2">
+          <!-- <input-select-option-field
+             *ngIf="showAppFilter"
+             [frmGroup]="filterForm"
+             [controlName]="'app_id'"
+             [label]="'App'"
+             [options]="appOptions"
+             [displayMode]="'vertical'"
+             (onSelect)="onAppChange($event)">
+           </input-select-option-field>-->
+
+          <input-select-option-field
+            *ngIf="showWorkspaceFilter"
+            [frmGroup]="filterForm"
+            [controlName]="'workspace_id'"
+            [label]="'Workspace'"
+            [options]="workspaceOptions"
+            [displayMode]="'vertical'"
+            (onSelect)="onWorkspaceChange($event)">
+          </input-select-option-field>
+
+          <input-select-option-field
+            *ngIf="showStageFilter"
+            [frmGroup]="filterForm"
+            [controlName]="'stage_id'"
+            [label]="'Stage'"
+            [options]="stageOptions"
+            [displayMode]="'vertical'"
+            (onSelect)="onStageChange($event)">
+          </input-select-option-field>
+
+          <generic-button
+            *ngIf="showSearchButton"
+            [label]="'Search'"
+            [enable]="true"
+            [visible]="true"
+            (onClick)="onSearch()">
+          </generic-button>
+        </div>
+      </div>
+    </div>
+    <div class="component-section mt-3">
+      <generic-data-grid
+        #actionGrid
+        [uniqueIdField]="'action_id'"
+        [dataSource]="rows"
+        [selectedColumns]="selectedColumns"
+        [customColumnNames]="customColumnNames"
+        [showEditButton]="false"
+        [showDeleteButton]="false"
+        [showViewButton]="!showFilters"
+        [showPrintButton]="false"
+        [enableSelection]="showFilters"
+        [searchEnabled]="true"
+        [initPageSize]="8"
+        (onRowDoubleClick)="onSelectRow($event)"
+        (onFHViewClick)="onSelectRow($event)">
+      </generic-data-grid>
+    </div>
+    <div class="lookup-modal__actions" *ngIf="showSelectionAction">
+      <generic-button
+        [label]="'Add Selected'"
+        [enable]="true"
+        [visible]="true"
+        (onClick)="onAddSelected()">
+      </generic-button>
+    </div>
+  </div>
+</div>

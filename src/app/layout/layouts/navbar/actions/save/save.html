@@ -1,0 +1,44 @@
+<!-- White Elevated -->
+<!-- <button class="btn_elevated" (click)="save()" [disabled]="frmGroup().invalid">
+  <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);" class="icon_container_elevated">
+    <mat-icon>save</mat-icon>
+  </div>
+  <span class="btn_text">Save</span>
+</button> -->
+
+
+
+
+<button
+  (click)="save()"
+  [disabled]="disabled || frmGroup().invalid"
+  class="a_demo_four icon-save"
+  [attr.aria-label]="label"
+>
+  <img src="/asset/icons/save.svg" alt="" class="icon" />
+  {{ label }}
+</button>
+
+
+
+
+ <!-- <div class="icon-box flex items-center justify-center  left-0 h-full w-9 rounded-l-md">
+    <mat-icon>Save</mat-icon>
+  </div> -->
+
+
+<!-- Dark Glow -->
+<!-- <button class="btn_dark_glow" (click)="save()" [disabled]="frmGroup().invalid">
+  <div class="icon_container_dark">
+    <mat-icon>save</mat-icon>
+  </div>
+  <span class="btn_text">Save</span>
+</button> -->
+
+<!-- Green Gradient -->
+<!-- <button class="btn_gradient" (click)="save()" [disabled]="frmGroup().invalid">
+  <div class="icon_container_gradient">
+    <mat-icon>save</mat-icon>
+  </div>
+  <span class="btn_text">Save</span>
+</button> -->

@@ -1,0 +1,4 @@
+// Custom styles for UserRolePageComponent
+:host { display: block; }
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }

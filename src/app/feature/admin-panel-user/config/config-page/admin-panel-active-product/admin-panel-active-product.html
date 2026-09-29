@@ -1,0 +1,231 @@
+<section
+  class="flex min-w-0 flex-col bg-white"
+  aria-label="Active Product"
+  [attr.aria-busy]="busy()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-5">
+    @if (pageError()) {
+      <p
+        role="alert"
+        class="break-words rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        {{ pageError() }}
+      </p>
+    }
+
+    @if (pageNotice()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
+      >
+        {{ pageNotice() }}
+      </p>
+    }
+
+    <div
+  #productEditorSection
+  class="min-w-0 space-y-3 scroll-mt-24"
+>
+      <app-expansion-panel-header
+        panelTitle="Transaction Management"
+        [isOpenSignal]="editorOpen"
+      />
+
+      @if (editorOpen()) {
+        <div class="min-w-0 space-y-3">
+          @if (editing()) {
+            <p class="text-xs font-semibold text-slate-600">
+              Editing selected product. The Product Type below comes from the selected grid row.
+            </p>
+          }
+
+          <div class="grid min-w-0 grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 xl:grid-cols-4">
+            <input-text-box
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="productCode"
+              label="Product Code"
+              displayMode="outline"
+            />
+
+            <input-text-box
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="productName"
+              label="Product Name"
+              displayMode="outline"
+            />
+
+            <input-select-option-field
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="productType"
+              label="Product Type"
+              displayMode="outline"
+              [options]="productTypeOptions()"
+              [allowUnselect]="true"
+            />
+
+            <input-text-box
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="webUrl"
+              label="Web URL"
+              displayMode="outline"
+            />
+          </div>
+
+          <div class="grid min-w-0 grid-cols-1 gap-4 lg:grid-cols-2">
+            <input-text-area
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="description"
+              label="Description"
+              displayMode="outline"
+              [rows]="3"
+              [showCharacterCount]="false"
+            />
+
+            <input-text-area
+              class="w-full min-w-0"
+              [frmGroup]="productForm"
+              controlName="details"
+              label="Details"
+              displayMode="outline"
+              [rows]="3"
+              [showCharacterCount]="false"
+            />
+          </div>
+
+        </div>
+      }
+    </div>
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Active Product List"
+        [isOpenSignal]="productListOpen"
+      />
+
+      @if (productListOpen()) {
+        <div class="min-w-0 space-y-3">
+          <div class="w-full sm:w-[280px]">
+            <input-select-option-field
+              class="w-full"
+              [frmGroup]="filterForm"
+              controlName="productType"
+              label="Filter by Product Type"
+              displayMode="outline"
+              [options]="productTypeOptions()"
+              [allowUnselect]="true"
+            />
+          </div>
+
+          @if (loadingProducts()) {
+            <p
+              role="status"
+              class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600"
+            >
+              Loading active products…
+            </p>
+          }
+
+          <div class="min-w-0 overflow-x-auto">
+            <generic-data-grid
+              class="block min-w-[1000px]"
+              id="admin-panel-active-product-grid"
+              [dataSource]="productRows()"
+              [selectedColumns]="productColumns"
+              [customColumnNames]="productColumnNames"
+              [showEditButton]="true"
+              [showDeleteButton]="true"
+              [showViewButton]="true"
+              [useInlineEdit]="false"
+              [enableSelection]="false"
+              [searchEnabled]="true"
+              [showPaginator]="true"
+              [initPageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+              uniqueIdField="productId"
+              (onFHEditClick)="onEdit($event)"
+              (onFHDeleteClick)="onDelete($event)"
+              (onFHViewClick)="onDetails($event)"
+            />
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<generic-modal
+  [isVisible]="detailsModalOpen()"
+  modalTitle="Product Details"
+  [closeOnBackdropClick]="true"
+  [showDefaultFooter]="false"
+  (modalClosed)="closeDetails()"
+>
+  <div class="max-h-[58vh] min-w-0 space-y-4 overflow-y-auto overscroll-contain p-2 pr-3 sm:p-3 sm:pr-4">
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Product Information"
+        [isOpenSignal]="detailsInformationOpen"
+      />
+      @if (detailsInformationOpen()) {
+        <case-summary-details
+          title="Product Information"
+          [details]="productDetails()"
+        />
+      }
+    </div>
+
+    <div class="min-w-0 space-y-3">
+      <app-expansion-panel-header
+        panelTitle="Product Reviews"
+        [isOpenSignal]="reviewsOpen"
+      />
+      @if (reviewsOpen()) {
+        <div class="min-w-0 overflow-x-auto">
+          <generic-data-grid
+            class="block min-w-[560px]"
+            id="admin-panel-active-product-review-grid"
+            [dataSource]="reviewRows()"
+            [selectedColumns]="reviewColumns"
+            [customColumnNames]="reviewColumnNames"
+            [showEditButton]="false"
+            [showDeleteButton]="false"
+            [showViewButton]="false"
+            [enableSelection]="false"
+            [searchEnabled]="false"
+            [showPaginator]="false"
+            uniqueIdField="reviewKey"
+          />
+        </div>
+
+        @if (!reviewRows().length) {
+          <p class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center text-sm text-slate-500">
+            No reviews available for this product.
+          </p>
+        }
+      }
+    </div>
+
+    <div class="flex justify-end">
+      <generic-button label="Close" (onClick)="closeDetails()" />
+    </div>
+  </div>
+</generic-modal>
+
+<confirmation-dialogue
+  [isOpen]="saveConfirmationOpen()"
+  [config]="saveConfirmationConfig"
+  (close)="saveConfirmationOpen.set(false)"
+  (buttonClick)="onSaveConfirmation($event)"
+/>
+
+<confirmation-dialogue
+  [isOpen]="deleteConfirmationOpen()"
+  [config]="deleteConfirmationConfig"
+  (close)="deleteConfirmationOpen.set(false); selectedDeleteRow.set(null)"
+  (buttonClick)="onDeleteConfirmation($event)"
+/>

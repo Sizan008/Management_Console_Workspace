@@ -1,0 +1,135 @@
+<section
+  class="flex min-w-0 flex-col bg-white"
+  aria-label="User Device Remove"
+  [attr.aria-busy]="busy()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-5">
+    @if (loading()) {
+      <p
+        role="status"
+        class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"
+      >
+        Loading user information…
+      </p>
+    }
+
+    @if (deviceLoading()) {
+      <p
+        role="status"
+        class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600"
+      >
+        Loading device information…
+      </p>
+    }
+
+    @if (errorMessage()) {
+      <p
+        role="alert"
+        class="break-words rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (successMessage()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800"
+      >
+        {{ successMessage() }}
+      </p>
+    }
+
+    @if (user()) {
+      <div class="min-w-0 space-y-3">
+        <app-expansion-panel-header
+          panelTitle="User Information"
+          [isOpenSignal]="informationOpen"
+        />
+        @if (informationOpen()) {
+          <case-summary-details
+            title="Selected User Details"
+            [details]="userDetails()"
+          />
+        }
+      </div>
+
+      <div class="min-w-0 space-y-3">
+        <app-expansion-panel-header
+          panelTitle="User Active Device"
+          [isOpenSignal]="activeDeviceOpen"
+        />
+        @if (activeDeviceOpen()) {
+          <div
+            class="min-w-0 overflow-x-auto"
+            [class.pointer-events-none]="busy()"
+            [class.opacity-60]="removing()"
+          >
+            <generic-data-grid
+              class="block min-w-[760px]"
+              id="admin-panel-active-device-grid"
+              uniqueIdField="deviceId"
+              [dataSource]="activeDevices()"
+              [selectedColumns]="activeDeviceColumns"
+              [customColumnNames]="activeDeviceColumnNames"
+              [cellRenderFunctions]="cellRenderFunctions"
+              [showEditButton]="false"
+              [showDeleteButton]="true"
+              [useInlineEdit]="false"
+              [searchEnabled]="true"
+              [showPaginator]="true"
+              [initPageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+              (onFHDeleteClick)="onRemoveDeviceClick($event)"
+            />
+          </div>
+        }
+      </div>
+
+      <div class="min-w-0 space-y-3">
+        <app-expansion-panel-header
+          panelTitle="User Removed Device"
+          [isOpenSignal]="removedDeviceOpen"
+        />
+        @if (removedDeviceOpen()) {
+          <div class="min-w-0 overflow-x-auto">
+            <generic-data-grid
+              class="block min-w-[760px]"
+              id="admin-panel-removed-device-grid"
+              uniqueIdField="deviceId"
+              [dataSource]="removedDevices()"
+              [selectedColumns]="removedDeviceColumns"
+              [customColumnNames]="removedDeviceColumnNames"
+              [cellRenderFunctions]="cellRenderFunctions"
+              [showEditButton]="false"
+              [showDeleteButton]="false"
+              [useInlineEdit]="false"
+              [searchEnabled]="true"
+              [showPaginator]="true"
+              [initPageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div
+    class="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 p-3 sm:px-5"
+  >
+    <generic-button label="Close" [enable]="!removing()" (onClick)="onClose()" />
+    <generic-button
+      label="Refresh"
+      [enable]="!busy() && !!selectedUserId()"
+      (onClick)="refresh()"
+    />
+  </div>
+</section>
+
+<confirmation-dialogue
+  [isOpen]="confirmationOpen()"
+  [config]="confirmationConfig()"
+  (buttonClick)="onConfirmationButtonClick($event)"
+  (close)="onCancelAction()"
+/>

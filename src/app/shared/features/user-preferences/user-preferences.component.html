@@ -1,0 +1,325 @@
+<div class="h-full w-full flex flex-col overflow-hidden bg-slate-50">
+
+  <!-- ── Page Header ──────────────────────────────────────────────────────── -->
+  <header class="flex-shrink-0 bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <button type="button" (click)="goBack()" aria-label="Go back"
+        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <div class="min-w-0">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Settings</p>
+        <h1 class="text-sm font-bold text-slate-800 mt-0.5">Preferences</h1>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      @if (isDirty()) {
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-semibold text-amber-700">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          Unsaved changes
+        </span>
+      } @else if (justSaved()) {
+        <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] font-semibold text-emerald-700">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+          </svg>
+          Saved
+        </span>
+      }
+
+      <button type="button" (click)="reset()"
+        class="px-3 py-1.5 text-xs font-medium text-slate-500 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+        Reset to default
+      </button>
+      <button type="button" (click)="discard()" [disabled]="!isDirty()"
+        class="px-3 py-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition-colors">
+        Discard
+      </button>
+      <button type="button" (click)="save()" [disabled]="!isDirty()"
+        class="btn-theme-primary px-4 py-1.5 text-xs font-semibold rounded-lg">
+        Save changes
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Body ─────────────────────────────────────────────────────────────── -->
+  <div class="flex-1 min-h-0 flex overflow-hidden">
+
+    <!-- Section rail -->
+    <nav class="hidden lg:flex flex-col gap-0.5 w-52 flex-shrink-0 bg-white border-r border-slate-200 p-3 overflow-y-auto"
+      aria-label="Preference sections">
+      @for (section of sections; track section.id) {
+        <button type="button" (click)="goToSection(section.id)" class="rail-link"
+          [class.is-active]="activeSection() === section.id">
+          <span [innerHTML]="section.icon" class="flex items-center justify-center"></span>
+          <span class="truncate">{{ section.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Scrolling content -->
+    <div #scrollBody (scroll)="onBodyScroll()" class="flex-1 overflow-y-auto">
+      <div class="max-w-3xl mx-auto px-5 py-5 space-y-4">
+
+        <!-- ── Startup ──────────────────────────────────────────────────── -->
+        <section data-section="startup" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Startup</p>
+            <h2 class="text-sm font-bold text-slate-700 mt-0.5">What you see when you sign in</h2>
+          </div>
+
+          <!-- Default Workspace -->
+          <div class="px-5 py-4">
+            <div class="flex items-baseline justify-between gap-3 mb-3">
+              <h3 class="text-xs font-bold text-slate-700">Default Workspace</h3>
+              <p class="text-[11px] text-slate-400">Opens first on login</p>
+            </div>
+
+            @if (workspaces().length === 0) {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="pref-skeleton"></div>
+                <div class="pref-skeleton"></div>
+                <div class="pref-skeleton"></div>
+                <div class="pref-skeleton"></div>
+              </div>
+            } @else {
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                @for (wb of workspaces(); track wb.id) {
+                  <button type="button" (click)="setDefaultWorkspace(wb.id)"
+                    class="pref-option flex items-center gap-2.5 px-3 py-2.5"
+                    [class.is-selected]="selectedDefaultWorkspaceId() === wb.id">
+                    <span class="pref-icon" [innerHTML]="wb.icon"></span>
+                    <span class="flex-1 min-w-0">
+                      <span class="block text-xs font-semibold text-slate-800 truncate">{{ wb.label }}</span>
+                      @if (wb.description) {
+                        <span class="block text-[11px] text-slate-500 truncate">{{ wb.description }}</span>
+                      }
+                    </span>
+                    <span class="pref-radio"></span>
+                  </button>
+                }
+
+                <!-- No default -->
+                <button type="button" (click)="setDefaultWorkspace(null)"
+                  class="pref-option flex items-center gap-2.5 px-3 py-2.5"
+                  [class.is-selected]="selectedDefaultWorkspaceId() === null">
+                  <span class="pref-icon">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                  </span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-xs font-semibold text-slate-800">No default</span>
+                    <span class="block text-[11px] text-slate-500 truncate">Resume the last visited Workspace</span>
+                  </span>
+                  <span class="pref-radio"></span>
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- Sidebar on startup -->
+          <div class="px-5 py-4 border-t border-slate-100">
+            <div class="flex items-baseline justify-between gap-3 mb-3">
+              <h3 class="text-xs font-bold text-slate-700">Sidebar state</h3>
+              <p class="text-[11px] text-slate-400">How the sidebar first appears</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <!-- Expanded -->
+              <button type="button" (click)="setSidebarDefaultExpanded(true)"
+                class="pref-option p-3"
+                [class.is-selected]="draft().sidebarDefaultExpanded">
+                <div class="w-full h-12 rounded-md border border-slate-200 bg-white flex overflow-hidden mb-2.5">
+                  <div class="w-1/3 h-full bg-slate-100 border-r border-slate-200 flex flex-col gap-1 p-1.5">
+                    <div class="h-1.5 w-full mock-bar-strong"></div>
+                    <div class="h-1 w-full mock-bar-accent"></div>
+                    <div class="h-1 w-full mock-bar"></div>
+                    <div class="h-1 w-4/5 mock-bar"></div>
+                  </div>
+                  <div class="flex-1 h-full flex flex-col gap-1 p-1.5">
+                    <div class="h-1.5 w-2/5 mock-bar-strong"></div>
+                    <div class="h-1 w-full mock-bar"></div>
+                    <div class="h-1 w-3/4 mock-bar"></div>
+                  </div>
+                </div>
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800">Expanded</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Full width with labels visible</p>
+                  </div>
+                  <span class="pref-radio mt-0.5"></span>
+                </div>
+              </button>
+
+              <!-- Collapsed -->
+              <button type="button" (click)="setSidebarDefaultExpanded(false)"
+                class="pref-option p-3"
+                [class.is-selected]="!draft().sidebarDefaultExpanded">
+                <div class="w-full h-12 rounded-md border border-slate-200 bg-white flex overflow-hidden mb-2.5">
+                  <div class="w-8 h-full bg-slate-100 border-r border-slate-200 flex flex-col items-center gap-1.5 p-1.5">
+                    <div class="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
+                    <div class="h-1.5 w-1.5 mock-dot-accent"></div>
+                    <div class="h-1.5 w-1.5 rounded-full bg-slate-300"></div>
+                  </div>
+                  <div class="flex-1 h-full flex flex-col gap-1 p-1.5">
+                    <div class="h-1.5 w-2/5 mock-bar-strong"></div>
+                    <div class="h-1 w-full mock-bar"></div>
+                    <div class="h-1 w-3/4 mock-bar"></div>
+                  </div>
+                </div>
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="text-xs font-semibold text-slate-800">Collapsed</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Icons only for more workspace</p>
+                  </div>
+                  <span class="pref-radio mt-0.5"></span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Navigation ───────────────────────────────────────────────── -->
+        <section data-section="navigation" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Navigation</p>
+            <h2 class="text-sm font-bold text-slate-700 mt-0.5">Where a record opens when you click a row</h2>
+          </div>
+
+          <div class="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Side panel -->
+            <button type="button" (click)="setRowOpenBehavior('panel')"
+              class="pref-option p-3"
+              [class.is-selected]="draft().rowOpenBehavior === 'panel'">
+              <div class="w-full h-12 rounded-md border border-slate-200 flex overflow-hidden mb-2.5">
+                <div class="w-1/2 h-full bg-slate-100 border-r border-slate-200 flex flex-col gap-1 p-1.5">
+                  <div class="h-1.5 w-3/4 mock-bar-strong"></div>
+                  <div class="h-1 w-full mock-bar"></div>
+                  <div class="h-1 w-full mock-bar"></div>
+                  <div class="h-1 w-4/5 mock-bar-accent"></div>
+                </div>
+                <div class="w-1/2 h-full bg-white flex flex-col gap-1 p-1.5">
+                  <div class="h-1.5 w-3/5 mock-bar-strong"></div>
+                  <div class="h-1 w-full mock-bar"></div>
+                  <div class="h-1 w-4/5 mock-bar"></div>
+                </div>
+              </div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold text-slate-800">Side panel</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Details open beside the list, keeping it in view</p>
+                </div>
+                <span class="pref-radio mt-0.5"></span>
+              </div>
+            </button>
+
+            <!-- Full page -->
+            <button type="button" (click)="setRowOpenBehavior('fullpage')"
+              class="pref-option p-3"
+              [class.is-selected]="draft().rowOpenBehavior === 'fullpage'">
+              <div class="w-full h-12 rounded-md border border-slate-200 bg-white flex flex-col gap-1 p-2 mb-2.5">
+                <div class="h-1.5 w-2/5 mock-bar-strong"></div>
+                <div class="h-1 w-full mock-bar"></div>
+                <div class="h-1 w-full mock-bar"></div>
+                <div class="h-1 w-3/4 mock-bar"></div>
+              </div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold text-slate-800">Full page</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Details fill the whole workspace</p>
+                </div>
+                <span class="pref-radio mt-0.5"></span>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <!-- ── Formatting ───────────────────────────────────────────────── -->
+        <section data-section="formatting" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-baseline justify-between gap-3">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Formatting</p>
+              <h2 class="text-sm font-bold text-slate-700 mt-0.5">Date format</h2>
+            </div>
+            <p class="text-[11px] text-slate-400 hidden sm:block">Sample date: 18 Aug 2025</p>
+          </div>
+
+          <div class="px-5 py-4 space-y-2.5">
+            <!-- No global format -->
+            <button type="button" (click)="setDateFormat('none')"
+              class="pref-option w-full flex items-center gap-2.5 px-3 py-2.5"
+              [class.is-selected]="draft().dateFormat === 'none'">
+              <span class="pref-radio"></span>
+              <span class="flex-1 min-w-0">
+                <span class="block text-xs font-semibold text-slate-800">No global format</span>
+                <span class="block text-[11px] text-slate-500">Each date field keeps its own default</span>
+              </span>
+            </button>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              @for (opt of dateFormatOptions; track opt.value) {
+                <button type="button" (click)="setDateFormat(opt.value)"
+                  class="pref-option flex items-center gap-2.5 px-3 py-2.5"
+                  [class.is-selected]="draft().dateFormat === opt.value">
+                  <span class="pref-radio"></span>
+                  <span class="flex-1 min-w-0">
+                    <span class="block text-xs font-semibold text-slate-800 font-mono tracking-tight">{{ opt.value }}</span>
+                    <span class="block text-[11px] text-slate-500">{{ opt.example }}</span>
+                  </span>
+                </button>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Appearance ───────────────────────────────────────────────── -->
+        <section data-section="appearance" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-baseline justify-between gap-3">
+            <div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Appearance</p>
+              <h2 class="text-sm font-bold text-slate-700 mt-0.5">Theme</h2>
+            </div>
+            <p class="text-[11px] text-slate-400">Applies instantly</p>
+          </div>
+
+          <div class="px-5 py-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+              @for (theme of themes; track theme.id) {
+                <button type="button" (click)="selectTheme(theme.id)"
+                  class="theme-swatch"
+                  [class.is-selected]="currentTheme() === theme.id"
+                  [attr.aria-pressed]="currentTheme() === theme.id">
+                  <span class="theme-swatch-preview" [style.background]="themeGradient(theme)">
+                    <span class="theme-dot" [style.background]="theme.primary"></span>
+                    <span class="theme-dot" [style.background]="theme.secondary"></span>
+                    <span class="theme-dot" [style.background]="theme.accent"></span>
+                    @if (currentTheme() === theme.id) {
+                      <svg class="absolute top-1.5 right-1.5 w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    }
+                  </span>
+                  <span class="block px-2.5 py-2 text-[11px] font-semibold text-slate-700 text-left truncate border-t border-slate-100">
+                    {{ theme.name }}
+                  </span>
+                </button>
+              }
+            </div>
+
+            <button type="button" (click)="resetTheme()"
+              class="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-700 transition-colors">
+              Reset theme to default
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+</div>

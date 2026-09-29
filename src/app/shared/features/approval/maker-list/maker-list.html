@@ -1,0 +1,86 @@
+<div class="page-wrapper">
+  <div class="panel p-1 my-4">
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-0">
+      <app-expansion-panel-header [isOpenSignal]="businessHeaderPanel" [panelTitle]="'Maker List'">
+
+        <div class="container">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <input-select-option-field
+              [frmGroup]="frmGroup"
+              [controlName]="'functionId'"
+              [label]="'Function'"
+              [options]="functionOptions"
+              [tooltip]="'Select Function'"
+              >
+            </input-select-option-field>
+
+            <input-date
+              [frmGroup]="frmGroup" [controlName]="'fromDate'" [label]="'From Date'"
+               [dateFormat]="'DD-MM-YYYY'" [maxYear]="2034" [enableYearRangeValidation]="false">
+            </input-date>
+
+            <input-date
+              [frmGroup]="frmGroup" [controlName]="'toDate'" [label]="'To Date'"
+               [dateFormat]="'DD-MM-YYYY'" [maxYear]="2034" [enableYearRangeValidation]="false">
+            </input-date>
+          </div>
+
+          <div class="flex flex-wrap gap-3 justify-end items-end">
+            <generic-button [label]="'Search'" (onClick)="loadMakerList()"></generic-button>
+            <generic-button [label]="'Clear'" [cssClass]="'bg-slate-500 text-white px-4'" (onClick)="resetMakerForm()"></generic-button>
+          </div>
+
+          @if (showmakerList) {
+          <div class="component-section mt-3">
+            <generic-data-grid
+              [id]="'approval-maker-list'"
+              [initPageSize]="5"
+              [searchEnabled]="true"
+              [enableSelection]="false"
+
+              [showProgressButton]="true"
+              [showEditButton]="false"
+              [showDeleteButton]="false"
+              [showViewButton]="true"
+              [showPrintButton]="false"
+              [useInlineEdit]="false"
+              [dataSource]="makerList"
+              [selectedColumns]="[
+        'setId',
+        'functionName',
+        'actionType',
+        'remarks',
+        'recordUserId',
+        'createDate'
+      ]"
+              [customColumnNames]="{
+          setId: 'Set',
+          functionName: 'Function',
+          actionType: 'Action',
+          remarks: 'Remarks',
+          recordUserId: 'Requested User',
+
+          createDate: 'Created Date'
+          }"
+                (onFHProgressClick)="handleProgressClick($event)"
+              >
+              </generic-data-grid>
+
+              <generic-modal
+                [isVisible]="isModalVisible"
+                [modalTitle]="modalTitle"
+                [modalComponent]="modalComponent"
+                [modalComponentData]="modalComponentData"
+                [cssClass]="'modal-lg'"
+                [showOkButton]="false"
+                (isVisibleChanged)="onModalVisibilityChange($event)"
+                (modalResult)="onModalResult($event)"
+              >
+              </generic-modal>
+            </div>
+          }
+        </div>
+      </app-expansion-panel-header>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,377 @@
+<section class="dashboard-page min-h-full w-full p-3 sm:p-4 lg:p-5">
+  @if (pageError()) {
+    <div
+      role="alert"
+      class="mb-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
+      {{ pageError() }}
+    </div>
+  }
+
+  <section class="rounded-md border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+    <form
+  class="flex flex-col gap-3 sm:flex-row sm:items-center"
+  [formGroup]="filterForm"
+>
+  <div class="w-full min-w-0 sm:w-[260px] lg:w-[320px]">
+    <input-date
+      [frmGroup]="filterForm"
+      controlName="filterDate"
+      label="Date"
+      displayMode="outline"
+    />
+  </div>
+
+  <div class="dashboard-search-action flex items-center">
+  <generic-button
+    label="Search"
+    icon="search"
+    [enable]="!loading()"
+    (onClick)="onSearch()"
+  />
+</div>
+</form>
+  </section>
+
+  <section class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+    @for (card of metricCards(); track card.key) {
+      <article class="dashboard-metric-card">
+        <strong>{{ card.value }}</strong>
+
+        @if (card.detailKpi !== undefined) {
+          <generic-button
+            [label]="card.label"
+            cssClass="dashboard-metric-action"
+            [enable]="!loading()"
+            (onClick)="openMetricDetails(card)"
+          />
+        } @else {
+          <span>{{ card.label }}</span>
+        }
+      </article>
+    }
+  </section>
+
+  <section class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-3">
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'Mobile Topup Summary'"
+        [isOpenSignal]="mobileTopupPanelOpen"
+      />
+
+      @if (mobileTopupPanelOpen()) {
+        <div class="dashboard-chart-card border-t border-slate-100 p-2 sm:p-3">
+          @if (topupSummary().length) {
+            <common-bar-chart
+              [headerTitle]="'Mobile Topup Summary'"
+              [tooltipLabel]="'Mobile Topup'"
+              [dataByRange]="topupChartData()"
+              [height]="220"
+              [showToolbar]="false"
+              [showLegend]="true"
+              [showWeekly]="false"
+              [showMonthly]="true"
+              [showYearly]="false"
+              [horizontal]="false"
+              [range]="'monthly'"
+            />
+          } @else if (!loading()) {
+            <div class="dashboard-empty-state">No Available Data</div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'MFS Send Money Summary'"
+        [isOpenSignal]="mfsSendMoneyPanelOpen"
+      />
+
+      @if (mfsSendMoneyPanelOpen()) {
+        <div class="dashboard-chart-card border-t border-slate-100 p-2 sm:p-3">
+          @if (mfsSummary().length) {
+            <common-bar-chart
+              [headerTitle]="'MFS Send Money Summary'"
+              [tooltipLabel]="'MFS Send Money'"
+              [dataByRange]="mfsChartData()"
+              [height]="220"
+              [showToolbar]="false"
+              [showLegend]="true"
+              [showWeekly]="false"
+              [showMonthly]="true"
+              [showYearly]="false"
+              [horizontal]="false"
+              [range]="'monthly'"
+            />
+          } @else if (!loading()) {
+            <div class="dashboard-empty-state">No Available Data</div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'Bills Pay Summary'"
+        [isOpenSignal]="billsPayPanelOpen"
+      />
+
+      @if (billsPayPanelOpen()) {
+        <div class="dashboard-chart-card border-t border-slate-100 p-2 sm:p-3">
+          @if (billsPaySummary().length) {
+            <common-bar-chart
+              [headerTitle]="'Bills Pay Summary'"
+              [tooltipLabel]="'Bills Pay'"
+              [dataByRange]="billsPayChartData()"
+              [height]="220"
+              [showToolbar]="false"
+              [showLegend]="true"
+              [showWeekly]="false"
+              [showMonthly]="true"
+              [showYearly]="false"
+              [horizontal]="false"
+              [range]="'monthly'"
+            />
+          } @else if (!loading()) {
+            <div class="dashboard-empty-state">No Available Data</div>
+          }
+        </div>
+      }
+    </section>
+  </section>
+
+  <section class="dashboard-section mt-3 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+    <app-expansion-panel-header
+      panelTitle="Today's Transaction"
+      [isOpenSignal]="todayTransactionPanelOpen"
+    />
+
+    @if (todayTransactionPanelOpen()) {
+      <div class="border-t border-slate-100">
+        <div class="flex flex-col gap-3 border-b border-slate-100 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:px-4">
+          <span class="text-xs font-medium text-slate-600">Transaction Status</span>
+
+          <generic-switch
+            [frmGroup]="todayTransactionForm"
+            controlName="isSuccessful"
+            displayMode="horizontal"
+            [isChecked]="transactionSwitchValue()"
+            [enable]="!todayTransactionLoading()"
+            (onSwitchChanged)="onTransactionToggle($event)"
+          />
+
+          <span
+            class="w-fit rounded-full px-2.5 py-1 text-xs font-medium"
+            [class.bg-emerald-50]="transactionSwitchValue()"
+            [class.text-emerald-700]="transactionSwitchValue()"
+            [class.bg-red-50]="!transactionSwitchValue()"
+            [class.text-red-700]="!transactionSwitchValue()"
+          >
+            {{ transactionSwitchValue() ? 'Successful' : 'Failed' }}
+          </span>
+
+          <div class="sm:ml-auto">
+            <generic-button
+              label="Download Excel"
+              icon="download"
+              [enable]="todayTransactions().length > 0 && !todayTransactionLoading()"
+              (onClick)="downloadTodayTransactions()"
+            />
+          </div>
+        </div>
+
+        <div class="dashboard-grid-host overflow-x-auto p-3 sm:p-4">
+          <generic-data-grid
+            class="block min-w-[1100px]"
+            id="dashboard-today-transaction-grid"
+            [dataSource]="todayTransactions()"
+            [selectedColumns]="todayTransactionColumns"
+            [customColumnNames]="todayTransactionColumnNames"
+            [initPageSize]="10"
+            [pageSizeOptions]="[10, 25, 50]"
+            [showPaginator]="true"
+            [useInlineEdit]="false"
+          />
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="dashboard-section mt-3 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+    <app-expansion-panel-header
+      [panelTitle]="'Last 30 Days Transaction'"
+      [isOpenSignal]="lastThirtyDaysPanelOpen"
+    />
+
+    @if (lastThirtyDaysPanelOpen()) {
+      <div class="border-t border-slate-100 p-3 sm:p-4">
+        @if (lastMonthSummary().length) {
+          <common-bar-chart
+            [headerTitle]="'Last 30 Days Transaction'"
+            [tooltipLabel]="'Transaction Details'"
+            [dataByRange]="lastMonthChartData()"
+            [height]="300"
+            [showToolbar]="true"
+            [showLegend]="true"
+            [showWeekly]="false"
+            [showMonthly]="true"
+            [showYearly]="false"
+            [horizontal]="false"
+            [range]="'monthly'"
+          />
+        } @else if (!loading()) {
+          <div class="dashboard-empty-state dashboard-empty-state-lg">No Available Data</div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-3">
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'Top User'"
+        [isOpenSignal]="topUserPanelOpen"
+      />
+
+      @if (topUserPanelOpen()) {
+        <div class="flex justify-end border-t border-slate-100 px-3 pt-3 sm:px-4">
+          <generic-button
+            label="Download Excel"
+            icon="download"
+            [enable]="topUserSummary().length > 0"
+            (onClick)="downloadTopUsers()"
+          />
+        </div>
+
+        <div class="dashboard-grid-host overflow-x-auto p-3 pt-2 sm:p-4 sm:pt-2">
+          <generic-data-grid
+            class="block min-w-[580px]"
+            id="dashboard-top-user-grid"
+            [dataSource]="topUserSummary()"
+            [selectedColumns]="topUserColumns"
+            [customColumnNames]="topUserColumnNames"
+            [showViewButton]="true"
+            [showEditButton]="false"
+            [showDeleteButton]="false"
+            [useInlineEdit]="false"
+            [initPageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]"
+            [showPaginator]="true"
+            uniqueIdField="useR_ID"
+            (onFHViewClick)="viewTopUserDetails($event)"
+          />
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'Users with Large Number of Devices'"
+        [isOpenSignal]="largeDevicePanelOpen"
+      />
+
+      @if (largeDevicePanelOpen()) {
+        <div class="flex justify-end border-t border-slate-100 px-3 pt-3 sm:px-4">
+          <generic-button
+            label="Download Excel"
+            icon="download"
+            [enable]="userDeviceSummary().length > 0"
+            (onClick)="downloadDeviceSummary()"
+          />
+        </div>
+
+        <div class="dashboard-grid-host overflow-x-auto p-3 pt-2 sm:p-4 sm:pt-2">
+          <generic-data-grid
+            class="block min-w-[480px]"
+            id="dashboard-large-device-grid"
+            [dataSource]="userDeviceSummary()"
+            [selectedColumns]="userDeviceColumns"
+            [customColumnNames]="userDeviceColumnNames"
+            [useInlineEdit]="false"
+            [initPageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]"
+            [showPaginator]="true"
+          />
+        </div>
+      }
+    </section>
+
+    <section class="dashboard-section overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+      <app-expansion-panel-header
+        [panelTitle]="'Users Changed Password Multiple Times'"
+        [isOpenSignal]="changedPasswordPanelOpen"
+      />
+
+      @if (changedPasswordPanelOpen()) {
+        <div class="flex justify-end border-t border-slate-100 px-3 pt-3 sm:px-4">
+          <generic-button
+            label="Download Excel"
+            icon="download"
+            [enable]="passwordChangeList().length > 0"
+            (onClick)="downloadPasswordSummary()"
+          />
+        </div>
+
+        <div class="dashboard-grid-host overflow-x-auto p-3 pt-2 sm:p-4 sm:pt-2">
+          <generic-data-grid
+            class="block min-w-[520px]"
+            id="dashboard-changed-password-grid"
+            [dataSource]="passwordChangeList()"
+            [selectedColumns]="passwordChangeColumns"
+            [customColumnNames]="passwordChangeColumnNames"
+            [useInlineEdit]="false"
+            [initPageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]"
+            [showPaginator]="true"
+          />
+        </div>
+      }
+    </section>
+  </section>
+</section>
+
+<generic-modal
+  [isVisible]="detailModalVisible()"
+  [modalTitle]="detailModalTitle()"
+  cssClass="dashboard-detail-modal"
+  [closeOnBackdropClick]="true"
+  [showDefaultFooter]="false"
+  (modalClosed)="closeMetricModal()"
+>
+  <div class="min-w-0 max-h-[68vh] space-y-3 overflow-y-auto overscroll-contain p-1 sm:p-2">
+    <div class="flex flex-wrap items-center justify-end gap-2">
+      <generic-button
+        label="Download Excel"
+        icon="download"
+        [enable]="detailModalRows().length > 0 && !modalLoading()"
+        (onClick)="downloadCurrentDetail()"
+      />
+    </div>
+
+    <app-expansion-panel-header
+      [panelTitle]="detailModalTitle()"
+      [isOpenSignal]="metricModalPanelOpen"
+    />
+
+    @if (metricModalPanelOpen()) {
+      @if (modalLoading()) {
+        <div class="dashboard-modal-loading">Loading details...</div>
+      } @else {
+        <div class="dashboard-grid-host overflow-x-auto">
+          <generic-data-grid
+            class="block min-w-[850px]"
+            id="dashboard-metric-detail-grid"
+            [dataSource]="detailModalRows()"
+            [selectedColumns]="detailModalColumns()"
+            [customColumnNames]="detailModalColumnNames()"
+            [useInlineEdit]="false"
+            [initPageSize]="10"
+            [pageSizeOptions]="[10, 20, 50, 100]"
+            [showPaginator]="true"
+          />
+        </div>
+      }
+    }
+  </div>
+</generic-modal>

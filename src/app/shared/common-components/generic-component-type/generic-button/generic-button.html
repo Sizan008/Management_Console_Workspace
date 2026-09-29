@@ -1,0 +1,18 @@
+@if (!isHidden) {
+  <button
+    [id]="id()"
+    [type]="'button'"
+    [disabled]="isDisabled"
+    [attr.style]="styles()"
+    [ngClass]="buttonClasses"
+    (click)="onButtonClick($event)"
+    [attr.aria-label]="label() || value()"
+
+    class="inline-flex items-center justify-center text-sm a_demo_three">
+
+    @if (icon()) {
+      <mat-icon class="w-3 h-3 mr-1 flex-shrink-0">{{icon()}}</mat-icon>
+    }
+    {{ label() || value() }}
+  </button>
+}

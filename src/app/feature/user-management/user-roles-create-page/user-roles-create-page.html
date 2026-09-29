@@ -1,0 +1,92 @@
+<div class="flex-col-fill">
+
+  <!-- ── Form Body — each section is an accent-rail card (app-expansion-panel-header) ── -->
+  <div class="scroll-area">
+    <form [formGroup]="roleForm" (ngSubmit)="onSubmit()">
+
+      <!-- SECTION 1: Role Details -->
+      <app-expansion-panel-header
+        [panelTitle]="'Role Details'"
+        [isOpenSignal]="isDetailsOpen">
+        <div class="section-grid-3">
+          <input-text-box
+            [frmGroup]="roleForm"
+            [controlName]="'roleName'"
+            [label]="'Role Name'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Role name is required', minlength: 'Minimum 3 characters' }">
+          </input-text-box>
+          <input-text-box
+            [frmGroup]="roleForm"
+            [controlName]="'roleCode'"
+            [label]="'Role Code'"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Role code is required' }">
+          </input-text-box>
+          <input-select-option-field
+            [frmGroup]="roleForm"
+            [controlName]="'workspace'"
+            [label]="'Workspace / Module'"
+            [options]="workspaceOptions"
+            [searchable]="true"
+            displayMode="vertical"
+            [customErrorMessages]="{ required: 'Workspace is required' }">
+          </input-select-option-field>
+          <input-select-option-field
+            [frmGroup]="roleForm"
+            [controlName]="'status'"
+            [label]="'Status'"
+            [options]="statusOptions"
+            [searchable]="false"
+            displayMode="vertical">
+          </input-select-option-field>
+          <input-text-box
+            [frmGroup]="roleForm"
+            [controlName]="'description'"
+            [label]="'Description'"
+            displayMode="vertical">
+          </input-text-box>
+        </div>
+      </app-expansion-panel-header>
+
+      <!-- SECTION 2: Permissions Matrix -->
+      <app-expansion-panel-header
+        [panelTitle]="'Permissions'"
+        [isOpenSignal]="isPermissionsOpen">
+        <div class="perm-table-wrap">
+          <table class="perm-table">
+            <thead>
+              <tr>
+                <th class="perm-th perm-th--module">Module</th>
+                <th class="perm-th" *ngFor="let action of permissionActions">{{ action.label }}</th>
+                <th class="perm-th perm-th--all">All</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of permissions" class="perm-row">
+                <td class="perm-td perm-td--module">{{ row.module }}</td>
+                <td class="perm-td" *ngFor="let action of permissionActions">
+                  <input type="checkbox"
+                         class="perm-checkbox"
+                         [checked]="row[action.key]"
+                         (change)="togglePermission(row, action.key)"
+                         [attr.aria-label]="action.label + ' ' + row.module" />
+                </td>
+                <td class="perm-td perm-td--all">
+                  <button type="button"
+                          class="perm-all-btn"
+                          [class.perm-all-btn--on]="isRowFullyGranted(row)"
+                          (click)="toggleRowAll(row)">
+                    {{ isRowFullyGranted(row) ? 'Clear' : 'Grant all' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </app-expansion-panel-header>
+
+    </form>
+  </div>
+
+</div>

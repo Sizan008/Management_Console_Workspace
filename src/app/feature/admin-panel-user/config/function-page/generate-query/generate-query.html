@@ -1,0 +1,211 @@
+<section class="px-3 mt-3">
+  <div class="section-card">
+    <h3 class="text-xs font-extrabold text-slate-700 mb-2">All Data Report</h3>
+
+    @if (isLoadingQueries) {
+      <p class="px-2 py-4 text-xs text-slate-400">Loading saved queries...</p>
+    } @else if (savedQueriesWithSerial.length === 0) {
+      <div class="text-xs text-slate-500 px-2 py-6 text-center">
+        No saved queries yet. Save one from the form below.
+      </div>
+    } @else {
+      <div class="saved-query-grid-host overflow-x-auto">
+        <generic-data-grid
+          [id]="'generate-query-saved'"
+          [dataSource]="savedQueriesWithSerial"
+          [selectedColumns]="['serial','queryTitle','queryText','purpose','makeBy','makeDate']"
+          [customColumnNames]="{
+            serial:     'Serial#',
+            queryTitle: 'Title',
+            queryText:  'Text',
+            purpose:    'Purpose',
+            makeBy:     'Make By',
+            makeDate:   'Make Date'
+          }"
+          [cellRenderFunctions]="{
+            serial: selectedQueryMarkerRenderer,
+            queryText: queryTextRenderer
+          }"
+          [initPageSize]="10"
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          [searchEnabled]="true"
+          [showEditButton]="false"
+          [showDeleteButton]="false"
+          [showViewButton]="false"
+          [showPrintButton]="false"
+          [showCustomAction1]="true"
+          [customActionSvg1]="selectActionSvg"
+          [customActionTooltip1]="'Select Query'"
+          [uniqueIdField]="'queryID'"
+          [gridTitle]="'Saved Queries'"
+          [backendPaginationEnabled]="true"
+          (onExtraAction1Click)="onSavedQueryDoubleClick($event)"
+          (onDataGridStateChange)="onQueriesGridStateChange($event)"
+          (onRowDoubleClick)="onSavedQueryDoubleClick($event)">
+        </generic-data-grid>
+      </div>
+    }
+  </div>
+</section>
+
+<section #generateReportSection class="px-3 mt-3 scroll-mt-24">
+  <div class="section-card">
+    <form [formGroup]="queryForm" class="grid grid-cols-12 gap-3 items-start">
+
+      <div class="col-span-12 md:col-span-7">
+        <h3 class="text-xs font-extrabold text-slate-700 mb-2">Generate Data Report</h3>
+
+        <div class="grid grid-cols-12 gap-3 items-start">
+          <div class="col-span-12 md:col-span-6">
+            <input-text-box
+              [frmGroup]="queryForm"
+              [controlName]="'queryTitle'"
+              [label]="'Title'"
+              [placeholder]="'Enter a short title for this query'">
+            </input-text-box>
+          </div>
+          <div class="col-span-12 md:col-span-6">
+            <input-text-box
+              [frmGroup]="queryForm"
+              [controlName]="'purpose'"
+              [label]="'Purpose'"
+              [placeholder]="'What does this query do?'">
+            </input-text-box>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-3 items-start mt-2">
+          <div class="col-span-12 md:col-span-11">
+            <p class="text-[11px] text-slate-600 mb-1">
+              Parameters must be within —
+              <span class="font-bold">&#64;BRANCH_ID</span>,
+              <span class="font-bold">&#64;TRANS_TYPE</span>,
+              <span class="font-bold">&#64;TRANS_DATE</span>,
+              <span class="font-bold">&#64;TRANS_DT_FROM</span>,
+              <span class="font-bold">&#64;TRANS_DT_UPTO</span>
+            </p>
+            <input-text-area
+              [frmGroup]="queryForm"
+              [controlName]="'queryText'"
+              [label]="'Text'"
+              [placeholder]="'SELECT … FROM … WHERE …'"
+              [rows]="6">
+            </input-text-area>
+          </div>
+
+          <div class="col-span-12 md:col-span-1 flex md:flex-col gap-2 md:gap-1 items-center md:pt-6">
+            <button type="button" (click)="onRunQuery()"
+              title="Run query"
+              class="w-9 h-9 flex items-center justify-center rounded border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-700 shadow-sm">
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px] leading-[18px]">play_arrow</mat-icon>
+            </button>
+            <button type="button" (click)="onSaveQuery()"
+              title="Save query"
+              class="w-9 h-9 flex items-center justify-center rounded border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 shadow-sm">
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px] leading-[18px]">save</mat-icon>
+            </button>
+            <button type="button" (click)="onRefresh()"
+              title="Refresh"
+              class="w-9 h-9 flex items-center justify-center rounded border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 shadow-sm">
+              <mat-icon class="!text-[18px] !w-[18px] !h-[18px] leading-[18px]">refresh</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 md:col-span-5">
+        <h3 class="text-xs font-extrabold text-slate-700 mb-2">Parameter</h3>
+
+        <div class="grid grid-cols-12 gap-3 items-start">
+          @if (showBranchID()) {
+            <div class="col-span-12 md:col-span-6">
+              <input-text-box
+                [frmGroup]="queryForm"
+                [controlName]="'branchID'"
+                [label]="'Branch ID'"
+                [placeholder]="'Enter branch id'">
+              </input-text-box>
+            </div>
+          }
+          @if (showTransDate()) {
+            <div class="col-span-12 md:col-span-6">
+              <input-date
+                [frmGroup]="queryForm"
+                [controlName]="'transDate'"
+                [label]="'Trans Date'">
+              </input-date>
+            </div>
+          }
+        </div>
+
+        <div class="grid grid-cols-12 gap-3 items-start mt-2">
+          @if (showFromDate()) {
+            <div class="col-span-12 md:col-span-6">
+              <input-date
+                [frmGroup]="queryForm"
+                [controlName]="'fromDate'"
+                [label]="'From Date'">
+              </input-date>
+            </div>
+          }
+          @if (showToDate()) {
+            <div class="col-span-12 md:col-span-6">
+              <input-date
+                [frmGroup]="queryForm"
+                [controlName]="'toDate'"
+                [label]="'To Date'">
+              </input-date>
+            </div>
+          }
+        </div>
+
+        <div class="grid grid-cols-12 gap-3 items-start mt-2">
+          @if (showTransferType()) {
+            <div class="col-span-12">
+              <input-select-option-field
+                [frmGroup]="queryForm"
+                [controlName]="'transferTypeId'"
+                [label]="'Transfer Type'"
+                [options]="transferTypeOptions"
+                [placeholder]="'— Select transfer type —'">
+              </input-select-option-field>
+            </div>
+          }
+        </div>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<section #resultDataSection class="px-3 mt-3 mb-3 scroll-mt-24">
+  <div class="section-card">
+    <h3 class="text-xs font-extrabold text-slate-700 mb-2">Result Data</h3>
+
+    @if (isLoadingResult) {
+      <p class="px-2 py-4 text-xs text-slate-400">Loading result...</p>
+    } @else if (resultRows.length === 0) {
+      <div class="text-xs text-slate-500 px-2 py-6 text-center">
+        No data. Run a query to see results.
+      </div>
+    } @else {
+      <generic-data-grid
+        [id]="'generate-query-result'"
+        [dataSource]="resultRows"
+        [selectedColumns]="resultColumnKeys"
+        [customColumnNames]="resultColumnNames"
+        [initPageSize]="10"
+        [pageSizeOptions]="[5, 10, 20, 50]"
+        [searchEnabled]="true"
+        [showEditButton]="false"
+        [showDeleteButton]="false"
+        [showViewButton]="false"
+        [showPrintButton]="true"
+        [uniqueIdField]="resultIdField"
+        [gridTitle]="'Result Data'"
+        [backendPaginationEnabled]="true"
+        (onDataGridStateChange)="onResultGridStateChange($event)">
+      </generic-data-grid>
+    }
+  </div>
+</section>

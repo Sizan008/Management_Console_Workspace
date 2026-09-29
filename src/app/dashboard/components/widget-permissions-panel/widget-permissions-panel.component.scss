@@ -1,0 +1,21 @@
+// Widget Permissions Panel Styles
+
+:host {
+  display: block;
+}
+
+.permission-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.permission-item {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateX(2px);
+  }
+}

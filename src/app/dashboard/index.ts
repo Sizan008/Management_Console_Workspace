@@ -1,0 +1,10 @@
+export * from './models/dashboard.model';
+export * from './models/widget.model';
+export * from './models/entity.model';
+export * from './services/dashboard.api';
+export * from './services/widget.api';
+export * from './services/entity.api';
+export * from './dashboard.routing';
+export { DashboardListComponent }   from './pages/dashboard-list/dashboard-list.component';
+export { DashboardEditorComponent } from './pages/dashboard-editor/dashboard-editor.component';
+export { DashboardViewComponent }   from './pages/dashboard-view/dashboard-view.component';

@@ -1,0 +1,63 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { GenericWorkspace } from '../../../shared/common-components/generic-workspace/generic-workspace';
+import { ActionDefinition, WorkspaceConfig } from '../../../shared/common-components/generic-workspace/workspace-config.model';
+import { BaseWorkspaceComponent } from '../../../shared/common-components/generic-workspace/base-workspace.component';
+import { WorkspaceMeta } from '../../../shared/models/workspace-meta.model';
+import { WorkspaceApiService } from '../../../core/workspace-api/workspace-api.service';
+import { AdminPanelUserCase } from './admin-panel-user.model';
+import { MOCK_ADMIN_PANEL_USERS } from './admin-panel-user.data';
+import {
+  ADMIN_PANEL_META,
+  buildAdminPanelConfig,
+  mapAdminPanelActionDtos,
+} from './admin-panel-user.config';
+
+@Component({
+  selector: 'app-admin-panel-user-cases',
+  standalone: true,
+  imports: [CommonModule, GenericWorkspace],
+  templateUrl: './admin-panel-user-cases.html',
+  styleUrl: './admin-panel-user-cases.scss',
+})
+export class AdminPanelUserCases extends BaseWorkspaceComponent<AdminPanelUserCase> {
+  private readonly workspaceApi = inject(WorkspaceApiService);
+
+  /** Static row set from MOCK_ADMIN_PANEL_USERS. */
+  allCases: AdminPanelUserCase[] = MOCK_ADMIN_PANEL_USERS;
+
+  getMeta(): WorkspaceMeta {
+    return ADMIN_PANEL_META;
+  }
+
+  getItemKey(item: AdminPanelUserCase): string {
+    return item.userId;
+  }
+
+  buildConfig(dynamicActions?: ActionDefinition<AdminPanelUserCase>[]): WorkspaceConfig<AdminPanelUserCase> {
+    // Live API is the single source of truth for stage meta and per-stage
+    // actions. Mirrors the pattern in `user-management`'s UserCases: stage
+    // names/colours are sourced from WorkspaceResolverService, and per-stage
+    // actions are fetched on-demand from
+    // WorkspaceApiService.getActionsByStage(stageId).
+    const stageIdMap = this.resolver.getStageIdMap(ADMIN_PANEL_META.routeSegment);
+
+    return buildAdminPanelConfig({
+      router:         this.router,
+      route:          this.route,
+      dynamicActions,
+      stageColourMap: this.resolver.getStageColourMap(ADMIN_PANEL_META.routeSegment),
+      stageOptions:   this.resolver.getStageNamesForWorkspace(ADMIN_PANEL_META.routeSegment),
+      resolveActionsForItem: (item: AdminPanelUserCase) => {
+        const stageId = stageIdMap[item.stage?.trim().toLowerCase() ?? ''];
+        return stageId !== undefined
+          ? this.workspaceApi.getActionsByStage(stageId).pipe(
+              map(dtos => mapAdminPanelActionDtos(dtos, this.router, this.route))
+            )
+          : of([]);
+      },
+    });
+  }
+}

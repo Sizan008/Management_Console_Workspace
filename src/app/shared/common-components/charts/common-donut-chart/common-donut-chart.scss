@@ -1,0 +1,9 @@
+.donut-chart-wrapper ::ng-deep .apexcharts-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.donut-chart-wrapper ::ng-deep .apexcharts-legend {
+  margin-top: 10px !important;
+}

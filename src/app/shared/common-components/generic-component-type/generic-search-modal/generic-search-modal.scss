@@ -1,0 +1,85 @@
+// Generic Search Modal Styles
+.generic-search-modal {
+  padding: 1rem;
+
+  form {
+    margin-bottom: 1.5rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .results-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+
+    .spinner {
+      animation: spin 1s linear infinite;
+      border-radius: 50%;
+      height: 3rem;
+      width: 3rem;
+      border: 2px solid transparent;
+      border-top-color: var(--primary-color, #3b82f6);
+      border-right-color: var(--primary-color, #3b82f6);
+    }
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #9ca3af;
+
+    svg {
+      margin: 0 auto 0.75rem;
+      height: 3rem;
+      width: 3rem;
+      color: #d1d5db;
+    }
+
+    .title {
+      font-size: 1.125rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .results-grid {
+    min-height: 300px;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .generic-search-modal {
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+}

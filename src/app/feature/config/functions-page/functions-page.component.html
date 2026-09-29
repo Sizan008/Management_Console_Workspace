@@ -1,0 +1,54 @@
+<div class="h-full w-full flex flex-col overflow-hidden bg-slate-50">
+
+  @if (isLoading) {
+    <p class="text-sm text-slate-400 text-center py-12">Loading...</p>
+  } @else if (error) {
+    <p class="text-sm text-red-500 text-center py-12">{{ error }}</p>
+  } @else {
+
+    <div class="flex flex-1 overflow-hidden">
+
+      <!-- Left: vertical tab list -->
+      <aside class="w-56 flex-shrink-0 bg-white border-r border-slate-200 overflow-y-auto ">
+        @for (item of items; track item.functionId) {
+          <button
+            type="button"
+            (click)="select(item)"
+            class="w-full flex items-center gap-2 px-4 py-3 text-left border-l-2 transition-all cursor-pointer hover:bg-slate-50 hover:border-blue-500 hover:text-blue-700"
+            [class.border-blue-500]="selectedItem?.functionId === item.functionId"
+            [class.bg-blue-50]="selectedItem?.functionId === item.functionId"
+            [class.text-blue-700]="selectedItem?.functionId === item.functionId"
+            [class.font-semibold]="selectedItem?.functionId === item.functionId"
+            [class.border-transparent]="selectedItem?.functionId !== item.functionId"
+            [class.text-slate-600]="selectedItem?.functionId !== item.functionId">
+            <span class="text-sm truncate">{{ item.functionNm }}</span>
+          </button>
+        }
+      </aside>
+
+      <!-- Right: page content -->
+      <main #contentPane class="flex-1 overflow-y-auto bg-white">
+        <router-outlet (activate)="resetScroll()"></router-outlet>
+
+        <!-- Nothing wired to the selected tab (or nothing in the list at all) -->
+        @if (pageMissing) {
+          <div class="h-full flex flex-col items-center justify-center gap-1 px-6 py-16 text-center">
+            <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 8h16M4 8v10a2 2 0 002 2h12a2 2 0 002-2V8M4 8V6a2 2 0 012-2h12a2 2 0 012 2v2M9 15l6-6m0 6l-6-6" />
+            </svg>
+            <p class="text-sm font-semibold text-slate-500">No page found</p>
+            @if (selectedItem) {
+              <p class="text-xs text-slate-400">“{{ selectedItem.functionNm }}” has no page configured yet.</p>
+            } @else {
+              <p class="text-xs text-slate-400">Select an item from the list to open its page.</p>
+            }
+          </div>
+        }
+      </main>
+
+    </div>
+
+  }
+
+</div>

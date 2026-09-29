@@ -1,0 +1,65 @@
+
+
+@if(show){
+<div
+    class="min-h-screen bg-gradient-to-br from-blue-950 to-blue-950 flex flex-col justify-center items-center px-4 overflow-y-auto">
+    <div class="w-full max-w-4xl py-10">
+        <!-- Header -->
+
+        <div class="fixed top-10 left-10 flex items-center gap-3">
+            <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white text-2xl font-bold">L</span>
+            </div>
+            <div>
+                <h1 class="text-white text-xl sm:text-2xl font-bold">Leads Corporation</h1>
+                <p class="text-blue-200 text-xs sm:text-sm">HR Management System</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="text-center px-2">
+            <!-- Badge -->
+            <div class="inline-block mb-6 sm:mb-8">
+                <span
+                    class="bg-blue-700/50 text-blue-200 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm backdrop-blur-sm border border-blue-600/30">
+                    Next-Generation HR Solution
+                </span>
+            </div>
+
+            <!-- Heading -->
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-2 sm:mb-4">
+                Transform Your
+            </h2>
+            <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold text-blue-400 mb-6 sm:mb-8">
+                HR Operations
+            </h2>
+
+            <!-- Description -->
+            <p
+                class="text-blue-100 text-base sm:text-lg md:text-xl max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed px-3">
+                Streamline workforce management, boost productivity, and empower your team with
+                our intelligent HR Management System designed for modern businesses.
+            </p>
+
+            <!-- Check time picker -->
+<!--            <form [formGroup]="timeForm">-->
+<!--                <input-time [frmGroup]="timeForm" controlName="time" label="Select time" [minTime]="'09:00'"-->
+<!--                    [maxTime]="'18:00'" (timeChange)="onTimeChange($event)" />-->
+<!--            </form><br>-->
+
+
+            <!-- CTA Button -->
+            <button (click)="login()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all duration-200 inline-flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
+                Click Here for Login
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+}

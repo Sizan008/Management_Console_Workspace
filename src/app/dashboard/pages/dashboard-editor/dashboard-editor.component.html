@@ -1,0 +1,254 @@
+<div class="editor-root">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header class="editor-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">← Back</button>
+      <h1 class="header-title">{{ dashboard()?.name ?? 'Dashboard Editor' }}</h1>
+      @if (hasChanges()) {
+        <span class="unsaved-badge">Unsaved changes</span>
+      }
+    </div>
+    <div class="header-right">
+      <generic-button label="+ Add Widget" (onClick)="openNewWidget()"></generic-button>
+      <generic-button label="Save Dashboard"
+        [enable]="dashboardForm.valid && !isLoading()"
+        (onClick)="saveDashboard()">
+      </generic-button>
+    </div>
+  </header>
+
+  <div class="editor-body">
+
+    <!-- ── Left: Dashboard settings ────────────────────────────────────── -->
+    <aside class="editor-sidebar">
+      <form [formGroup]="dashboardForm" class="sidebar-form">
+        <h3 class="sidebar-title">Dashboard Settings</h3>
+
+        <input-text-box [frmGroup]="dashboardForm" controlName="name"
+          label="Name" placeholder="Dashboard name">
+        </input-text-box>
+
+        <input-text-area [frmGroup]="dashboardForm" controlName="description"
+          label="Description" placeholder="Optional description">
+        </input-text-area>
+
+        <div class="toggle-row">
+          <generic-switch [frmGroup]="dashboardForm" controlName="isActive"></generic-switch>
+          <span class="toggle-label">Active</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Widgets</span>
+          <span class="stat-value">{{ widgets().length }}</span>
+        </div>
+      </form>
+    </aside>
+
+    <!-- ── Centre: Widget canvas ─────────────────────────────────────── -->
+    <main class="editor-canvas">
+      <!-- Tab bar -->
+      <div class="canvas-tabs">
+        <button [class.active]="activeTab() === 'canvas'" (click)="activeTab.set('canvas')">Canvas</button>
+        <button [class.active]="activeTab() === 'list'" (click)="activeTab.set('list')">List / Reorder</button>
+      </div>
+
+      <!-- Canvas tab: 3-column grid of widget cards -->
+      @if (activeTab() === 'canvas') {
+        <div class="canvas-grid">
+
+          @for (widget of widgets(); track widget.id) {
+            <div class="widget-card"
+                 [class.unconfigured]="!isConfigured(widget)"
+                 [class.selected]="selectedWidget()?.id === widget.id"
+                 (click)="openEditWidget(widget)">
+
+              <!-- Header -->
+              <div class="widget-card-header">
+                <span class="widget-icon">{{ widgetTypeIcon(widget.widgetType) }}</span>
+                <span class="widget-name">{{ widget.name }}</span>
+                <button class="zoom-btn" (click)="openZoom(widget, $event)" title="Zoom in">⛶</button>
+                <span class="widget-type-badge">{{ widget.widgetType }}</span>
+              </div>
+
+              <!-- Body -->
+              <div class="widget-card-body">
+                @if (!isConfigured(widget)) {
+                  <div class="configure-hint">
+                    <span class="configure-icon">⚙️</span>
+                    <span>Not configured</span>
+                  </div>
+                } @else {
+                  <app-widget-preview [type]="widget.widgetType" [compact]="true"></app-widget-preview>
+                }
+              </div>
+
+              <!-- Footer -->
+              <div class="widget-card-footer">
+                <span class="roles-hint">
+                  @if ((widget.permittedRoles?.length ?? 0) === 0) {
+                    <span class="no-roles">No roles</span>
+                  } @else {
+                    @for (role of widget.permittedRoles; track role) {
+                      <span class="role-tag">{{ role }}</span>
+                    }
+                  }
+                </span>
+                <button class="delete-btn" (click)="deleteWidget(widget, $event)">🗑</button>
+              </div>
+
+            </div>
+          }
+
+          @if (widgets().length === 0) {
+            <div class="empty-canvas">
+              <p>No widgets yet.</p>
+              <p>Click <strong>+ Add Widget</strong> to get started.</p>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- List tab: drag-to-reorder -->
+      @if (activeTab() === 'list') {
+        <div cdkDropList class="widget-list" (cdkDropListDropped)="onDrop($event)">
+          @for (widget of widgets(); track widget.id) {
+            <div cdkDrag class="list-item">
+              <span class="drag-handle" cdkDragHandle>⠿</span>
+              <span class="widget-icon">{{ widgetTypeIcon(widget.widgetType) }}</span>
+              <div class="list-item-info">
+                <span class="list-item-name">{{ widget.name }}</span>
+                <span class="list-item-type">{{ widget.widgetType }}</span>
+              </div>
+              @if (!isConfigured(widget)) {
+                <span class="not-configured-tag">Not configured</span>
+              }
+              <div class="list-item-actions">
+                <generic-button label="Edit" (onClick)="openEditWidget(widget)"></generic-button>
+                <generic-button label="Delete" (onClick)="deleteWidget(widget)"></generic-button>
+              </div>
+            </div>
+          }
+          @if (widgets().length === 0) {
+            <p class="empty-list">No widgets.</p>
+          }
+        </div>
+      }
+    </main>
+
+    <!-- ── Right: Config panel (slide-in) ─────────────────────────────── -->
+    @if (showConfigPanel()) {
+      <aside class="config-panel">
+        <div class="config-panel-header">
+          <h3>{{ isEditingWidget() ? 'Edit Widget' : 'New Widget' }}</h3>
+          <button class="close-btn" (click)="closeConfigPanel()">✕</button>
+        </div>
+
+        <div class="config-panel-body">
+          <form [formGroup]="widgetForm" class="config-form">
+
+            <!-- Name -->
+            <input-text-box [frmGroup]="widgetForm" controlName="name"
+              label="Widget Name" placeholder="e.g. Monthly Revenue">
+            </input-text-box>
+
+            <!-- Type -->
+            <input-select-option-field [frmGroup]="widgetForm" controlName="widgetType"
+              label="Widget Type" [options]="widgetTypeOptions" placeholder="Select type">
+            </input-select-option-field>
+
+            <!-- Cache TTL -->
+            <input-number [frmGroup]="widgetForm" controlName="cacheTtlMinutes"
+              label="Cache TTL (minutes)" placeholder="15">
+            </input-number>
+
+            <!-- Permitted roles -->
+            <div class="roles-section">
+              <label class="field-label">Permitted Roles</label>
+              <p class="field-hint">Leave empty → hidden from all users</p>
+              <div class="role-tags">
+                @for (role of widgetForm.get('permittedRoles')?.value ?? []; track role) {
+                  <span class="role-chip">
+                    {{ role }}
+                    <button type="button" (click)="removeRole(role)">×</button>
+                  </span>
+                }
+              </div>
+              <div class="role-input-row">
+                <input [(ngModel)]="roleInput" [ngModelOptions]="{standalone: true}"
+                       (keydown)="onRoleKeydown($event)"
+                       placeholder="Type role and press Enter"
+                       class="role-input" />
+                <button type="button" (click)="addRole()" class="role-add-btn">Add</button>
+              </div>
+            </div>
+
+          </form>
+
+          <!-- Data source -->
+          <div class="query-builder-section">
+            <h4 class="section-title">⚙️ Data Source</h4>
+            <label class="field-label">Database View Name</label>
+            <input [(ngModel)]="viewNameInput"
+                   class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400 mt-1"
+                   placeholder="e.g. VW_MONTHLY_SALES" />
+            <p class="text-xs text-slate-400 mt-1">Must be an existing view in the database.</p>
+          </div>
+        </div>
+
+        <div class="config-panel-footer">
+          <generic-button label="Cancel" (onClick)="closeConfigPanel()"></generic-button>
+          <generic-button label="Save Widget"
+            [enable]="widgetForm.valid && !isLoading()"
+            (onClick)="saveWidget()">
+          </generic-button>
+        </div>
+      </aside>
+    }
+
+  </div>
+
+  <!-- ── Zoom / preview modal ─────────────────────────────────────────── -->
+  @if (zoomedWidget(); as zw) {
+    <div class="zoom-overlay" (click)="closeZoom()">
+      <div class="zoom-card" (click)="$event.stopPropagation()">
+
+        <div class="zoom-header">
+          <span class="widget-icon">{{ widgetTypeIcon(zw.widgetType) }}</span>
+          <span class="zoom-title">{{ zw.name }}</span>
+          <span class="widget-type-badge">{{ zw.widgetType }}</span>
+          <button class="zoom-close" (click)="closeZoom()" title="Close">✕</button>
+        </div>
+
+        <div class="zoom-body">
+          @if (!isConfigured(zw)) {
+            <div class="configure-hint">
+              <span class="configure-icon">⚙️</span>
+              <span>Not configured</span>
+            </div>
+          } @else {
+            <app-widget-preview [type]="zw.widgetType"></app-widget-preview>
+          }
+        </div>
+
+        <div class="zoom-footer">
+          <div class="zoom-meta">
+            @if (zw.queryConfig) {
+              <span class="meta-item">Source: <code>{{ zw.queryConfig | slice:0:40 }}</code></span>
+            }
+            <span class="meta-item">Cache: {{ zw.cacheTtlMinutes }} min</span>
+            <span class="meta-item">
+              Roles:
+              @if ((zw.permittedRoles?.length ?? 0) === 0) { <span class="no-roles">none</span> }
+              @else {
+                @for (role of zw.permittedRoles; track role) { <span class="role-tag">{{ role }}</span> }
+              }
+            </span>
+          </div>
+          <generic-button label="Edit Widget" (onClick)="closeZoom(); openEditWidget(zw)"></generic-button>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

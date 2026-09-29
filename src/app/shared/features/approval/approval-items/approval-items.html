@@ -1,0 +1,16 @@
+<mat-tab-group
+  [selectedIndex]="tabIndex()"
+  (selectedIndexChange)="onTabChange($event)">
+
+  <mat-tab label="Pending Approval">
+    <ng-template matTabContent>
+      <app-checker-list />
+    </ng-template>
+  </mat-tab>
+
+  <mat-tab label="Maker List">
+    <ng-template matTabContent>
+      <app-maker-list />
+    </ng-template>
+  </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,295 @@
+// generic-table.scss
+//
+// Sectioned label/value detail view. Reads as a field list, not a grid: no cell
+// borders and no column shading — each label/value pair is tied together by a
+// dotted leader, and groups are separated by a hairline rule inside one card.
+//
+// The component deliberately owns NO page chrome — no background wash, no outer
+// padding, no min-height — so it can sit inside a panel, modal or expansion card
+// without fighting its container.
+//
+// Override note: anything a caller is expected to restyle per cell must NOT be
+// declared on .gt-cell itself. Component styles are unlayered and carry Angular's
+// encapsulation attribute, so they beat every Tailwind utility (which lives in
+// @layer utilities) regardless of class order — a caller's 'p-4' could never win.
+//
+// Two mechanisms keep that door open:
+//   * text colour / font weight are emitted as utility classes from getCellClass()
+//     rather than declared here, so a caller's class is a peer.
+//   * padding lives on the .gt-cell--pad modifier, which getCellClass() omits
+//     entirely when the caller passes a padding utility of their own.
+// This file only owns structure, leaders and backgrounds.
+
+:host {
+  display: block;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: optimizeLegibility;
+
+  // Single source of truth for the palette. --theme-primary is set per theme in
+  // styles.scss, so the highlight tint tracks the active theme.
+  --gt-accent: var(--theme-primary, #086AD8);
+  --gt-card-border: #e6e9f0;
+  --gt-divider: #eef1f6;
+  --gt-leader: #cbd5e1;
+  // Small uppercase text needs more weight and contrast than body text to hold
+  // up — slate-400 was legible but read as disabled rather than as a heading.
+  --gt-caption: #334155;
+  --gt-row-hover: #f8fafc;
+
+  // Deliberately NOT derived from --theme-primary. Five of the seven themes use
+  // a near-black primary (#010035, #301934, #5a1924, #1b5743, #4b4949), and any
+  // low-alpha tint of those desaturates to plain grey — which is the one thing a
+  // highlight must not look like. A fixed amber reads as emphasis under every
+  // theme, and matches how `highlighted` is documented in data-mapper.service.
+  // Override this single variable to re-theme it.
+  --gt-highlight-bg: rgba(245, 158, 11, 0.14);
+
+  // Horizontal gap between one pair's value and the next pair's label. The
+  // leader stops here too, which is what visually separates the columns.
+  --gt-pair-gap: 22px;
+  --gt-inset: 16px;
+
+  // Default vertical rhythm of a cell, as a token so the responsive step below
+  // is a single value change rather than a second padding rule.
+  --gt-cell-py: 7px;
+
+  // Values use a mono stack so digits line up column to column. Swap this one
+  // variable for `inherit` to put them back on the body font.
+  --gt-value-font: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+// ============================================================================
+// HEADING
+// ============================================================================
+.gt-header {
+  margin-bottom: 12px;
+}
+
+.gt-header__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  color: #0f172a;
+}
+
+.gt-header__subtitle {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #64748b;
+}
+
+// ============================================================================
+// CARD + GROUPS
+// ============================================================================
+.gt-card {
+  background: #ffffff;
+  border: 1px solid var(--gt-card-border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 1px 1px rgba(15, 23, 42, 0.03);
+}
+
+.gt-group {
+  padding: 0 var(--gt-inset) 10px;
+
+  // Hairline rule between groups only — never above the first or below the last.
+  & + .gt-group {
+    border-top: 1px solid var(--gt-divider);
+  }
+}
+
+.gt-group__title {
+  margin: 0;
+  padding: 14px 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--gt-caption);
+}
+
+// ============================================================================
+// FIELDS
+// ============================================================================
+.gt-table {
+  width: 100%;
+  font-size: 13px;
+
+  // `separate` (with zero spacing, so the layout is identical to `collapse`)
+  // is what makes border-radius apply to a cell — under `collapse` the browser
+  // ignores it, and the highlight tint renders as a hard-edged band.
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.gt-row {
+  transition: background-color 0.15s ease;
+
+  // Hover paints the ROW, not the cell, so any cell that carries its own
+  // background (highlight, caller class) stays on top of it.
+  &:hover {
+    background-color: var(--gt-row-hover);
+  }
+}
+
+.gt-cell {
+  position: relative;
+  vertical-align: middle;
+  line-height: 1.4;
+
+  // Dotted leader. Drawn as a pseudo-element rather than a border so it never
+  // competes with a caller-supplied background colour on the same cell.
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--gt-leader) 0 2px,
+      transparent 2px 5px
+    );
+  }
+}
+
+.gt-cell--label {
+  text-align: left;
+  white-space: nowrap;
+}
+
+// Default padding. Kept on its own modifier rather than on .gt-cell so
+// getCellClass() can leave it off when the caller supplies their own padding —
+// see the override note at the top of this file.
+.gt-cell--pad {
+  padding: var(--gt-cell-py) 0;
+}
+
+// The gap between pair-columns is owned by the *following* label, not by the
+// preceding value. Keeping it off the value cell means every value in a column
+// shares one right edge, so a highlighted value can never sit a few pixels off
+// from its unhighlighted neighbours.
+//
+// Scoped to --pad so a caller who takes over a label's padding takes over the
+// pair gap with it; the leader is inset to match, so the dotted line always
+// starts where the text does.
+.gt-cell--pad.gt-cell--label:not(:first-child) {
+  padding-left: var(--gt-pair-gap);
+
+  &::after {
+    left: var(--gt-pair-gap);
+  }
+}
+
+.gt-cell--value {
+  text-align: right;
+  font-family: var(--gt-value-font);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+// Emphasis hugs the value text rather than filling the cell: these cells often
+// carry a wide colspan, and tinting the cell paints the entire span — mostly
+// empty leader — instead of the value that was actually flagged.
+//
+// The negative margin cancels the padding, so the chip grows outward and the
+// text itself does not move. That keeps a highlighted value on the same right
+// edge as the unhighlighted values above and below it.
+.gt-cell--highlight > .gt-cell__text {
+  background-color: var(--gt-highlight-bg);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: -2px -6px;
+}
+
+// Default quarter width for cells with no explicit width and no colspan, which
+// lays a four-cell row out as two even label/value pairs.
+.gt-cell--quarter {
+  width: 25%;
+}
+
+// ============================================================================
+// LOADING / ERROR STATES
+// Compact and inline — these render wherever the component is embedded.
+// ============================================================================
+.gt-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 16px;
+  background: #ffffff;
+  border: 1px solid var(--gt-card-border);
+  border-radius: 10px;
+}
+
+.gt-state__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b42318;
+}
+
+.gt-state__text {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.gt-state--error {
+  border-left: 3px solid #d92d20;
+}
+
+.gt-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid color-mix(in srgb, var(--gt-accent) 25%, #ffffff);
+  border-top-color: var(--gt-accent);
+  border-radius: 50%;
+  animation: gt-spin 0.8s linear infinite;
+}
+
+@keyframes gt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-spinner {
+    animation-duration: 2.4s;
+  }
+
+  .gt-row {
+    transition: none;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+@media (max-width: 768px) {
+  :host {
+    --gt-pair-gap: 12px;
+    --gt-inset: 12px;
+    --gt-cell-py: 6px;
+  }
+
+  .gt-table {
+    font-size: 12px;
+  }
+
+  .gt-header__title {
+    font-size: 15px;
+  }
+}

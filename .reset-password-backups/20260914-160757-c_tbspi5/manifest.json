@@ -1,0 +1,40 @@
+{
+  "root": "/home/sizan/Documents/microfont-poc_ORG 1/microfont-poc_ORG",
+  "files": [
+    {
+      "path": "src/app/feature/admin-panel-user/admin-panel-reset-password/admin-panel-reset-password.html",
+      "before": "bb5701af3be78d09829882d13eaec25464735b4f9af73a307354ed0ec51aee08",
+      "after": "615fb560fd1312b0e1a802973ea710d5c40265418207479f9f48561b4bcf1703",
+      "existed": true,
+      "mode": 436
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/admin-panel-reset-password/admin-panel-reset-password.ts",
+      "before": "7676f54d9fe192bd9abf86d83d4de3b1dea842d0fceddd33fac5f4e98691e1fe",
+      "after": "c43c4e1a12bb151b128a19a5e7f32fcb82fb30a86cb028fa541e1f619abfe4ff",
+      "existed": true,
+      "mode": 436
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/shared/models/reset-password.model.ts",
+      "before": null,
+      "after": "9edeb5abac30b8d6c8aec5b15736811eaaf8bd10f72e4925ba1560f563f4b4b9",
+      "existed": false,
+      "mode": 420
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/shared/services/reset-password.service.ts",
+      "before": null,
+      "after": "d972a6d8a525bbe68bca9a9d43391c1bfde9723ff20fea65c93f5998722efede",
+      "existed": false,
+      "mode": 420
+    },
+    {
+      "path": "src/environments/environment.prod.ts",
+      "before": "181957638296b9fd6561dee4d794940fe77ea821c26a532f0d6ebf27112eba73",
+      "after": "9138d984424b87a10a0a55e99b17ef12ca16fff350ba00d0ebf10d9a2ce23fce",
+      "existed": true,
+      "mode": 436
+    }
+  ]
+}

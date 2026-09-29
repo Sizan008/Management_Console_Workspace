@@ -1,0 +1,41 @@
+<div
+  class="font-roboto w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50"
+>
+  <div class="min-w-0 space-y-3 p-3">
+    <section
+      class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        panelTitle="NPSB Bank List"
+        [isOpenSignal]="isNpsbBankPanelOpen"
+      >
+      </app-expansion-panel-header>
+      @if (isNpsbBankPanelOpen()) {
+        <div class="border-t border-slate-100 p-3">
+          <div class="min-w-0 overflow-x-auto">
+            <div class="min-w-[900px]">
+              <generic-data-grid
+                id="npsb-bank-grid"
+                [dataSource]="banks()"
+                [selectedColumns]="columns"
+                [customColumnNames]="columnNames"
+                [cellRenderFunctions]="cellRenderFunctions"
+                [initPageSize]="10"
+                [pageSizeOptions]="[5, 10, 20, 50]"
+                [showPaginator]="true"
+                [searchEnabled]="true"
+                [enableSelection]="true"
+                [useInlineEdit]="false"
+                uniqueIdField="bankCode"
+                (onChecked)="onBankChecked($event)"
+                (onSelectAllChange)="onBankSelectAll($event)"
+              >
+              </generic-data-grid>
+            </div>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

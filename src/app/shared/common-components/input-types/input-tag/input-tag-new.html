@@ -1,0 +1,65 @@
+<!-- Tag Input Component -->
+<div class="input-tag-container">
+  <!-- Tag Input with Chip Grid and Drag Drop -->
+  <mat-form-field appearance="outline" class="w-full">
+    <!-- Chip Grid with Drag and Drop -->
+    <mat-chip-grid
+      #chipGrid
+      [disabled]="disabled()"
+      cdkDropList
+      [cdkDropListData]="tags()"
+      [cdkDropListDisabled]="!draggable() || disabled()"
+      (cdkDropListDropped)="drop($event)"
+      cdkDropListOrientation="horizontal"
+      class="tag-chip-grid">
+
+      <!-- Individual Tags -->
+      @for (tag of tags(); track trackByFn($index, tag); let i = $index) {
+        <mat-chip-row
+          cdkDrag
+          [cdkDragData]="tag"
+          [cdkDragDisabled]="!draggable() || disabled()"
+          [editable]="editable() && !disabled()"
+          (edited)="editTag(tag, $event)"
+          [removable]="removable() && !disabled()"
+          (removed)="removeTag(tag)">
+
+          <!-- Display value -->
+          {{ getDisplayValue(tag) }}
+
+          <!-- Remove button -->
+          @if (removable() && !disabled()) {
+            <button matChipRemove [attr.aria-label]="'Remove ' + getDisplayValue(tag)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          }
+        </mat-chip-row>
+      }
+
+      <!-- Input field for adding new tags -->
+      @if (!disabled() && (maxItems() === null || tags().length < maxItems()!)) {
+        <input
+          #inputField
+          matInput
+          [placeholder]="placeholder()"
+          [matAutocomplete]="auto"
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes()"
+          (matChipInputTokenEnd)="addTag($event)"
+          (input)="onInputChange($any($event.target).value)"
+          [disabled]="disabled()" />
+      }
+    </mat-chip-grid>
+
+    <!-- Autocomplete Dropdown -->
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="selectTag($event)">
+      @for (item of filteredItems(); track trackByFn($index, item)) {
+        <mat-option [value]="item">
+          <span>{{ getDisplayValue(item) }}</span>
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+</div>

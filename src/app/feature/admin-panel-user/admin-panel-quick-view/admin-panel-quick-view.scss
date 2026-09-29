@@ -1,0 +1,13 @@
+/* Custom styles for Admin Panel User Quick View drawer if needed */
+:host {
+  display: block;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

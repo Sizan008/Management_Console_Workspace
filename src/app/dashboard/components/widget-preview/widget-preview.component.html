@@ -1,0 +1,403 @@
+<div class="wp-root" [class.compact]="compact()">
+
+  <!-- ── Empty result ─────────────────────────────────────────────────────── -->
+  @if (data() !== null && data()!.rows.length === 0) {
+    <div class="no-data">
+      <span class="no-data-icon">⊘</span>
+      <span>No data</span>
+    </div>
+  }
+
+  <!-- ── KPI CARD ─────────────────────────────────────────────────────────── -->
+  @else if (kind() === 'KPI_CARD') {
+    <div class="kpi">
+
+      <!-- Sparkline background: real multi-row data when available, static fallback otherwise -->
+      @if (kpiSparkSvg(); as sp) {
+        <svg class="kpi-spark" [attr.viewBox]="'0 0 ' + sp.W + ' ' + sp.H"
+             preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="kpiFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"
+                    [attr.stop-color]="kpiLive()?.threshClass === 'kpi-danger' ? '#fca5a5' : kpiLive()?.threshClass === 'kpi-warn' ? '#fde68a' : '#93c5fd'"
+                    stop-opacity="0.28"/>
+              <stop offset="100%"
+                    [attr.stop-color]="kpiLive()?.threshClass === 'kpi-danger' ? '#fca5a5' : kpiLive()?.threshClass === 'kpi-warn' ? '#fde68a' : '#93c5fd'"
+                    stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path [attr.d]="sp.areaD" fill="url(#kpiFill)"/>
+          <path [attr.d]="sp.lineD" fill="none"
+                [attr.stroke]="kpiLive()?.threshClass === 'kpi-danger' ? '#ef4444' : kpiLive()?.threshClass === 'kpi-warn' ? '#f59e0b' : '#3b82f6'"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Invisible hover targets — show tooltip on each data point -->
+          @for (p of sp.pts; track $index) {
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="10" fill="transparent"
+                    style="cursor:default"
+                    (mouseenter)="showTooltip($event, p.label, fmtNum(p.val))"
+                    (mouseleave)="hideTooltip()"/>
+          }
+        </svg>
+      } @else {
+        <svg class="kpi-spark" viewBox="0 0 360 110" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="kpiFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#93c5fd" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#93c5fd" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path [attr.d]="lineArea()" fill="url(#kpiFill)"/>
+          <path [attr.d]="linePath()" fill="none" stroke="#93c5fd" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      }
+
+      <!-- Main overlay: value + label row + delta badge -->
+      <div class="kpi-overlay">
+        @if (kpiLive(); as kpi) {
+          <div class="kpi-value" [class]="kpi.threshClass">{{ kpi.displayVal }}</div>
+          <div class="kpi-bottom">
+            <span class="kpi-label">{{ kpi.label | uppercase }}</span>
+            @if (kpi.delta) {
+              <span class="kpi-delta" [class.delta-up]="kpi.deltaUp" [class.delta-down]="!kpi.deltaUp">
+                {{ kpi.deltaUp ? '▲' : '▼' }}&nbsp;{{ kpi.delta }}
+              </span>
+            }
+          </div>
+        } @else {
+          <div class="kpi-value">—</div>
+          <div class="kpi-bottom">
+            <span class="kpi-label">METRIC</span>
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- ── STAT CARD ───────────────────────────────────────────────────────── -->
+  @else if (kind() === 'STAT_CARD') {
+    @if (statCard(); as sc) {
+      <div class="stat-card">
+        <div class="stat-icon-tile">
+          <svg class="stat-icon-svg" viewBox="0 0 512.004 512.004" xmlns="http://www.w3.org/2000/svg">
+            <g>
+              <path style="fill:#EDEBDA" d="M256,393.146L256,393.146c-72.037-28.809-149.294-39.643-219.429-9.143h-9.143V45.718h9.143c68.27-24.384,151.159-24.384,219.429,0V393.146z"/>
+              <path style="fill:#CEC9AE" d="M256,393.146L256,393.146c75.995-29.029,154.459-39.543,219.429-9.143h8.997V45.718h-8.997c-71.141-24.384-148.672-24.384-219.429,0V393.146z"/>
+              <path style="fill:#CEC9AE" d="M201.143,118.861h-82.286c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h82.286c5.047,0,9.143,4.087,9.143,9.143C210.286,114.774,206.19,118.861,201.143,118.861"/>
+              <path style="fill:#CEC9AE" d="M201.143,164.575H82.286c-5.047,0-9.143-4.087-9.143-9.143s4.096-9.143,9.143-9.143h118.857c5.047,0,9.143,4.087,9.143,9.143S206.19,164.575,201.143,164.575"/>
+              <path style="fill:#CEC9AE" d="M164.571,210.289H82.286c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h82.286c5.047,0,9.143,4.087,9.143,9.143C173.714,206.202,169.618,210.289,164.571,210.289"/>
+              <path style="fill:#CEC9AE" d="M201.143,256.003h-82.286c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h82.286c5.047,0,9.143,4.087,9.143,9.143C210.286,251.917,206.19,256.003,201.143,256.003"/>
+              <path style="fill:#CEC9AE" d="M201.143,301.718H82.286c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h118.857c5.047,0,9.143,4.087,9.143,9.143C210.286,297.631,206.19,301.718,201.143,301.718"/>
+              <path style="fill:#EDEBDA" d="M393.143,164.575h-82.286c-5.047,0-9.143-4.087-9.143-9.143s4.096-9.143,9.143-9.143h82.286c5.047,0,9.143,4.087,9.143,9.143S398.19,164.575,393.143,164.575"/>
+              <path style="fill:#EDEBDA" d="M438.857,118.861h-128c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h128c5.047,0,9.143,4.087,9.143,9.143C448,114.774,443.904,118.861,438.857,118.861"/>
+              <path style="fill:#EDEBDA" d="M438.857,301.718h-91.429c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h91.429c5.047,0,9.143,4.087,9.143,9.143C448,297.631,443.904,301.718,438.857,301.718"/>
+              <path style="fill:#EDEBDA" d="M393.143,256.003h-82.286c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h82.286c5.047,0,9.143,4.087,9.143,9.143C402.286,251.917,398.19,256.003,393.143,256.003"/>
+              <path style="fill:#EDEBDA" d="M438.857,210.289h-128c-5.047,0-9.143-4.087-9.143-9.143c0-5.056,4.096-9.143,9.143-9.143h128c5.047,0,9.143,4.087,9.143,9.143C448,206.202,443.904,210.289,438.857,210.289"/>
+              <path style="fill:#A2D672" d="M329.143,371.742c-24.283,4.763-48.841,12.123-73.143,21.403c-72.037-28.809-149.294-39.643-219.429-9.143h-9.143V45.717H0v356.571h329.143V371.742z"/>
+              <path style="fill:#A2D672" d="M484.429,45.718v338.286h-8.997c-22.93-10.734-47.561-16.274-73.143-17.792v36.078h109.714V45.718H484.429z"/>
+              <path style="fill:#88C057" d="M0,429.718h329.143v-27.429H0V429.718z"/>
+              <path style="fill:#88C057" d="M402.286,429.718H512v-27.429H402.286V429.718z"/>
+              <path style="fill:#DD342E" d="M329.143,371.742v112.832l36.571-27.429l36.571,27.429V366.211C378.551,364.793,354.002,366.869,329.143,371.742"/>
+            </g>
+          </svg>
+        </div>
+        <div class="stat-body">
+          <div class="stat-value">{{ sc.displayVal }}</div>
+          <div class="stat-label">{{ sc.label }}</div>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ── LINE CHART ───────────────────────────────────────────────────────── -->
+  @else if (kind() === 'LINE_CHART') {
+    @if (lineChartSvg(); as lc) {
+      <div class="chart">
+        <svg [attr.viewBox]="'0 0 ' + lc.W + ' ' + lc.H"
+             preserveAspectRatio="xMidYMid meet" class="chart-svg">
+          <defs>
+            <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#3b82f6" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Gridlines + Y-axis labels -->
+          @for (g of lc.grids; track g.y) {
+            <line [attr.x1]="lc.PL" [attr.x2]="lc.W - 12"
+                  [attr.y1]="g.y" [attr.y2]="g.y"
+                  stroke="#eef2f7" stroke-width="1"/>
+            <text [attr.x]="lc.PL - 5" [attr.y]="g.y + 3.5"
+                  text-anchor="end" font-size="8" fill="#94a3b8" font-family="inherit">{{ g.label }}</text>
+          }
+
+          <!-- Baseline -->
+          <line [attr.x1]="lc.PL" [attr.x2]="lc.W - 12"
+                [attr.y1]="lc.baseY" [attr.y2]="lc.baseY"
+                stroke="#cbd5e1" stroke-width="1.5"/>
+
+          <!-- Area fill -->
+          <path [attr.d]="lc.areaD" fill="url(#lineFill)"/>
+
+          <!-- Line -->
+          <path [attr.d]="lc.lineD" fill="none" stroke="#3b82f6" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Data points — hover tooltip only, no drill-down (single-row filter breaks the chart) -->
+          @for (p of lc.pts; track $index) {
+            <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#fff" stroke="#3b82f6" stroke-width="2"
+                    style="cursor:default"
+                    (mouseenter)="showTooltip($event, p.label, p.val)"
+                    (mouseleave)="hideTooltip()"/>
+          }
+
+          <!-- X-axis labels -->
+          @for (xl of lc.xLabels; track xl.x) {
+            <text [attr.x]="xl.x" [attr.y]="lc.baseY + 13"
+                  text-anchor="middle" font-size="8" fill="#64748b" font-family="inherit">{{ xl.label }}</text>
+          }
+        </svg>
+      </div>
+    }
+  }
+
+  <!-- ── BAR CHART ────────────────────────────────────────────────────────── -->
+  @else if (kind() === 'BAR_CHART') {
+    @if (barChartSvg(); as bc) {
+      <div class="chart">
+        <svg [attr.viewBox]="'0 0 ' + bc.W + ' ' + bc.H"
+             preserveAspectRatio="xMidYMid meet" class="chart-svg">
+          <defs>
+            <linearGradient id="barShine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.16"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Horizontal gridlines + Y-axis labels -->
+          @for (g of bc.grids; track g.y) {
+            <line [attr.x1]="bc.PL" [attr.x2]="bc.W - 10"
+                  [attr.y1]="g.y" [attr.y2]="g.y"
+                  stroke="#eef2f7" stroke-width="1"/>
+            <text [attr.x]="bc.PL - 5" [attr.y]="g.y + 3.5"
+                  text-anchor="end" font-size="8" fill="#94a3b8" font-family="inherit">{{ g.label }}</text>
+          }
+
+          <!-- Baseline axis -->
+          <line [attr.x1]="bc.PL" [attr.x2]="bc.W - 10"
+                [attr.y1]="bc.baseY" [attr.y2]="bc.baseY"
+                stroke="#cbd5e1" stroke-width="1.5"/>
+
+          <!-- Bars -->
+          @for (b of bc.bars; track b.label) {
+            <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h"
+                  rx="3" ry="3"
+                  [attr.fill]="b.color"
+                  class="bar-seg"
+                  (click)="drillDown.emit({ column: b.labelCol, value: b.label })"
+                  (mouseenter)="showTooltip($event, b.label, b.val)"
+                  (mouseleave)="hideTooltip()"/>
+            <rect [attr.x]="b.x" [attr.y]="b.y" [attr.width]="b.w" [attr.height]="b.h"
+                  rx="3" ry="3" fill="url(#barShine)" pointer-events="none"/>
+            <!-- X-axis label -->
+            <text [attr.x]="b.cx" [attr.y]="bc.baseY + 13"
+                  text-anchor="middle" font-size="8" fill="#64748b" font-family="inherit">
+              {{ b.label.length > 8 ? (b.label | slice:0:7) + '…' : b.label }}
+            </text>
+          }
+        </svg>
+      </div>
+    }
+  }
+
+  <!-- ── PIE / DONUT ──────────────────────────────────────────────────────── -->
+  @else if (kind() === 'PIE_CHART') {
+    <div class="pie-wrap">
+      <div class="pie-ring">
+        <svg viewBox="0 0 100 100" class="pie-svg">
+          @for (s of pieSegments(); track $index) {
+            <circle cx="50" cy="50" r="42" fill="none"
+                    class="seg-clickable"
+                    [attr.stroke]="s.color"
+                    [attr.stroke-width]="selectedPieLabel() === s.label ? 20 : (selectedPieLabel() !== null ? 12 : 16)"
+                    [attr.stroke-dasharray]="s.dash"
+                    [attr.stroke-dashoffset]="s.offset"
+                    transform="rotate(-90 50 50)"
+                    [style.opacity]="selectedPieLabel() !== null && selectedPieLabel() !== s.label ? 0.2 : 1"
+                    (click)="togglePieSegment(s.label)"
+                    (mouseenter)="showTooltip($event, s.label, s.pct + '%')"
+                    (mouseleave)="hideTooltip()"/>
+          }
+          @if (chartStyle() !== 'pie') {
+            <circle cx="50" cy="50" r="26" fill="#fff"/>
+            @if (selectedPieLabel(); as sel) {
+              @for (s of pieSegments(); track s.label) {
+                @if (s.label === sel) {
+                  <text x="50" y="47" text-anchor="middle" dominant-baseline="middle"
+                        font-size="13" font-weight="700" fill="#1e293b">{{ s.pct }}%</text>
+                  <text x="50" y="58" text-anchor="middle" dominant-baseline="middle"
+                        font-size="5.5" fill="#64748b">{{ s.label.length > 14 ? (s.label | slice:0:13) + '…' : s.label }}</text>
+                }
+              }
+            }
+          }
+        </svg>
+      </div>
+      <div class="legend">
+        @for (s of pieLegendItems(); track s.label) {
+          <span class="legend-item"
+                [class.legend-hidden]="s.isHidden"
+                [class.legend-active]="selectedPieLabel() === s.label"
+                (click)="togglePieLegend(s.label)">
+            <span class="dot" [style.background]="s.color" [style.opacity]="s.isHidden ? 0.3 : 1"></span>
+            <span class="legend-label">{{ s.label }}</span>
+            <span class="legend-pct">{{ s.pct }}%</span>
+          </span>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── TABLE ────────────────────────────────────────────────────────────── -->
+  @else if (kind() === 'DATA_TABLE') {
+    <div class="table-outer">
+
+      <!-- Search bar (hidden in compact mode) -->
+      @if (!compact()) {
+        <div class="tbl-search-bar">
+          <svg class="tbl-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="6.5" cy="6.5" r="4"/><path d="M11 11l3 3"/>
+          </svg>
+          <input class="tbl-search-input"
+                 type="text"
+                 placeholder="Search…"
+                 [value]="tableSearch()"
+                 (input)="onTableSearch($event)" />
+          @if (tableSearch()) {
+            <button class="tbl-search-clear" (click)="tableSearch.set(''); tablePage.set(0)">✕</button>
+          }
+        </div>
+      }
+
+      <div class="table-wrap">
+        @if (data() && data()!.rows.length > 0) {
+          <table class="mini-table">
+            <thead>
+              <tr>
+                @for (col of data()!.columns; track col) {
+                  <th (click)="sortBy(col)"
+                      [class.col-num]="colTypes()[col] === 'number'"
+                      class="sortable-col">
+                    <span class="th-inner">
+                      <span class="th-label">{{ col }}</span>
+                      <span class="sort-chevron">
+                        @if (sortCol() === col) {
+                          @if (sortDir() === 'asc') {
+                            <svg viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          } @else {
+                            <svg viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                          }
+                        } @else {
+                          <svg viewBox="0 0 10 10" class="sort-idle"><path d="M1 3.5l4-3 4 3M1 6.5l4 3 4-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        }
+                      </span>
+                    </span>
+                  </th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @if (tableFilteredRows().length === 0) {
+                <tr><td [attr.colspan]="data()!.columns.length" class="tbl-empty">No results for "{{ tableSearch() }}"</td></tr>
+              }
+              @for (row of tableDisplayRows(); track $index) {
+                <tr class="tbl-row">
+                  @for (col of data()!.columns; track col) {
+                    @if (colTypes()[col] === 'status') {
+                      <td><span class="status-chip" [class]="statusChipVariant(row[col])">{{ row[col] ?? '—' }}</span></td>
+                    } @else if (colTypes()[col] === 'number') {
+                      <td class="cell-num">{{ formatCell(row[col], 'number') }}</td>
+                    } @else if (colTypes()[col] === 'date') {
+                      <td class="cell-date">{{ formatCell(row[col], 'date') }}</td>
+                    } @else {
+                      <td>{{ row[col] ?? '—' }}</td>
+                    }
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <table class="mini-table">
+            <thead>
+              <tr><th>Project Name</th><th>Status</th><th>Date</th><th>Owner</th></tr>
+            </thead>
+            <tbody>
+              @for (r of tableRows; track r.name) {
+                <tr class="tbl-row">
+                  <td>{{ r.name }}</td>
+                  <td><span class="status-chip chip-green">{{ r.status }}</span></td>
+                  <td class="cell-date">{{ r.date }}</td>
+                  <td>{{ r.owner }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <!-- Footer: row count + pagination -->
+      @if (data() && data()!.rows.length > 0) {
+        <div class="table-pagination">
+          <span class="tbl-row-count">
+            {{ tableFilteredRows().length }} row{{ tableFilteredRows().length !== 1 ? 's' : '' }}
+            @if (tableSearch()) { · filtered }
+          </span>
+          <div class="tbl-page-controls">
+            <button class="page-btn" (click)="prevPage()" [disabled]="tablePage() === 0">
+              <svg viewBox="0 0 6 10"><path d="M5 1L1 5l4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="page-info">{{ tablePage() + 1 }} / {{ totalPages() }}</span>
+            <button class="page-btn" (click)="nextPage()" [disabled]="tablePage() >= totalPages() - 1">
+              <svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── APPROVAL LIST ────────────────────────────────────────────────────── -->
+  @else if (kind() === 'APPROVAL_LIST') {
+    <div class="approval-wrap">
+      @for (r of approvalRows; track r.name) {
+        <div class="approval-row">
+          <span class="check">✓</span>
+          <span class="approval-name">{{ r.name }}</span>
+          <span class="status-chip" [class]="statusClass(r.status)">{{ r.status }}</span>
+          <span class="avatar"></span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── FALLBACK / CUSTOM ────────────────────────────────────────────────── -->
+  @else {
+    <div class="custom">
+      <span class="custom-icon">🔧</span>
+      <span class="custom-text">Custom widget</span>
+    </div>
+  }
+
+  <!-- ── Tooltip overlay ──────────────────────────────────────────────────── -->
+  @if (tooltip().visible) {
+    <div class="chart-tooltip"
+         [style.left.px]="tooltip().x"
+         [style.top.px]="tooltip().y">
+      <span class="tt-label">{{ tooltip().label }}</span>
+      <span class="tt-value">{{ tooltip().value }}</span>
+    </div>
+  }
+
+</div>

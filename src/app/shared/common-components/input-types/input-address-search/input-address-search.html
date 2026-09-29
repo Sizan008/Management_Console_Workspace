@@ -1,0 +1,283 @@
+<div class="address-search-component w-full"
+     [ngClass]="{
+       'horizontal-layout': displayMode() === 'horizontal',
+       'vertical-layout': displayMode() === 'vertical',
+       'outline-layout': displayMode() === 'outline'
+     }">
+
+  <!-- Main Address Search Input -->
+  <div class="address-search-section w-full"
+       [ngClass]="{
+         'horizontal-input-group': displayMode() === 'horizontal',
+         'vertical-input-group': displayMode() === 'vertical',
+         'outline-input-group': displayMode() === 'outline'
+       }">
+
+    <!-- Label -->
+    <label *ngIf="label()"
+           class="input-label"
+           [ngClass]="{
+             'required': isRequired(),
+             'horizontal-label': displayMode() === 'horizontal',
+             'vertical-label': displayMode() === 'vertical',
+             'outline-label': displayMode() === 'outline'
+           }"
+           [matTooltip]="tooltip()"
+           [matTooltipPosition]="tooltipPosition()"
+           [matTooltipClass]="tooltipClass()">
+      {{ label() }}
+      <span *ngIf="isRequired()" class="required-asterisk">*</span>
+    </label>
+
+    <!-- Search Input Container -->
+    <div class="input-container relative"
+         [ngClass]="{
+           'horizontal-container': displayMode() === 'horizontal',
+           'vertical-container': displayMode() === 'vertical',
+           'outline-container': displayMode() === 'outline',
+           'error': frmGroup().get(controlName())?.invalid && frmGroup().get(controlName())?.touched,
+           'focused': showDropdown$ | async,
+           'disabled': isDisabled(),
+           'readonly': isReadonly()
+         }">
+
+      <!-- Search Input -->
+      <input type="text"
+             class="address-search-input"
+             [placeholder]="placeholder()"
+             [value]="searchValue"
+             [disabled]="isDisabled() || isReadonly()"
+             [readonly]="isReadonly()"
+             (input)="onSearchInput($event)"
+             (focus)="onInputFocus()"
+             (blur)="onInputBlur()"
+             autocomplete="off" />
+
+      <!-- Clear Button -->
+      <button *ngIf="searchValue && !isReadonly() && !isDisabled()"
+              type="button"
+              class="clear-button"
+              (click)="clearInput()"
+              tabindex="-1">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading$ | async" class="loading-spinner">
+        <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="m15.84 12.758c.39.39 1.024.39 1.414 0s.39-1.024 0-1.414l-2.121-2.121c-.39-.39-1.024-.39-1.414 0s-.39 1.024 0 1.414l2.121 2.121z"></path>
+        </svg>
+      </div>
+
+      <!-- Dropdown Results -->
+      <div *ngIf="showDropdown$ | async"
+           class="address-dropdown">
+
+        <!-- Search Results -->
+        <div *ngFor="let address of searchResults(); trackBy: trackByFn"
+             class="address-option"
+            (mousedown)="onAddressSelected(address); $event.preventDefault()"
+             (click)="onAddressSelected(address)">
+          <div class="address-content">
+            <div class="address-primary">{{ getPrimaryField(address) }}</div>
+            <div class="address-secondary">
+              {{ address.thanaNm }}, {{ address.unionMuniName }}, {{ address.districtNm }}
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading$ | async" class="dropdown-loading">
+          <div class="loading-content">
+            <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="m15.84 12.758c.39.39 1.024.39 1.414 0s.39-1.024 0-1.414l-2.121-2.121c-.39-.39-1.024-.39-1.414 0s-.39 1.024 0 1.414l2.121 2.121z"></path>
+            </svg>
+            Searching addresses...
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="searchResults().length === 0 && !(isLoading$ | async) && searchValue.length >= 2"
+             class="dropdown-no-results">
+          <div class="no-results-content">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            No addresses found for "{{ searchValue }}"
+          </div>
+        </div>
+
+        <!-- Minimum Characters Message -->
+        <div *ngIf="searchValue.length > 0 && searchValue.length < 2 && !(isLoading$ | async)"
+             class="dropdown-hint">
+          <div class="hint-content">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Type at least 2 characters to search
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Messages -->
+    <div *ngIf="!isReadonly() && !frmGroup().get(controlName())?.disabled && frmGroup().get(controlName())?.invalid && frmGroup().get(controlName())?.touched"
+         class="error-messages">
+      <div *ngFor="let errorKey of (frmGroup().get(controlName())?.errors | keyvalue)"
+           class="error-message">
+        <span *ngIf="hasCustomMessage(errorKey.key)">{{ getCustomErrorMessage(errorKey.key) }}</span>
+        <span *ngIf="!hasCustomMessage(errorKey.key)">{{ label() }} is required</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Information Field -->
+  <div *ngIf="showManualField()" class="manual-info-section">
+    <input-text-box
+      [frmGroup]="addressFieldsGroup"
+      [controlName]="'manualInfo'"
+      [label]="manualFieldLabel()"
+      [placeholder]="'Enter additional information...'"
+      [displayMode]="addressFieldsDisplayMode()"
+      [isReadonly]="false"
+      [tooltip]="'Additional information that can be manually entered'"
+      (valueChanged)="onManualFieldChanged($event)"
+    ></input-text-box>
+  </div>
+
+  <!--
+    Resolved Address Fields
+    Ordered narrowest -> broadest so the block reads as an address hierarchy:
+    Area (village/ward) > Mouza > Post Office (union/municipality) > Postal Code
+    > Thana (upazila) > District > Country
+  -->
+  <div class="address-fields-section"
+       *ngIf="hasResolvedAddressFields()"
+       [ngClass]="{
+         'fields-horizontal': addressFieldsDisplayMode() === 'horizontal',
+         'fields-vertical': addressFieldsDisplayMode() === 'vertical',
+         'fields-outline': addressFieldsDisplayMode() === 'outline'
+       }">
+
+    <div class="address-fields-grid">
+
+      <!-- Area Name (village / ward) -->
+      @if (showAreaNameField() && addressFieldsGroup.get('areaName')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'areaName'"
+            [label]="areaNameLabel()"
+            [placeholder]="'Area'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Area name from selected address'"
+            (valueChanged)="onAddressFieldChanged('areaName', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- Mouza -->
+      @if (showMouzaField() && addressFieldsGroup.get('mouza')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'mouza'"
+            [label]="mouzaLabel()"
+            [placeholder]="'Mouza'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Mouza from selected address'"
+            (valueChanged)="onAddressFieldChanged('mouza', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- Post Office (union / municipality) -->
+      @if (showPostOfficeField() && addressFieldsGroup.get('postOffice')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'postOffice'"
+            [label]="postOfficeLabel()"
+            [placeholder]="'Post Office'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Post office from selected address'"
+            (valueChanged)="onAddressFieldChanged('postOffice', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- Postal Code -->
+      @if (showPostalCodeField() && addressFieldsGroup.get('postalCode')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'postalCode'"
+            [label]="postalCodeLabel()"
+            [placeholder]="'Postal Code'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Postal code from selected address'"
+            (valueChanged)="onAddressFieldChanged('postalCode', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- Thana (upazila) -->
+      @if (showThanaField() && addressFieldsGroup.get('thana')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'thana'"
+            [label]="thanaLabel()"
+            [placeholder]="'Thana'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Thana from selected address'"
+            (valueChanged)="onAddressFieldChanged('thana', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- District -->
+      @if (showDistrictField() && addressFieldsGroup.get('district')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'district'"
+            [label]="districtLabel()"
+            [placeholder]="'District'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'District from selected address'"
+            (valueChanged)="onAddressFieldChanged('district', $event)"
+          ></input-text-box>
+        </div>
+      }
+
+      <!-- Country -->
+      @if (showCountryField() && addressFieldsGroup.get('country')?.value) {
+        <div class="address-field">
+          <input-text-box
+            [frmGroup]="addressFieldsGroup"
+            [controlName]="'country'"
+            [label]="countryLabel()"
+            [placeholder]="'Country'"
+            [displayMode]="addressFieldsDisplayMode()"
+            [isReadonly]="makeFieldsReadonly()"
+            [tooltip]="'Country from selected address'"
+            (valueChanged)="onAddressFieldChanged('country', $event)"
+          ></input-text-box>
+        </div>
+      }
+    </div>
+  </div>
+</div>

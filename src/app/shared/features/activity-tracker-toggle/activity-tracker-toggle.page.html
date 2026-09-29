@@ -1,0 +1,14 @@
+<div class="p-6 max-w-md mx-auto">
+  <h2 class="text-xl font-bold mb-4">Activity Tracker</h2>
+
+ <generic-switch
+  [frmGroup]="frm"
+  [controlName]="switchControlName"
+  [label]="'Enable Activity Tracker'"
+  [isChecked]="frm.get(switchControlName)?.value"
+></generic-switch>
+
+  <p class="mt-4 text-gray-600">
+    Switch ON to enable tracker, OFF to disable.
+  </p>
+</div>

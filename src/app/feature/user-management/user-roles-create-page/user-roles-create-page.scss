@@ -1,0 +1,74 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+}
+
+.perm-table-wrap {
+  overflow-x: auto;
+}
+
+.perm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.perm-th {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-weight: 700;
+  color: #64748b;                 // slate-500
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.625rem;
+  border-bottom: 1px solid #e2e8f0; // slate-200
+  white-space: nowrap;
+
+  &--module { text-align: left; }
+  &--all    { text-align: center; }
+}
+
+.perm-row {
+  &:hover { background: #f8fafc; }  // slate-50
+}
+
+.perm-td {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9; // slate-100
+
+  &--module {
+    text-align: left;
+    font-weight: 600;
+    color: #334155;                 // slate-700
+    white-space: nowrap;
+  }
+}
+
+.perm-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #2563eb;            // blue-600
+  cursor: pointer;
+}
+
+.perm-all-btn {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover { background: #f8fafc; }
+
+  &--on {
+    border-color: #bfdbfe;          // blue-200
+    background: #eff6ff;            // blue-50
+    color: #2563eb;                // blue-600
+  }
+}

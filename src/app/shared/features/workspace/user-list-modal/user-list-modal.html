@@ -1,0 +1,39 @@
+<form [formGroup]="modalForm">
+  <div class="panel bg-white p-2">
+    <div class="modal-search-section px-2 pt-2 pb-1">
+      <div class="flex items-end gap-2">
+        <div class="flex-1">
+          <input-select-option-field
+            [frmGroup]="modalForm"
+            controlName="officeId"
+            label="Office ID"
+            [options]="officeOptions"
+            tooltip="Office">
+          </input-select-option-field>
+        </div>
+        <div class="pb-[4px]">
+          <generic-button
+            [label]="'Search'"
+            [cssClass]="'px-4'"
+            (onClick)="getUserList()">
+          </generic-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-section mt-2 px-2 pb-2" *ngIf="showUserModalGrid">
+      <generic-data-grid
+        [id]="'user-search'"
+        [enableSelection]="false"
+        [searchEnabled]="true"
+        [showEditButton]="true"
+        [useInlineEdit]="false"
+        [dataSource]="userList"
+        (onFHEditClick)="loadUser($event)"
+        [selectedColumns]="[
+         'userId', 'userFullName', 'userEmailId','officeId'
+        ]">
+      </generic-data-grid>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,42 @@
+<div class="bg-slate-50 border border-slate-100 rounded-lg p-4 space-y-4">
+  <div class="flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Status & Progress</h3>
+      </div>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 border border-slate-200">
+        {{ status }}
+      </span>
+    </div>
+    <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold">
+      <span>Progress</span>
+      <span class="text-slate-600">{{ completedStepsCount }} of {{ steps.length }} steps</span>
+    </div>
+    <div class="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
+      <div class="bg-blue-600 h-full rounded-full transition-all duration-300" [style.width.%]="(steps.length ? (completedStepsCount / steps.length) * 100 : 0)"></div>
+    </div>
+  </div>
+
+  <div class="space-y-3.5 mt-4 relative pl-4 border-l border-slate-200">
+    <div *ngFor="let step of steps" class="relative">
+      <div class="absolute -left-[22px] top-0.5 flex items-center justify-center w-[16px] h-[16px] rounded-full border-2 bg-white"
+           [class.border-emerald-500]="step.status === 'Completed'"
+           [class.bg-emerald-500]="step.status === 'Completed'"
+           [class.border-blue-600]="step.status === 'In Progress'"
+           [class.border-slate-300]="step.status === 'Pending'">
+        <svg *ngIf="step.status === 'Completed'" class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div *ngIf="step.status === 'In Progress'" class="w-2 h-2 rounded-full bg-blue-600"></div>
+      </div>
+
+      <div class="pl-1.5">
+        <span class="block text-xs font-bold text-slate-700" [class.text-slate-400]="step.status === 'Pending'">{{ step.label }}</span>
+        <span class="block text-[9px] mt-0.5 uppercase font-bold"
+              [class.text-emerald-600]="step.status === 'Completed'"
+              [class.text-blue-600]="step.status === 'In Progress'"
+              [class.text-slate-400]="step.status === 'Pending'">{{ step.status }}</span>
+      </div>
+    </div>
+  </div>
+</div>

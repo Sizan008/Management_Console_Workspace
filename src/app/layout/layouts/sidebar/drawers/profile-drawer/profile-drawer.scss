@@ -1,0 +1,413 @@
+/* ============================================================
+   Profile drawer
+   Cohesive, theme-aware panel. Accent colours are driven by the
+   active theme (--theme-primary / --theme-accent); the small icon
+   tile palette is fixed for gentle visual variety.
+   ============================================================ */
+
+.profile-drawer {
+  background: linear-gradient(180deg, var(--theme-background) 0%, #f8fafc 220px);
+}
+
+.pd-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.85rem 0.85rem 1.75rem;
+}
+
+/* ---------- Hero ---------- */
+.pd-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  padding: 0.75rem 0.85rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+  box-shadow: 0 10px 20px -14px color-mix(in srgb, var(--theme-primary) 55%, transparent);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -30px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.pd-avatar {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(4px);
+
+  &__initials {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+
+  &__status {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #fff;
+  }
+}
+
+.pd-hero__meta {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.pd-hero__name {
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-hero__email {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pd-hero__edit {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.6rem;
+  color: #fff;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition: background 0.18s ease, transform 0.18s ease;
+
+  mat-icon {
+    font-size: 1.05rem;
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+  }
+}
+
+/* ---------- Section label ---------- */
+.pd-section-label {
+  margin: 0.15rem 0 -0.3rem 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-text-light, #6b7280);
+}
+
+/* ---------- Card / group container ---------- */
+.pd-branch,
+.pd-group {
+  background: #fff;
+  border: 1px solid #eef1f5;
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 20px -16px rgba(16, 24, 40, 0.25);
+}
+
+/* ---------- Branch ---------- */
+.pd-branch {
+  padding: 0.7rem 0.75rem;
+}
+
+.pd-branch__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.pd-branch__title {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--theme-text, #374151);
+}
+
+.pd-branch__switch {
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  color: var(--theme-primary);
+  background: color-mix(in srgb, var(--theme-primary) 10%, transparent);
+  transition: background 0.15s ease, transform 0.15s ease;
+
+  mat-icon {
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  &:hover {
+    background: color-mix(in srgb, var(--theme-primary) 18%, transparent);
+    transform: translateX(1px);
+  }
+}
+
+.pd-branch__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pd-branch__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 0.45rem;
+  background: #f8fafc;
+
+  dt {
+    font-size: 0.73rem;
+    font-weight: 500;
+    color: var(--theme-text-light, #6b7280);
+  }
+
+  dd {
+    font-size: 0.77rem;
+    font-weight: 600;
+    color: var(--theme-text, #374151);
+    text-align: right;
+    word-break: break-word;
+  }
+}
+
+/* ---------- Rows ---------- */
+.pd-group {
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--theme-primary) 7%, transparent);
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--theme-text, #374151);
+  }
+
+  &__desc {
+    font-size: 0.75rem;
+    color: var(--theme-text-light, #6b7280);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: #cbd5e1;
+    transition: transform 0.2s ease;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+/* ---------- Icon tiles ---------- */
+.pd-tile {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 1.15rem;
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  &--amber  { background: #fff2df; mat-icon { color: #d97706; } }
+  &--green  { background: #dcfce7; mat-icon { color: #16a34a; } }
+  &--violet { background: #f3e8ff; mat-icon { color: #9333ea; } }
+  &--sky    { background: #e0f2fe; mat-icon { color: #0284c7; } }
+  &--blue   { background: #dbeafe; mat-icon { color: #2563eb; } }
+  &--indigo { background: #e0e7ff; mat-icon { color: #4f46e5; } }
+}
+
+/* ---------- Badge ---------- */
+.pd-badge {
+  flex-shrink: 0;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #fff;
+  border-radius: 999px;
+  background: #ef4444;
+}
+
+/* ---------- Messaging ---------- */
+.pd-messaging {
+  padding: 0.5rem 0.6rem 0.75rem;
+
+  &__hint {
+    margin-top: 0.35rem;
+    font-size: 0.78rem;
+    color: var(--theme-text-light, #6b7280);
+  }
+}
+
+.pd-chat {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+    background: color-mix(in srgb, var(--theme-primary) 14%, #fff);
+  }
+
+  &__unread {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 1.05rem;
+    height: 1.05rem;
+    padding: 0 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #fff;
+    background: #ef4444;
+    border-radius: 999px;
+    border: 1.5px solid #fff;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__partner {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--theme-text, #374151);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__time {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    color: var(--theme-text-light, #9ca3af);
+  }
+
+  &__last {
+    font-size: 0.76rem;
+    color: var(--theme-text-light, #6b7280);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Logout button moved to the navbar — see navbar.scss (.navbar-logout-btn) */

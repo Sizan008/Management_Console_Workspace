@@ -1,0 +1,506 @@
+/* Address Search Component - Complete styling with individual fields */
+
+/* Main component container */
+.address-search-component {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  
+  &.horizontal-layout {
+    .address-search-section {
+      margin-bottom: 16px;
+    }
+  }
+  
+  &.vertical-layout {
+    gap: 16px;
+  }
+  
+  &.outline-layout {
+    gap: 20px;
+  }
+}
+
+/* Address Search Section (existing search input styling) */
+.address-search-section {
+  width: 100%;
+}
+
+/* Base input group styles matching existing components */
+.horizontal-input-group,
+.vertical-input-group,
+.outline-input-group {
+  display: flex;
+  width: 100%;
+  position: relative;
+  
+  .input-label {
+    font-weight: 500;
+    font-size: 14px;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    .required-asterisk {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    &.required {
+      color: #374151;
+    }
+  }
+}
+
+/* Horizontal layout */
+.horizontal-input-group {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  
+  .horizontal-label {
+    min-width: 120px;
+    padding-top: 8px;
+    flex-shrink: 0;
+  }
+  
+  .horizontal-container {
+    flex: 1;
+  }
+}
+
+/* Vertical layout */
+.vertical-input-group {
+  flex-direction: column;
+  gap: 6px;
+  
+  .vertical-label {
+    margin-bottom: 2px;
+  }
+  
+  .vertical-container {
+    width: 100%;
+  }
+}
+
+/* Outline layout */
+.outline-input-group {
+  flex-direction: column;
+  gap: 8px;
+  
+  .outline-label {
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #6b7280;
+  }
+  
+  .outline-container {
+    width: 100%;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: #9ca3af;
+    }
+    
+    &.focused {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    &.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+    
+    &.disabled {
+      background-color: #f9fafb;
+      border-color: #e5e7eb;
+      opacity: 0.6;
+    }
+  }
+}
+
+/* Input container base styles */
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  &:not(.outline-container) {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #ffffff;
+    padding: 0;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      border-color: #9ca3af;
+    }
+    
+    &.focused {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+    
+    &.error {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+    }
+    
+    &.disabled {
+      background-color: #f9fafb;
+      border-color: #e5e7eb;
+      opacity: 0.6;
+    }
+    
+    &.readonly {
+      background-color: #f3f4f6;
+    }
+  }
+}
+
+/* Search input styles */
+.address-search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  
+  .outline-container & {
+    padding: 12px 16px;
+  }
+  
+  &::placeholder {
+    color: #9ca3af;
+    font-style: italic;
+  }
+  
+  &:disabled {
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+  
+  &[readonly] {
+    cursor: default;
+  }
+}
+
+/* Action buttons */
+.clear-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: #374151;
+    background-color: #f3f4f6;
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.loading-spinner {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #3b82f6;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Dropdown styles */
+.address-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 2px;
+  
+  .outline-container & {
+    border-radius: 8px;
+    border: 1.5px solid #d1d5db;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* Address option styles */
+.address-option {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background-color: #f8fafc;
+  }
+  
+  &:active {
+    background-color: #e2e8f0;
+  }
+  
+  .address-content {
+    .address-primary {
+      font-weight: 500;
+      color: #111827;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+    
+    .address-secondary {
+      font-size: 12px;
+      color: #6b7280;
+      
+      .postal-code {
+        color: #9ca3af;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+/* Dropdown states */
+.dropdown-loading,
+.dropdown-no-results,
+.dropdown-hint {
+  padding: 16px;
+  text-align: center;
+  
+  .loading-content,
+  .no-results-content,
+  .hint-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #6b7280;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+  }
+  
+  .loading-content {
+    color: #3b82f6;
+  }
+  
+  .no-results-content {
+    color: #9ca3af;
+  }
+  
+  .hint-content {
+    color: #6b7280;
+  }
+}
+
+/* Error messages */
+.error-messages {
+  margin-top: 4px;
+  
+  .error-message {
+    font-size: 12px;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    
+    &::before {
+      content: "⚠";
+      font-size: 10px;
+    }
+  }
+}
+
+/* Address Fields Section */
+.address-fields-section {
+  width: 100%;
+  
+  &.fields-horizontal,
+  &.fields-vertical,
+  &.fields-outline {
+    .address-fields-grid {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+    }
+  }
+  
+  &.fields-horizontal {
+    .address-fields-grid {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+  }
+  
+  &.fields-vertical {
+    .address-fields-grid {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+  }
+  
+  &.fields-outline {
+    .address-fields-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+  }
+}
+
+/* Individual address field styling */
+.address-field {
+  width: 100%;
+  
+  /* Custom styling for readonly fields */
+  &:has(input-text-box[readonly]) {
+    ::ng-deep {
+      .input-container {
+        background-color: #f8fafc;
+        border-color: #e2e8f0;
+        
+        input {
+          background-color: transparent;
+          color: #64748b;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .address-fields-section {
+    &.fields-horizontal,
+    &.fields-vertical,
+    &.fields-outline {
+      .address-fields-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .address-search-component {
+    gap: 16px;
+  }
+  
+  .horizontal-input-group {
+    flex-direction: column;
+    gap: 8px;
+    
+    .horizontal-label {
+      min-width: unset;
+      padding-top: 0;
+    }
+  }
+  
+  .address-dropdown {
+    max-height: 250px;
+  }
+  
+  .address-option {
+    padding: 14px 16px;
+    
+    .address-content {
+      .address-primary {
+        font-size: 15px;
+      }
+      
+      .address-secondary {
+        font-size: 13px;
+      }
+    }
+  }
+  
+  .address-fields-section {
+    &.fields-horizontal,
+    &.fields-vertical,
+    &.fields-outline {
+      .address-fields-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .address-fields-section {
+    .address-fields-grid {
+      grid-template-columns: 1fr !important;
+      gap: 10px;
+    }
+  }
+}
+
+/* Animation utilities */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Custom scrollbar for dropdown */
+.address-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+    
+    &:hover {
+      background-color: #94a3b8;
+    }
+  }
+}

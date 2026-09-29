@@ -1,0 +1,170 @@
+<div class="service-request-page-wrapper">
+  <mat-tab-group
+    [selectedIndex]="tabIndex()"
+    (selectedIndexChange)="onTabChange($event)"
+  >
+    <!-- ============ Create / Update tab ============ -->
+    <mat-tab
+      [label]="
+        isUpdateMode() ? 'Update Service Request' : 'Create New Service Request'
+      "
+    >
+      <ng-template matTabContent>
+        <form [formGroup]="frmGroup" class="service-request-form">
+          <!-- Requester details -->
+          <app-expansion-panel-header
+            [isOpenSignal]="businessHeaderPanel"
+            [panelTitle]="'Requester Information'"
+          >
+            <div class="section-grid-2 gap-y-1">
+              <input-text-box
+                [frmGroup]="frmGroup"
+                [controlName]="'employeeId'"
+                [label]="'Employee ID'"
+                [isReadonly]="true"
+                displayMode="vertical"
+                [tooltip]="'Auto filled from user profile'"
+                [tooltipPosition]="'above'"
+                [tooltipDelay]="300"
+                [tooltipClass]="'success-tooltip'"
+                [customErrorMessages]="{
+                  required: 'Employee ID is required',
+                  minlength: 'Minimum 3 characters required',
+                  maxlength: 'Maximum 50 characters allowed'
+                }"
+              ></input-text-box>
+
+              <input-text-box
+                [frmGroup]="frmGroup"
+                [controlName]="'fullName'"
+                [label]="'Full Name'"
+                [isReadonly]="isUpdateMode()"
+                displayMode="vertical"
+                [tooltip]="'Auto filled from user profile'"
+                [tooltipPosition]="'above'"
+                [tooltipDelay]="300"
+                [tooltipClass]="'success-tooltip'"
+                [customErrorMessages]="{
+                  required: 'Full name is required',
+                  minlength: 'Minimum 3 characters required',
+                  maxlength: 'Maximum 50 characters allowed'
+                }"
+              ></input-text-box>
+
+              <input-text-box
+                [frmGroup]="frmGroup"
+                [controlName]="'email'"
+                [label]="'Email Address'"
+                [isReadonly]="isUpdateMode()"
+                displayMode="vertical"
+                [tooltip]="'Auto filled from user profile'"
+                [tooltipPosition]="'above'"
+                [tooltipDelay]="300"
+                [tooltipClass]="'success-tooltip'"
+                [customErrorMessages]="{
+                  required: 'Email address is required',
+                  email: 'Please enter a valid email address'
+                }"
+              ></input-text-box>
+
+              <input-select-option-field
+                [frmGroup]="frmGroup"
+                [controlName]="'department'"
+                [label]="'Department'"
+                [isReadonly]="isUpdateMode()"
+                [options]="departmentOptions"
+                [tooltip]="'Select Department'"
+                (onSelect)="handleCategorySelection($event)"
+              ></input-select-option-field>
+            </div>
+          </app-expansion-panel-header>
+
+          <!-- Request details -->
+          <app-expansion-panel-header
+            [isOpenSignal]="subPanel1"
+            [panelTitle]="'Request Details'"
+          >
+            <div class="section-grid-2 gap-y-1">
+              <input-select-option-field
+                [frmGroup]="frmGroup"
+                [controlName]="'requestType'"
+                [label]="'Request Type'"
+                [isReadonly]="isUpdateMode()"
+                [options]="dropdownOptions"
+                [tooltip]="'Select Service Request type'"
+                (onSelect)="handleCategorySelection($event)"
+              ></input-select-option-field>
+
+              <input-select-option-field
+                [frmGroup]="frmGroup"
+                [controlName]="'priority'"
+                [label]="'Priority Level'"
+                [isReadonly]="isUpdateMode()"
+                [options]="priorityOptions"
+                [tooltip]="'Select Service Request priority'"
+                (onSelect)="handleCategorySelection($event)"
+              ></input-select-option-field>
+            </div>
+
+            <div class="section-grid">
+              <input-text-area
+                [frmGroup]="frmGroup"
+                [controlName]="'remarks'"
+                [label]="'Remarks'"
+                [rows]="3"
+                [minRows]="1"
+                [maxRows]="10"
+                [maxCols]="80"
+                [placeholder]="'Enter service request remarks...'"
+                [showRowCount]="true"
+                [autoResize]="false"
+                (onChanged)="onInputTextAreaChanged($event)"
+              ></input-text-area>
+
+              <input-file
+                #supportingDocInput
+                [id]="'supporting-doc-upload'"
+                [multipleFile]="false"
+                [fileExtension]="'.jpg,.png,.pdf'"
+                [isVertical]="false"
+                [label]="'Upload Supporting Document (Max 5MB)'"
+                [savePath]="'documents/transactions'"
+                [customFileName]="'transaction-document'"
+                (selectedFilesChanged)="onPdfSelected($event)"
+                (onFileChanged)="onFileInputChanged('Transaction Document')"
+              />
+            </div>
+          </app-expansion-panel-header>
+        </form>
+      </ng-template>
+    </mat-tab>
+
+    <!-- ============ View requests tab ============ -->
+    <mat-tab label="View Your Service Requests">
+      <ng-template matTabContent>
+        <app-expansion-panel-header
+          [isOpenSignal]="businessHeaderPanel"
+          [panelTitle]="'My Service Requests'"
+        >
+          <generic-data-grid
+            [id]="'service-requests-grid'"
+            [dataSource]="serviceRequests()"
+            [initPageSize]="10"
+            [enableSelection]="false"
+            [showEditButton]="true"
+            [showDeleteButton]="false"
+            [showViewButton]="false"
+            [showPrintButton]="false"
+            [useInlineEdit]="false"
+            [selectedColumns]="selectedColumns"
+            [customColumnNames]="customColumnNames"
+            [tblClass]="'service-request-table'"
+            [searchEnabled]="false"
+            (onFHEditClick)="onReraiseClick($event)"
+          >
+          </generic-data-grid>
+        </app-expansion-panel-header>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</div>

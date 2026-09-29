@@ -1,0 +1,1232 @@
+// ============================================================================
+// DATA GRID STYLES - Structured for consistent row heights
+// ============================================================================
+
+.data-grid-container {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  // ============================================================================
+  // GLOBAL ROW HEIGHT VARIABLES
+  // ============================================================================
+  --data-row-height: 20px;
+  --header-row-height: 32px;
+  --cell-padding: 0 6px;
+  --header-font-size: 12px;
+  --data-font-size: 13px;
+
+  .controls-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 4px 0px;
+    background: #f8f9fa;
+    border-bottom: none;
+    flex-shrink: 0;
+
+    .search-section {
+      flex: 1;
+      max-width: 300px;
+      width: 100%;
+
+      .search-field {
+        padding: 2px;
+
+        ::ng-deep {
+
+          // Remove default padding/margins
+          .mat-mdc-form-field-wrapper {
+            padding-bottom: 0 !important;
+            margin: 0 !important;
+          }
+
+          // Subscript wrapper (hints/errors) - hide it
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none !important;
+          }
+
+          // Main input container
+          .mat-mdc-text-field-wrapper {
+            height: 30px !important;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: #ffffff;
+          }
+
+          // Background override
+          .mdc-text-field {
+            background-color: transparent !important;
+            height: 30px !important;
+            display: flex;
+            align-items: center;
+            padding: 10 !important;
+          }
+
+          // Input field container
+          .mat-mdc-form-field-infix {
+            min-height: 36px !important;
+            padding: 8px 0 !important;
+            border: 0 !important;
+          }
+
+          // Input element itself
+          .mat-mdc-input-element {
+            height: 20px !important;
+            font-size: 14px !important;
+            line-height: 20px !important;
+          }
+
+          // Floating label
+          .mat-mdc-floating-label {
+            font-size: 14px !important;
+            top: 18px !important;
+          }
+
+          // When label is floating (user typing)
+          .mdc-text-field--filled .mdc-floating-label--float-above {
+            transform: translateY(-106%) scale(0.75) !important;
+          }
+
+          // Icon sizing
+          .mat-mdc-form-field-icon-suffix,
+          .mat-mdc-form-field-icon-prefix {
+            .mat-icon {
+              font-size: 20px !important;
+              height: 20px !important;
+              width: 20px !important;
+            }
+          }
+
+          // Remove underline if present
+          .mdc-line-ripple {
+            display: none !important;
+          }
+        }
+      }
+    }
+
+    .pagination-controls {
+      .page-size-selector {
+        width: 120px;
+
+        ::ng-deep .mat-mdc-form-field-wrapper {
+          padding-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .table-container {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f9fafb;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 4px;
+
+      &:hover {
+        background: #9ca3af;
+      }
+    }
+
+    .data-table {
+      width: 100%;
+      table-layout: auto;
+      border-collapse: collapse;
+      position: relative;
+
+      // Ensure consistent box-sizing for all cells
+      .mat-mdc-header-cell,
+      .mat-mdc-cell {
+        box-sizing: border-box;
+        text-align: left;
+        white-space: nowrap;
+        vertical-align: middle;
+
+        &.wide-column {
+          min-width: 200px;
+        }
+
+        &.narrow-column {
+          min-width: 80px;
+        }
+
+        // Opt-in wrapping: break long content within the column width instead of
+        // widening the column. Overrides the default `white-space: nowrap` above.
+        &.wrap-cell {
+          white-space: normal !important;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+      }
+
+      // ============================================================================
+      // HEADER CELL STYLING - Consistent with data rows
+      // ============================================================================
+      .mat-mdc-header-cell {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #1e293b;
+        text-transform: capitalize;
+        letter-spacing: 0.2px;
+        border-bottom: 2px solid #cbd5e1;
+        box-shadow: 0 4px 4px -3px rgba(15, 23, 42, 0.12);
+        line-height: calc(var(--header-row-height) - 10px) !important;
+        min-height: 10px !important;
+        padding: 12px;
+
+        &.numeric-cell {
+          text-align: right;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+
+          &.numeric-cell {
+            justify-content: flex-end;
+          }
+        }
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+
+          &:hover {
+            background-color: #e2e8f0;
+          }
+
+          .header-content {
+            width: 100%; // ensure sortable header content fills cell
+            // border: 1px solid brown;
+
+            .sort-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+              opacity: 0.6;
+              flex-shrink: 0;
+
+              &.sorted {
+                opacity: 1;
+              }
+            }
+          }
+        }
+      }
+
+      // ============================================================================
+      // DATA CELL STYLING - Consistent with headers
+      // ============================================================================
+      .mat-mdc-cell {
+        color: #1f2937;
+        font-weight: 500;
+        font-size: var(--data-font-size);
+        border-bottom: 1px solid #e5e7eb;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        height: var(--data-row-height) !important;
+        padding: var(--cell-padding) !important;
+        line-height: calc(var(--data-row-height) - 4px) !important;
+        min-height: var(--data-row-height) !important;
+        text-align: left;
+        vertical-align: middle;
+
+        .numeric {
+          text-align: right;
+        }
+
+        &.numeric-cell {
+          text-align: right;
+        }
+
+        .inline-edit-field {
+          ::ng-deep .mat-mdc-form-field-wrapper {
+            padding-bottom: 0;
+          }
+
+          ::ng-deep .mat-mdc-form-field-infix {
+            min-height: 20px;
+            padding: 1px 0;
+            line-height: 16px;
+          }
+
+          ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+            height: 0;
+            margin-top: 0;
+          }
+
+          .inline-input {
+            font-size: 12px;
+            height: 26px;
+            line-height: 16px;
+            padding: 1px 4px;
+          }
+
+
+          ::ng-deep .mat-mdc-select-trigger {
+            font-size: 11px !important;
+            height: 16px !important;
+            line-height: 16px !important;
+            padding: 0 !important;
+          }
+
+          ::ng-deep .mat-mdc-select-value {
+            font-size: 11px !important;
+            line-height: 16px !important;
+          }
+
+          // Dropdown options panel
+          ::ng-deep .mat-mdc-option {
+            font-size: 11px !important;
+            padding: 2px 6px !important;
+            min-height: 20px !important;
+          }
+
+          ::ng-deep .mat-mdc-form-field-infix {
+            padding: 0 !important;
+            min-height: 16px !important;
+          }
+        }
+
+        &.text-column {
+          max-width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .data-row {
+        &.selected {
+          background: #dbeafe;
+        }
+
+        &.editing {
+          background: #fef3c7;
+        }
+
+        &.disabled-row {
+          background-color: #f3f4f6 !important;
+          cursor: not-allowed;
+
+          .mat-mdc-cell {
+            color: #6b7280 !important;
+          }
+
+          .action-buttons {
+            .action-btn {
+              opacity: 0.4;
+              pointer-events: none;
+              cursor: not-allowed;
+            }
+          }
+
+          ::ng-deep .mat-mdc-checkbox {
+            pointer-events: none;
+            opacity: 0.5;
+          }
+        }
+      }
+
+      // ============================================================================
+      // INLINE EDIT VALIDATION - only reachable while a row is open in the editor
+      // and a save has been refused; display rows are untouched
+      // ============================================================================
+      .cell-error {
+        display: block;
+        color: #d92d20;
+        font-size: 10px;
+        font-weight: 500;
+        line-height: 1.3;
+        white-space: normal;
+        padding: 0 2px 2px;
+      }
+
+      .mat-mdc-cell.invalid-cell {
+        .inline-edit-field ::ng-deep .mdc-notched-outline__leading,
+        .inline-edit-field ::ng-deep .mdc-notched-outline__notch,
+        .inline-edit-field ::ng-deep .mdc-notched-outline__trailing {
+          border-color: #d92d20 !important;
+        }
+      }
+
+      .data-row.row-invalid {
+        background: #fff5f5;
+      }
+
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+
+        .action-btn {
+          background: transparent !important;
+          width: 28px;
+          height: 28px;
+          min-width: 28px;
+          min-height: 28px;
+          padding: 0 !important;
+          border-radius: 4px;
+          cursor: pointer;
+          position: relative;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border: none;
+
+          &:hover {
+            background: #f3f4f6 !important;
+          }
+
+          &:active {
+            background: #e5e7eb !important;
+          }
+
+          mat-icon,
+          svg {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+            pointer-events: none;
+          }
+        }
+      }
+
+      // Selection column - ensure header and cell padding match
+      .mat-column-selection {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        padding: 0 !important;
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        flex: 0 0 40px !important;
+
+        &.mat-mdc-header-cell {
+          background-color: #f1f5f9 !important;
+          color: #1e293b !important;
+
+
+          // Ensure checkbox is visible in header
+          ::ng-deep .mat-mdc-checkbox {
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        }
+
+        &.mat-mdc-cell {
+          padding: 0 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 100% !important;
+          min-height: 20px !important;
+
+          // Ensure checkbox is visible in cell
+          ::ng-deep .mat-mdc-checkbox {
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        }
+      }
+
+      // Actions column - ensure header and cell padding match
+      .mat-column-actions {
+        position: sticky;
+        right: 0;
+        text-align: center;
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+
+        &.mat-mdc-header-cell {
+          background-color: #f1f5f9 !important;
+          color: #1e293b !important;
+          border-left: 1px solid #e6e9f0;
+        }
+
+        &.mat-mdc-cell {
+          background: #ffffff;
+          border-left: 1px solid #e5e7eb;
+          padding: 2px 0px !important;
+        }
+      }
+    }
+  }
+
+  // Inline file upload cell
+  .file-upload-cell {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+
+    .hidden-file-input {
+      display: none;
+    }
+
+    .file-upload-btn,
+    .file-clear-btn {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+
+      ::ng-deep .mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+      }
+    }
+
+    .file-name {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      color: #1e293b;
+
+      &.empty {
+        color: #94a3b8;
+        font-style: italic;
+      }
+    }
+  }
+
+  th ::ng-deep .mat-mdc-checkbox {
+    padding: 0px;
+
+  }
+
+  th ::ng-deep .mat-mdc-checkbox .mdc-checkbox__native-control~.mdc-checkbox__background {
+    border-color: rgba(0, 0, 0, 0.54) !important;
+    height: 14px;
+    width: 14px;
+    margin-top: 1px;
+    margin-right: 12px;
+
+  }
+
+
+  td ::ng-deep .mat-mdc-checkbox .mdc-checkbox__native-control~.mdc-checkbox__background {
+    height: 14px;
+    width: 14px;
+    margin-top: 1px;
+  }
+
+
+  // Checkbox styling for compact, smaller checkboxes
+  // ::ng-deep .data-grid-container .mat-mdc-checkbox {
+  //   display: inline-flex !important;
+  //   align-items: center;
+  //   justify-content: center;
+  //   margin: 0;
+  //   opacity: 1 !important;
+  //   visibility: visible !important;
+
+  //   // Size checkboxes to be more compact
+  //   .mdc-checkbox {
+  //     width: 10px !important;
+  //     height: 10px !important;
+  //     padding: 0 !important;
+  //     flex-shrink: 0;
+  //     opacity: 1 !important;
+  //   }
+
+  //   // Native control size - smaller
+  //   .mdc-checkbox__native-control {
+  //     width: 10px !important;
+  //     height: 10px !important;
+  //     top: 0;
+  //     left: 0;
+  //     opacity: 1 !important;
+  //   }
+
+  //   // Checkbox background - more compact
+  //   .mdc-checkbox__background {
+  //     width: 10px !important;
+  //     height: 10px !important;
+  //     top: 0 !important;
+  //     left: 0 !important;
+  //   }
+
+  //   // Checkmark SVG - scaled down
+  //   .mdc-checkbox__background svg {
+  //     width: 12px !important;
+  //     height: 12px !important;
+  //   }
+
+  //   // Checkmark path - make the icon smaller but visible
+  //   .mdc-checkbox__checkmark-path {
+  //     stroke-width: 3px !important;
+  //   }
+
+  //   // Container padding - remove any default padding
+  //   .mdc-form-field {
+  //     padding: 0 !important;
+  //     margin: 0 !important;
+  //   }
+
+  //   // Ripple effect - make more compact
+  //   .mat-mdc-checkbox-ripple,
+  //   .mdc-checkbox__ripple {
+  //     width: 18px !important;
+  //     height: 18px !important;
+  //     left: -3px !important;
+  //     top: -3px !important;
+  //   }
+  // }
+
+  // Header checkbox styling - white borders for visibility on dark background
+  //   .data-grid-container th ::ng-deep .mat-mdc-checkbox {
+  //     .mdc-checkbox__background {
+  //       border-color: rgba(255, 255, 255, 0.95) !important;
+  //       border-width: 1.5px !important;
+  //       background-color: transparent !important;
+  //       opacity: 1 !important;
+  //       width: 10px !important;
+  //       height: 10px !important;
+  //     }
+
+  //     ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  //   transform: scale(0.8);
+  // }
+
+  // ::ng-deep .mat-mdc-checkbox {
+  //   --mdc-checkbox-state-layer-size: 20px; /* Shrinks clickable area slightly */
+  //   margin: 0 2px;
+  // }
+
+  // ::ng-deep .mat-mdc-checkbox .mdc-checkbox__native-control {
+  //   width: 16px;
+  //   height: 16px;
+  // }
+  //     // Unchecked hover state
+  //     .mdc-checkbox:hover .mdc-checkbox__background {
+  //       border-color: rgba(255, 255, 255, 1) !important;
+  //     }
+
+  //     // Checked state in header
+  //     .mdc-checkbox--selected .mdc-checkbox__background {
+  //       background-color: rgba(255, 255, 255, 0.95) !important;
+  //       border-color: rgba(255, 255, 255, 0.95) !important;
+  //       opacity: 1 !important;
+  //     }
+
+  //     // Checkmark color in header (dark checkmark on white background)
+  //     .mdc-checkbox--selected .mdc-checkbox__background svg {
+  //       color: var(--theme-primary, #1e40af) !important;
+  //       fill: var(--theme-primary, #1e40af) !important;
+  //       opacity: 1 !important;
+  //     }
+
+  //     // Checkmark path in header
+  //     .mdc-checkbox--selected .mdc-checkbox__background path {
+  //       stroke: var(--theme-primary, #1e40af) !important;
+  //       fill: var(--theme-primary, #1e40af) !important;
+  //     }
+
+  //     // Indeterminate state - mixed mark
+  //     .mdc-checkbox--selected .mdc-checkbox__mixedmark {
+  //       border-color: var(--theme-primary, #1e40af) !important;
+  //       background-color: var(--theme-primary, #1e40af) !important;
+  //     }
+  //   }
+
+  // Cell checkbox styling - dark borders for visibility on light background
+  .data-grid-container td ::ng-deep .mat-mdc-checkbox {
+    .mdc-checkbox__background {
+      border-color: rgba(0, 0, 0, 0.54) !important;
+      border-width: 1.5px !important;
+      background-color: transparent !important;
+      opacity: 1 !important;
+      width: 10px !important;
+      height: 10px !important;
+    }
+
+    // Unchecked hover state
+    .mdc-checkbox:hover .mdc-checkbox__background {
+      border-color: rgba(0, 0, 0, 0.87) !important;
+    }
+
+    // Checked state in cells
+    .mdc-checkbox--selected .mdc-checkbox__background {
+      background-color: var(--theme-primary, #1e40af) !important;
+      border-color: var(--theme-primary, #1e40af) !important;
+      opacity: 1 !important;
+    }
+
+    // Checkmark color in cells (white checkmark on colored background)
+    .mdc-checkbox--selected .mdc-checkbox__background svg {
+      color: #ffffff !important;
+      fill: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    // Checkmark path in cells
+    .mdc-checkbox--selected .mdc-checkbox__background path {
+      stroke: #ffffff !important;
+      fill: #ffffff !important;
+    }
+
+    // Disabled state
+    .mdc-checkbox--disabled .mdc-checkbox__background {
+      border-color: rgba(0, 0, 0, 0.26) !important;
+      background-color: transparent !important;
+      opacity: 0.6 !important;
+    }
+
+    // Disabled checked state
+    .mdc-checkbox--disabled.mdc-checkbox--selected .mdc-checkbox__background {
+      background-color: rgba(0, 0, 0, 0.26) !important;
+      border-color: rgba(0, 0, 0, 0.26) !important;
+      opacity: 0.6 !important;
+    }
+  }
+
+  // Data column checkboxes (if any) - same styling as cell checkboxes
+  // .data-checkbox ::ng-deep .mat-mdc-checkbox {
+  //   .mdc-checkbox__background {
+  //     border-color: rgba(0, 0, 0, 0.54) !important;
+  //     border-width: 1.5px !important;
+  //     background-color: transparent !important;
+  //     width: 10px !important;
+  //     height: 10px !important;
+  //   }
+
+  //   .mdc-checkbox--selected .mdc-checkbox__background {
+  //     background-color: var(--theme-primary, #1e40af) !important;
+  //     border-color: var(--theme-primary, #1e40af) !important;
+  //   }
+
+  //   .mdc-checkbox--selected .mdc-checkbox__background svg {
+  //     color: #ffffff !important;
+  //   }
+  // }
+
+  // ============================================================================
+  // GLOBAL ROW HEIGHT ENFORCEMENT - All rows same height
+  // ============================================================================
+  ::ng-deep .mat-mdc-row,
+  ::ng-deep .mat-mdc-footer-row {
+    height: var(--data-row-height) !important;
+    min-height: var(--data-row-height) !important;
+    max-height: var(--data-row-height) !important;
+  }
+
+  // ============================================================================
+  // MATERIAL TABLE OVERRIDES - Clean alignment without conflicts
+  // ============================================================================
+  ::ng-deep .data-table.mat-mdc-table {
+
+    // Remove default borders that can cause misalignment
+    .mat-mdc-header-cell,
+    .mat-mdc-cell {
+      box-sizing: border-box !important;
+      border-left: none !important;
+      border-right: none !important;
+    }
+
+    // All rows use the same height defined by CSS variables
+    .mat-mdc-header-row {
+      height: var(--header-row-height) !important;
+      min-height: var(--header-row-height) !important;
+
+      .mat-mdc-header-cell {
+        // height: var(--header-row-height) !important;
+        // line-height: calc(var(--header-row-height) - 4px) !important;
+        padding: var(--cell-padding) !important;
+        font-size: var(--header-font-size) !important;
+      }
+    }
+
+    .mat-mdc-row {
+      height: var(--data-row-height) !important;
+      min-height: var(--data-row-height) !important;
+
+      .mat-mdc-cell {
+        height: var(--data-row-height) !important;
+        line-height: calc(var(--data-row-height) - 4px) !important;
+        padding: var(--cell-padding) !important;
+        font-size: var(--data-font-size) !important;
+      }
+    }
+  }
+
+  .pagination-container {
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 16px;
+
+    ::ng-deep .mat-mdc-paginator {
+      background: transparent;
+    }
+
+    ::ng-deep .mat-mdc-paginator .mat-mdc-select-panel {
+      z-index: 9200 !important;
+    }
+  }
+
+  .no-data-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    font-size: 14px;
+    color: #6b7280;
+
+    .status-info {
+      font-weight: 500;
+    }
+
+    .selection-info {
+      color: #2563eb;
+      font-weight: 600;
+    }
+  }
+
+  // Row styling
+  .even-row {
+    background-color: var(--theme-background);
+  }
+
+  .odd-row {
+    background-color: #ffffff;
+  }
+
+  // Summary / group-by grid header — kept in sync with the main grid header
+  // (.mat-mdc-header-cell above) so both read as the same header treatment.
+  tr.header-style {
+    th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      text-transform: capitalize;
+      border-bottom: 2px solid #cbd5e1;
+      box-shadow: 0 4px 4px -3px rgba(15, 23, 42, 0.12);
+      line-height: calc(var(--header-row-height) - 10px);
+      font-size: var(--header-font-size);
+      padding: var(--cell-padding);
+    }
+  }
+
+  tr.footer-row {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #1f2937;
+    border-top: 2px solid #d1d5db;
+
+    td {
+      padding: 0 2px;
+      height: 10px;
+      line-height: 10px;
+    }
+  }
+
+  .button-container {
+    display: flex !important;
+    align-items: center !important;
+  }
+}
+
+// Tablet and below
+@media (max-width: 1024px) {
+  .data-grid-container {
+    .table-container {
+      .data-table {
+        .mat-column-actions {
+          position: static !important;
+          border-left: none;
+        }
+      }
+    }
+  }
+}
+
+// Mobile
+@media (max-width: 768px) {
+  .data-grid-container {
+    .controls-bar {
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+
+      .search-section {
+        max-width: none;
+
+        .search-field {
+          width: 100%;
+        }
+      }
+    }
+
+    .table-container {
+      .data-table {
+        min-width: 600px;
+
+        .mat-mdc-header-cell,
+        .mat-mdc-cell {
+          // padding: 8px 12px;
+          font-size: 13px;
+        }
+
+        .action-buttons {
+          gap: 4px;
+
+          .action-btn {
+            width: 28px;
+            height: 28px;
+          }
+        }
+
+        .mat-column-selection {
+          width: 40px;
+          padding: 12px 8px;
+
+        }
+      }
+    }
+
+    .pagination-container {
+      padding: 8px;
+      justify-content: center;
+
+      ::ng-deep .mat-mdc-paginator {
+        .mat-mdc-paginator-container {
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+        }
+
+        .mat-mdc-paginator-range-actions {
+          flex-wrap: wrap;
+          gap: 4px;
+          justify-content: center;
+        }
+
+        .mat-mdc-paginator-range-label {
+          margin: 0;
+          text-align: center;
+          min-width: 100%;
+          order: 1;
+          font-size: 12px;
+        }
+
+        .mat-mdc-paginator-page-size {
+          order: 2;
+          margin: 0;
+          font-size: 12px;
+        }
+
+        .mat-mdc-paginator-navigation-previous,
+        .mat-mdc-paginator-navigation-next,
+        .mat-mdc-paginator-navigation-first,
+        .mat-mdc-paginator-navigation-last {
+          min-width: 32px;
+          height: 32px;
+        }
+      }
+    }
+
+    .status-bar {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+      padding: 12px;
+      font-size: 13px;
+    }
+  }
+}
+
+// Small mobile devices
+@media (max-width: 480px) {
+  .data-grid-container {
+    .pagination-container {
+      padding: 4px;
+
+      ::ng-deep .mat-mdc-paginator {
+        font-size: 11px;
+
+        .mat-mdc-paginator-container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .mat-mdc-paginator-range-label {
+          font-size: 11px;
+          margin-bottom: 8px;
+        }
+
+        .mat-mdc-paginator-page-size {
+          margin-bottom: 8px;
+
+          .mat-mdc-paginator-page-size-label {
+            font-size: 11px;
+          }
+        }
+
+        .mat-mdc-paginator-range-actions {
+          justify-content: space-around;
+          width: 100%;
+          max-width: 280px;
+
+          .mat-mdc-paginator-navigation-previous,
+          .mat-mdc-paginator-navigation-next,
+          .mat-mdc-paginator-navigation-first,
+          .mat-mdc-paginator-navigation-last {
+            min-width: 28px;
+            height: 28px;
+            padding: 2px;
+
+            .mat-mdc-button-touch-target {
+              height: 28px;
+              width: 28px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// Print
+@media print {
+  .data-grid-container {
+
+    .controls-bar,
+    .pagination-container,
+    .status-bar {
+      display: none;
+    }
+
+    .table-container {
+      overflow: visible;
+
+      .data-table {
+
+        .action-buttons,
+        .mat-column-actions {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Time field inline editing styles
+.inline-time-field {
+  width: 100%;
+  min-width: 110px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  ::ng-deep input-time {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    // Hide the validation message area inside grid cells to prevent height inflation
+    // The template structure is: input-time > div[formGroup] > div.mt-0 (validation)
+    > div > div:last-child {
+      display: none !important;
+      min-height: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .input-container-outline {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    .input-wrapper {
+      margin: 0;
+      padding: 0 2px;
+      height: 30px;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      label {
+        display: none; // no label needed in grid inline edit
+      }
+    }
+
+    .custom-input {
+      font-size: 13px;
+      height: 28px;
+      line-height: 28px;
+      padding: 0 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .floating-input-label {
+      display: none; // suppress floating label in compact grid cell
+    }
+
+    .clear-button {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: white;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+    }
+  }
+}
+
+// Date field inline editing styles
+.inline-date-field {
+  width: 100%;
+  min-width: 140px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  ::ng-deep input-date {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    // Hide validation area — same pattern as inline-time-field
+    // Structure: input-date > div[formGroup] > div.mt-0 (validation)
+    > div > div:last-child {
+      display: none !important;
+      min-height: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .input-container-outline {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+
+    .input-wrapper {
+      margin: 0;
+      padding: 0;
+      height: 30px;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      position: relative;
+
+      label {
+        display: none; // no floating label needed in compact grid cell
+      }
+    }
+
+    .custom-input {
+      font-size: 13px;
+      height: 28px !important;
+      line-height: 28px;
+      // Override Tailwind's pt-4/pb-2/px-3 baked into the class
+      padding: 0 36px 0 8px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      width: 100%;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+      }
+    }
+
+    .floating-input-label {
+      display: none;
+    }
+
+    mat-datepicker-toggle {
+      right: 2px; // tighter than default 8px for compact grid cell
+
+      // Shrink MDC icon button to fit 30px row
+      --mdc-icon-button-state-layer-size: 26px;
+
+      .mat-mdc-icon-button {
+        width: 26px !important;
+        height: 26px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      .mat-icon-button {
+        width: 26px !important;
+        height: 26px !important;
+        padding: 0 !important;
+      }
+
+      .mat-icon,
+      svg {
+        font-size: 18px !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+<div class="page-wrapper">
+  <div class="panel">
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-0">
+      <app-expansion-panel-header [isOpenSignal]="businessHeaderPanel" [panelTitle]="'Pending Approval'">
+        <div class="container">
+          <!-- Filters live-filter the loaded list, so Clear is the only button. -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-end">
+            <input-select-option-field
+              [frmGroup]="filterForm"
+              [controlName]="'functionName'"
+              [label]="'Function'"
+              [options]="functionOptions"
+              [tooltip]="'Filter by Function'">
+            </input-select-option-field>
+
+            <input-select-option-field
+              [frmGroup]="filterForm"
+              [controlName]="'actionType'"
+              [label]="'Action'"
+              [options]="actionOptions"
+              [tooltip]="'Filter by Action'">
+            </input-select-option-field>
+
+            <input-select-option-field
+              [frmGroup]="filterForm"
+              [controlName]="'recordUserId'"
+              [label]="'Requested User'"
+              [options]="requestedUserOptions"
+              [tooltip]="'Filter by Requested User'">
+            </input-select-option-field>
+
+              <generic-button [label]="'Clear'" [cssClass]="'bg-slate-500 text-white px-4 mb-4'" (onClick)="clearFilters()"></generic-button>
+
+          </div>
+
+          <div class="component-section mt-3">
+            <generic-data-grid
+              [id]="'approval-pending-list'"
+              [initPageSize]="8"
+              [searchEnabled]="true"
+              [enableSelection]="false"
+              [showProgressButton]="true"
+              [showEditButton]="false"
+              [showDeleteButton]="false"
+              [showViewButton]="true"
+              [showPrintButton]="false"
+              [useInlineEdit]="false"
+              [dataSource]="dataSource"
+              [selectedColumns]="[
+                'setId','functionName','actionType','remarks','recordUserId'
+              ]"
+              [customColumnNames]="{
+                setId:'Set',
+                functionName:'Function',
+                actionType:'Action',
+                remarks:'Remarks',
+                recordUserId:'Requested User'
+              }"
+              (onFHViewClick)="view($event)"
+              (onFHProgressClick)="handleProgressClick($event)">
+            </generic-data-grid>
+
+            <generic-modal
+              [isVisible]="isModalVisible"
+              [modalTitle]="modalTitle"
+              [modalComponent]="modalComponent"
+              [modalComponentData]="modalComponentData"
+              [cssClass]="'modal-lg'"
+
+              [showOkButton]="false"
+              (isVisibleChanged)="onModalVisibilityChange($event)"
+              (modalResult)="onModalResult($event)">
+            </generic-modal>
+
+          </div>
+        </div>
+      </app-expansion-panel-header>
+    </div>
+  </div>
+</div>

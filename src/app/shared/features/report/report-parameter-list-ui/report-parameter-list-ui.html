@@ -1,0 +1,547 @@
+<div class="page-wrapper">
+
+    <!-- Loading Indicator -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    }
+
+    <!-- Form Content -->
+    @if (!loading()) {
+      <form [formGroup]="reportForm" class="p-4">
+
+        <!-- Section 1: Report Information -->
+        <div class="mb-8">
+          <app-expansion-panel-header [isOpenSignal]="reportInfoPanel" [panelTitle]="'Report Information'">
+
+            <div class="grid md:grid-cols-2 gap-x-2">
+
+              <!-- Report Id with Lookup -->
+              <input-id-box
+                [frmGroup]="reportForm"
+                [controlName]="'id'"
+                [label]="'Report ID'"
+
+                [isDotsVisible]="true"
+                [tooltip]="'Click to select report'"
+                [tooltipPosition]="'above'"
+                [placeholder]=""
+                [tooltipDelay]="300"
+
+                (dotsClicked)="openReportModal()"
+                (onChanged)="onIdBoxChanged($event)"
+                (onBlurred)="loadReportById($event)"
+              ></input-id-box>
+
+              <!-- Report Name -->
+              <input-text-box
+                [frmGroup]="reportForm"
+                controlName="reportName"
+                label="Report Name"
+
+                [maxLength]="150"
+              ></input-text-box>
+
+              <!-- Function Id with Lookup -->
+              <input-id-box
+                [frmGroup]="reportForm"
+                [controlName]="'functionId'"
+                [label]="'Function ID'"
+
+                [isDotsVisible]="true"
+                [tooltip]="'Click to select function'"
+                [tooltipPosition]="'above'"
+                [placeholder]="'e.g., 901010'"
+                [tooltipDelay]="300"
+                (dotsClicked)="openFunctionModal()"
+                (onBlurred)="loadFunctionById($event)"
+              ></input-id-box>
+
+              <!-- Function Name (Read-only) -->
+              <input-text-box
+                [frmGroup]="reportForm"
+                controlName="functionName"
+                label="Function Name"
+
+                placeholder="Auto-populated from Function ID"
+                [isReadonly]="true"
+              ></input-text-box>
+
+              <!-- Data Source Type -->
+              <input-select-option-field
+                [frmGroup]="reportForm"
+                controlName="dataSourceType"
+                label="Data Source Type"
+                [options]="dataSourceTypeOptions"
+
+                [searchable]="true"
+                placeholder="Select data source"
+              ></input-select-option-field>
+
+              <!-- Database Connection (Conditional) -->
+              @if (showDatabaseConnection()) {
+                <input-select-option-field
+                  [frmGroup]="reportForm"
+                  controlName="databaseConnectionId"
+                  label="Database Connection"
+                  [options]="databaseConnections"
+
+                  [searchable]="true"
+                  placeholder="Select database connection"
+                ></input-select-option-field>
+              }
+
+              <!-- API Endpoint (Conditional)
+              @if (showApiEndpoint()) {
+                <input-select-option-field
+                  [frmGroup]="reportForm"
+                  controlName="apiEndpointId"
+                  label="API Endpoint"
+                  [options]="apiEndpoints"
+
+                  [searchable]="true"
+                  placeholder="Select API endpoint"
+                ></input-select-option-field>
+              } -->
+
+              <!-- Modal for Report Selection -->
+              <generic-modal
+                [isVisible]="showModal()"
+                [modalTitle]="'Select Report'"
+                [cssClass]="'modal-lg'"
+                [closeOnBackdropClick]="false"
+                [showDefaultFooter]="true"
+                [modalComponent]="modalComponent"
+                [modalComponentData]="modalComponentData"
+                (modalClosed)="onModalClose()"
+                (modalResult)="onModalResult($event)">
+              </generic-modal>
+            </div>
+
+            <!-- Full Width Fields -->
+            <div class="grid md:grid-cols-2 gap-x-2 mt-4">
+
+
+              <!-- Report File Upload -->
+              <div class="mb-4">
+                <input-file
+                  [frmGroup]="reportForm"
+                  [controlName]="'reportFile'"
+                  [label]="'Report File (.rptdesign)'"
+                  [isVertical]="true"
+                  [fileExtension]="'.rptdesign'"
+                  (selectedFilesChanged)="onFileSelected($event)"
+                ></input-file>
+              </div>
+              <input-text-box
+                  [frmGroup]="reportForm"
+                  controlName="reportFileName"
+                  label="Report File Name"
+
+                  [maxLength]="150"
+                  placeholder="e.g., Report File Name"
+              ></input-text-box>
+              <!-- Output Formats - Multi-select Checkboxes -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Output Formats <span class="text-red-500">*</span>
+                </label>
+                <div class="flex gap-4 flex-wrap">
+                  @for (format of outputFormatOptions; track format.key) {
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        [value]="format.key"
+                        [checked]="isFormatSelected(format.key)"
+                        (change)="onOutputFormatChange($event, format.key)"
+                        class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        style="width: 1rem; height: 1rem;"
+                      />
+                      <span class="text-sm text-gray-700">{{ format.value }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+
+              <!-- Auto Generation Period -->
+              <input-select-option-field
+                [frmGroup]="reportForm"
+                controlName="autoGenPeriod"
+                label="Auto Generation Period"
+                [options]="autoGenPeriodOptions"
+
+                [searchable]="false"
+                placeholder="Select period (optional)"
+              ></input-select-option-field>
+
+              <!-- Is Visible -->
+              <!-- <div class="mb-4">
+                <generic-switch
+                  [frmGroup]="reportForm"
+                  [controlName]="'isVisible'"
+                  [label]="'Is Visible'"
+                  [isChecked]="reportForm.get('isVisible')?.value || false"
+                ></generic-switch>
+              </div> -->
+
+              <!-- Generate Before EOD -->
+              <generic-switch
+                [frmGroup]="reportForm"
+                [controlName]="'genBeforeEod'"
+                [label]="'Generate Before EOD'"
+                [isChecked]="reportForm.get('genBeforeEod')?.value || false"
+              ></generic-switch>
+
+            </div>
+          </app-expansion-panel-header>
+        </div>
+
+        <!-- Section 2: Parameter Management -->
+        <div class="mb-8">
+          <app-expansion-sub-panel-header [isOpenSignal]="parameterSubPanel" [subPanelTitle]="'Parameter Management'" [isButton]="true" [buttonText]="'Add'" [buttonIcon]="'add'" (addAction)="openParameterForm()"></app-expansion-sub-panel-header>
+
+          @if (parameterSubPanel()) {
+            <div class="grid md:grid-cols-1 gap-x-2 mt-4">
+                <!-- Parameter Table -->
+              @if (parameters().length > 0) {
+                <generic-data-grid
+                  [id]="'parameterGrid'"
+                  [dataSource]="parameters()"
+                  [initPageSize]="5"
+                  [showEditButton]="true"
+                  [showDeleteButton]="true"
+                  [showViewButton]="false"
+                  [showPrintButton]="false"
+                  [enableSelection]="false"
+                  [useInlineEdit]="false"
+                  [searchEnabled]="false"
+                  (onFHEditClick)="onParameterEdit($event)"
+                  (onFHDeleteClick)="onParameterDelete($event)"
+                ></generic-data-grid>
+              } @else {
+                <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <svg class="mx-auto text-gray-400" style="height: 3rem; width: 3rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <p class="mt-4 text-sm text-gray-500">No parameters defined.</p>
+                  <p class="text-sm text-gray-500">Click "Add Button(+)" to create.</p>
+                </div>
+              }
+
+            </div>
+          }
+        </div>
+
+      </form>
+    }
+
+    <!-- Parameter Form Modal -->
+    @if (false) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto m-4">
+
+          <!-- Modal Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 border-b border-gray-200 rounded-t-lg">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-bold text-white">
+                {{ isEditingParameter() ? 'Edit Parameter' : 'Add Parameter' }}
+              </h2>
+              <button (click)="onModalClose()" class="text-white hover:text-gray-200">
+                <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal Body -->
+          <form [formGroup]="parameterForm" class="p-6">
+            <div class="form-grid-2-col gap-4">
+
+              <!-- Parameter Name -->
+              <input-text-box
+                [frmGroup]="parameterForm"
+                controlName="parameterName"
+                label="Parameter Name"
+
+                [maxLength]="50"
+                placeholder="e.g., branch_id"
+              ></input-text-box>
+
+              <!-- Parameter Label -->
+              <input-text-box
+                [frmGroup]="parameterForm"
+                controlName="parameterLabel"
+                label="Parameter Label"
+
+                [maxLength]="100"
+                placeholder="e.g., Branch Id"
+              ></input-text-box>
+
+              <!-- Data Type -->
+              <input-select-option-field
+                [frmGroup]="parameterForm"
+                controlName="dataType"
+                label="Data Type"
+                [options]="parameterDataTypeOptions"
+
+                [searchable]="true"
+                placeholder="Select data type"
+              ></input-select-option-field>
+
+              <!-- Input Type (for Text) -->
+              <!-- Input Type (filtered by Data Type) -->
+              <input-select-option-field
+                [frmGroup]="parameterForm"
+                controlName="inputType"
+                label="Input Type"
+                [options]="getFilteredInputTypeOptions()"
+
+                placeholder="Select input type"
+              ></input-select-option-field>
+
+              <!-- Data Source (for SELECT type parameters) -->
+              @if (showDropdownOptions()) {
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="dataSource"
+                  label="Data Source"
+
+                  placeholder="Enter API URL, SQL query, function() or leave empty for static options"
+                ></input-text-box>
+
+                @if (getDataSourceError()) {
+                  <div class="text-red-500 text-sm mt-1">
+                    {{ getDataSourceError() }}
+                  </div>
+                }
+
+              }
+
+              @if (showDropdownOptions() && hasDataSource()) {
+                <div class="col-span-2 bg-blue-50 p-3 rounded-lg text-xs">
+                  <strong class="text-blue-800">API Data Source Example:</strong>
+                  <div class="mt-2">
+                    <strong>Data Source URL:</strong> <code>https://api.example.com/branches</code><br>
+                  </div>
+                </div>
+              }
+
+              <!-- Format/Pattern -->
+              @if (showDateFormat()) {
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="formatPattern"
+                  label="Date Format"
+
+                  placeholder="e.g., dd/MM/yyyy"
+                ></input-text-box>
+              }
+
+              <!-- Default Value Section -->
+              <div class="col-span-2">
+
+                <!-- For BOOLEAN types - use switch for default -->
+                @if (parameterForm.get('dataType')?.value === 'BOOLEAN') {
+                  <generic-switch
+                    [frmGroup]="parameterForm"
+                    [controlName]="'defaultValue'"
+                    [label]="'Default Value'"
+                    [isChecked]="parameterForm.get('defaultValue')?.value === 'true' || parameterForm.get('defaultValue')?.value === true"
+                  ></generic-switch>
+                } @else if (parameterForm.get('inputType')?.value === 'SELECT' && !hasDataSource()) {
+                  <!-- For SELECT types without dataSource - dropdown from selectOptions -->
+                  <input-select-option-field
+                    [frmGroup]="parameterForm"
+                    controlName="defaultValue"
+                    label="Default Value"
+                    [options]="getSelectOptionsForDefault()"
+
+                    [searchable]="false"
+                    placeholder="Select default option"
+                  ></input-select-option-field>
+                } @else {
+                  <!-- For other types - predefined values or custom input -->
+                  <input-select-option-field
+                    [frmGroup]="parameterForm"
+                    controlName="defaultValueType"
+                    label="Default Value Type"
+                    [options]="[{key: 'predefined', value: 'Predefined Template'}, {key: 'custom', value: 'Custom Value'}]"
+
+                    [searchable]="false"
+                    placeholder="Select type"
+                  ></input-select-option-field>
+
+                  @if (parameterForm.get('defaultValueType')?.value === 'predefined') {
+                    <input-select-option-field
+                      [frmGroup]="parameterForm"
+                      controlName="defaultValue"
+                      label="Predefined Value"
+                      [options]="getFilteredPredefinedValues()"
+
+                      [searchable]="true"
+                      placeholder="Select predefined value"
+                    ></input-select-option-field>
+                  }
+
+                  @if (parameterForm.get('defaultValueType')?.value === 'custom') {
+                    @if (parameterForm.get('dataType')?.value === 'DATE') {
+                      <input-date
+                        [frmGroup]="parameterForm"
+                        controlName="customDefaultValue"
+                        label="Custom Default Value"
+
+                        placeholder="Select date"
+                      ></input-date>
+                    } @else if (parameterForm.get('dataType')?.value === 'NUMBER') {
+                      <input-number
+                        [frmGroup]="parameterForm"
+                        controlName="customDefaultValue"
+                        label="Custom Default Value"
+
+                        placeholder="Enter number"
+                      ></input-number>
+                    } @else {
+                      <input-text-box
+                        [frmGroup]="parameterForm"
+                        controlName="customDefaultValue"
+                        label="Custom Default Value"
+
+                        placeholder="Enter custom value"
+                      ></input-text-box>
+                    }
+                  }
+                }
+
+              </div>
+
+              <!-- Min Length (for Text) -->
+              @if (showTextValidation()) {
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="minLength"
+                  label="Min Length"
+
+                  [type]="'number'"
+                  placeholder="Minimum length"
+                ></input-text-box>
+
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="maxLength"
+                  label="Max Length"
+
+                  [type]="'number'"
+                  placeholder="Maximum length"
+                ></input-text-box>
+              }
+
+              <!-- Min/Max Value (for Number) -->
+              @if (showNumberValidation()) {
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="minValue"
+                  label="Min Value"
+
+                  [type]="'number'"
+                  placeholder="Minimum value"
+                ></input-text-box>
+
+                <input-text-box
+                  [frmGroup]="parameterForm"
+                  controlName="maxValue"
+                  label="Max Value"
+
+                  [type]="'number'"
+                  placeholder="Maximum value"
+                ></input-text-box>
+              }
+
+            </div>
+
+            <!-- Full Width Fields -->
+            <div class="form-grid-col-1 mt-4">
+
+              <!-- Select Options (for Dropdown) -->
+              @if (showDropdownOptions()) {
+                <input-text-area
+                  [frmGroup]="parameterForm"
+                  [controlName]="'selectOptions'"
+                  [label]="getSelectOptionsLabel()"
+
+                  [placeholder]="getSelectOptionsPlaceholder()"
+                  [rows]="3"
+                  [maxLen]="1000"
+                ></input-text-area>
+
+                @if (!hasDataSource()) {
+                  <div class="text-amber-600 text-xs mt-1">
+                    <strong>Required:</strong> Either provide Data Source above OR enter static options here
+                  </div>
+                }
+              }
+
+              <!-- Help Text -->
+              <input-text-box
+                [frmGroup]="parameterForm"
+                controlName="helpText"
+                label="Help Text"
+
+                [maxLength]="200"
+                placeholder="Optional hint for users"
+              ></input-text-box>
+
+              <!-- Is Required -->
+              <generic-switch
+                [frmGroup]="parameterForm"
+                [controlName]="'isRequired'"
+                [label]="'Required Parameter'"
+                [isChecked]="parameterForm.get('isRequired')?.value || false"
+              ></generic-switch>
+
+              <!-- Is Visible -->
+              <!-- <generic-switch
+                [frmGroup]="parameterForm"
+                [controlName]="'isVisible'"
+                [label]="'Visible Parameter'"
+                [isChecked]="parameterForm.get('isVisible')?.value || false"
+              ></generic-switch> -->
+
+              <!-- Is Readonly -->
+              <generic-switch
+                [frmGroup]="parameterForm"
+                [controlName]="'isReadonly'"
+                [label]="'Readonly Parameter'"
+                [isChecked]="parameterForm.get('isReadonly')?.value || false"
+              ></generic-switch>
+
+            </div>
+
+          </form>
+
+          <!-- Modal Footer -->
+          <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3 rounded-b-lg">
+            <generic-button
+              [label]="'Cancel'"
+              [icon]="'close'"
+              [enable]="true"
+              (onClick)="onModalClose()"
+              [cssClass]="'bg-gray-500 hover:bg-gray-600 text-white'"
+            ></generic-button>
+
+            <generic-button
+              [label]="isEditingParameter() ? 'Update' : 'Add to List'"
+              [icon]="isEditingParameter() ? 'update' : 'add'"
+
+              (onClick)="onModalClose()"
+              [cssClass]="'bg-blue-600 hover:bg-blue-700 text-white'"
+            ></generic-button>
+          </div>
+
+        </div>
+      </div>
+    }
+
+</div>

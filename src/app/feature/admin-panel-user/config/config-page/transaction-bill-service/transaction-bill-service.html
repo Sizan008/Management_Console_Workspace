@@ -1,0 +1,38 @@
+<div
+  class="font-roboto w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 px-3 py-3 sm:px-4 lg:px-6"
+>
+  <section
+    class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+  >
+    <app-expansion-panel-header
+      panelTitle="Transaction & Bill Service"
+      [isOpenSignal]="isTransactionBillPanelOpen"
+    >
+    </app-expansion-panel-header>
+    @if (isTransactionBillPanelOpen()) {
+      <div class="border-t border-slate-100 p-3">
+        <div class="min-w-0 overflow-x-auto">
+          <div class="min-w-[900px]">
+            <generic-data-grid
+              id="transaction-bill-service-grid"
+              [tblClass]="'enhanced-transaction-table'"
+              [dataSource]="transactionBillGrid()"
+              [selectedColumns]="selectedColumns"
+              [customColumnNames]="customColumnNames"
+              [cellRenderFunctions]="cellRenderFunctions"
+              [uniqueIdField]="'serviceId'"
+              [searchEnabled]="true"
+              [enableSelection]="false"
+              [useInlineEdit]="false"
+              [initPageSize]="10"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+              [showPaginator]="true"
+            >
+            </generic-data-grid>
+          </div>
+        </div>
+      </div>
+    }
+  </section>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>

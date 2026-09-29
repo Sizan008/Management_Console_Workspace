@@ -1,0 +1,78 @@
+
+// RESET BUTTON
+.btn_reset_orange {
+  background: #fff;
+  font-family: 'Roboto', 'Open Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f59e42;
+  text-decoration: none;
+  min-width: 90px;
+  position: relative;
+  padding: 0.785rem 0.9rem 0.785rem 2.9rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  outline: none;
+  overflow: hidden;
+  box-shadow:
+    0 10px 25px rgba(245, 158, 66, 0.2),
+    0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.btn_reset_orange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e42 100%);
+  transition: left 0.4s ease;
+  z-index: 0;
+}
+.btn_reset_orange:hover::before {
+  left: 0;
+}
+.btn_reset_orange:hover {
+  color: #fff;
+  transform: translateY(-4px);
+  box-shadow:
+    0 15px 35px rgba(245, 158, 66, 0.4),
+    0 6px 15px rgba(0, 0, 0, 0.15);
+}
+.btn_reset_orange:active {
+  transform: translateY(-1px);
+}
+.btn_reset_orange:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.icon_reset_orange {
+  position: absolute;
+  left: 0.5rem;
+  width: 2.0rem;
+  height: 2.0rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(245, 158, 66, 0.3);
+}
+.btn_reset_orange:hover .icon_reset_orange {
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 6px 16px rgba(245, 158, 66, 0.5);
+}
+.icon_reset_orange .material-icons {
+  font-size: 1.25rem;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}

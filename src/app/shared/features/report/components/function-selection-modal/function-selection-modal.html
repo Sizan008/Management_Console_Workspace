@@ -1,0 +1,52 @@
+<div class="page-wrapper">
+  <!-- Results Section -->
+  <div class="panel mb-2">
+    <app-expansion-panel-header [panelTitle]="'Available Functions (' + getResultsCount() + ')'" [isOpenSignal]="availableFunctionsPanel">
+      <div class="component-section pb-2">
+        @if (isLoading()) {
+          <div class="text-center p-0">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">{{ config.loadingText || 'Loading functions...' }}</p>
+          </div>
+        } @else {
+          <!-- Data Grid -->
+          <generic-data-grid
+            [dataSource]="filteredFunctions()"
+            [initPageSize]="10"
+            [showViewButton]="true"
+            [showDeleteButton]="false"
+            [showViewButton]="true"
+            [searchEnabled]="true"
+            [showPrintButton]="false"
+            [useInlineEdit]="false"
+            [selectedColumns]="gridColumns"
+            [tblClass]="'enhanced-transaction-table'"
+            [gridTitle]="''"
+            [groupOptionEnabled]="false"
+            [summaryGridEnabled]="false"
+            (onFHViewClick)="onFunctionEdit($event)"
+            (onChecked)="onFunctionRowSelect($event)"
+            (dataSourceChanged)="onFunctionDataChanged($event)">
+          </generic-data-grid>
+
+          <!-- No Data Message -->
+          @if (filteredFunctions().length === 0) {
+            <div class="text-center p-4">
+              <div class="mb-3" style="font-size: 4rem; opacity: 0.5;">⚙️</div>
+              <h5>No Functions Found</h5>
+              <p class="text-muted">{{ config.noDataMessage || 'No functions match your search criteria. Try different keywords or contact administrator.' }}</p>
+              @if (config.showCreateNew) {
+                <generic-button
+                  labelText="Create New Function"
+                  (onClick)="onCreateNewClick($event)">
+                </generic-button>
+              }
+            </div>
+          }
+        }
+      </div>
+    </app-expansion-panel-header>
+  </div>
+</div>

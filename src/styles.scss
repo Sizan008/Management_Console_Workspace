@@ -1,0 +1,1530 @@
+@use "tailwindcss";
+@use "sass:map";
+@use "./app/shared/common-components/generic-component-type/generic-modal/generic-modal.scss";
+@import 'quill/dist/quill.snow.css';
+@import 'quill/dist/quill.core.css';
+@import "../node_modules/ngx-toastr/toastr.css";
+
+
+
+/* SCSS partial - use @use */
+
+/* Rest of your styles */
+@reference "tailwindcss";
+/* Theme Variables */
+:root {
+  --theme-primary: #086AD8;
+  --theme-secondary: #0456b8;
+  --theme-accent: #60a5fa;
+  --theme-background: #eff6ff;
+  --theme-text: #374151;
+  --theme-text-light: #6b7280;
+  --theme-btn: #096EFA;
+  --theme-border: #e5e7eb;
+}
+
+/* Theme Classes */
+.theme-primary-bg {
+  background-color: var(--theme-primary) !important;
+}
+
+.theme-secondary-bg {
+  background-color: var(--theme-secondary) !important;
+}
+.theme-accent-bg {
+  background-color: var(--theme-accent) !important;
+}
+.theme-primary-text {
+  color: var(--theme-primary) !important;
+}
+.theme-primary-border {
+  border-color: var(--theme-primary) !important;
+}
+
+/* Theme-aware primary action button */
+.btn-theme-primary {
+  background-color: var(--theme-primary);
+  color: #ffffff;
+  transition: filter 0.15s ease, background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--theme-secondary);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* Global pagination classes — mirrors generic-workspace.scss (which is view-encapsulated) */
+.pagination-page-active {
+  background-color: var(--theme-primary, #2563eb) !important;
+  border-color:     var(--theme-primary, #2563eb) !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.pagination-nav-btn {
+  background-color: var(--theme-primary, #2563eb);
+  border-color:     var(--theme-primary, #2563eb);
+  color: #ffffff;
+  font-weight: 700;
+
+  &:hover:not(:disabled) {
+    filter: brightness(0.88);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+/* 🌊 Ocean Blue */
+.theme-blue {
+  --theme-primary: #086AD8;
+  --theme-secondary: #008cff;
+  --theme-accent: #60a5fa;
+  --theme-background: #eff6ff;
+  --theme-glow: rgba(8, 106, 216, 0.4);
+  --theme-gradient: linear-gradient(135deg, #086AD8, #0456b8);
+}
+
+/* 🌌 Midnight Blue */
+.theme-MidnightBlue {
+  --theme-primary: #010035;
+  --theme-secondary: #172b6b;
+  --theme-accent: #5275a0;
+  --theme-background: #eff6ff;
+  --theme-glow: rgba(30, 64, 175, 0.4);
+  --theme-gradient: linear-gradient(135deg, #010035, #1e40af);
+}
+
+/* 🌲 Forest Green */
+.theme-emerald {
+  --theme-primary: #1b5743;
+  --theme-secondary: #047857;
+  --theme-accent: #34d399;
+  --theme-background: #ecfdf5;
+  --theme-glow: rgba(16, 185, 129, 0.4);
+  --theme-gradient: linear-gradient(135deg, #047857, #10b981);
+}
+
+/* 👑 Royal Purple */
+.theme-purple {
+  --theme-primary: #301934;
+  --theme-secondary: #6e157e;
+  --theme-accent: #a78bfa;
+  --theme-background: #f5f3ff;
+  --theme-glow: rgba(139, 92, 246, 0.4);
+  --theme-gradient: linear-gradient(135deg, #301934, #6d28d9);
+}
+
+/* 🌹 Cherry Rose */
+.theme-rose {
+  --theme-primary: #5a1924;
+  --theme-secondary: #be123c;
+  --theme-accent: #fb7185;
+  --theme-background: #fff1f2;
+  --theme-glow: rgba(244, 63, 94, 0.4);
+  --theme-gradient: linear-gradient(135deg, #f43f5e, #fb7185);
+}
+
+/* 💜 Lavender */
+.theme-Lavendar {
+  --theme-primary: #78608d;
+  --theme-secondary: #8c4ec2;
+  --theme-accent: #b19cc2;
+  --theme-background: #e6dcee;
+  --theme-glow: rgba(177, 156, 194, 0.4);
+  --theme-gradient: linear-gradient(135deg, #78608d, #7a5d94);
+}
+
+/* 🌑 Dark Mode */
+.theme-dark {
+  --theme-primary: #4b4949;
+  --theme-secondary: #111827;
+  --theme-accent: #6b7280;
+  --theme-background: #f9fafb;
+  --theme-glow: rgba(55, 65, 81, 0.4);
+  --theme-gradient: linear-gradient(135deg, #374151, #6b7280);
+}
+
+/* Sidebar theme styling */
+.sidebar-container {
+  background-color: var(--theme-background);
+  transition: background-color 0.3s ease;
+  // z-index: 100;
+}
+
+.sidebar-brand {
+  background-color: var(--theme-primary);
+  transition: background-color 0.3s ease;
+}
+
+.sidebar_path {
+  background-color: var(--theme-primary);
+
+  transition: background-color 0.3s ease;
+
+}
+
+.sidebar-bottom {
+  background-color: var(--theme-primary);
+  transition: background-color 0.3s ease;
+}
+
+/* Navbar theme styling */
+.navbar-container {
+  background-color: var(--theme-primary);
+  transition: background-color 0.3s ease;
+  // z-index: 10;
+}
+
+/* SVG Theme Support */
+.theme-gradient-stop {
+  stop-color: var(--theme-primary);
+}
+
+
+
+html, body {
+  height: 100%;
+}
+
+body, input, select, textarea, button, table, th, td, span, div, p, a, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', 'Inter', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+
+  /* Forces Windows GDI/DirectWrite rendering engine to sharpen pixel boundaries */
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.01) !important;
+}
+
+.mat-mdc-card {
+  background-color: white !important;
+}
+
+// Global fix for Material Angular overlays in modals - Conservative approach
+.mat-mdc-select-panel {
+  z-index: 13000 !important;
+  max-height: 300px !important;
+}
+
+// CDK Overlay container needs to be above modal
+.cdk-overlay-container {
+  z-index: 13000 !important;
+}
+
+// Specific fix for paginator dropdowns in modals only
+.modal-wrapper .mat-mdc-paginator .mat-mdc-select-panel,
+.modal-content .mat-mdc-paginator .mat-mdc-select-panel,
+.modal-dialog .mat-mdc-paginator .mat-mdc-select-panel {
+  z-index: 13100 !important;
+}
+
+.modal-wrapper .cdk-overlay-container,
+.modal-content .cdk-overlay-container,
+.modal-dialog .cdk-overlay-container {
+  z-index: 13200 !important;
+}
+
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"],
+input.number-align,
+.number-align {
+  text-align: right;
+  direction: ltr;
+}
+
+input[type="number"]::placeholder,
+input.number-align::placeholder {
+  text-align: left;
+  direction: ltr;
+}
+
+.input-container-horizontal {
+  @apply w-full flex flex-col sm:flex-row justify-start items-start sm:items-center gap-2  my-2;
+}
+
+.input-container-vertical {
+  @apply w-full flex flex-col justify-start ;
+}
+.input-container-vertical .input-wrapper {
+  align-self: flex-start;
+}
+.input-container-vertical .select-date {
+  align-self: flex-start;
+}
+.readonly-input {
+  background-color: #e5e7eb !important;
+  cursor: not-allowed;
+}
+
+.page-wrapper {
+  @apply w-full bg-white mx-auto  shadow-lg rounded-lg pb-4;
+  min-height: 100vh;
+
+}
+
+/* Scrollable panel body - used for modal/panel content areas */
+.scrollable-panel-body {
+  @apply flex-1 min-h-0 overflow-y-auto sm:p-5 space-y-5 pb-24;
+
+  /* Hide scrollbar while keeping functionality */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.grid-section{
+  @apply py-5;
+}
+
+.form-wrapper {
+  @apply space-y-6;
+}
+
+.panel {
+  @apply rounded-lg border border-gray-200 px-4 border border-l-2 border-b-3 border-b-slate-400;
+}
+
+.sub-panel {
+  @apply rounded-lg border border-gray-300 px-4 border-l-2 mt-2 pb-2;
+}
+
+/* ===============================================================
+   Fluid column grids (container-query based)
+   ===============================================================
+   Column count follows the width of the nearest `@container` ancestor —
+   e.g. the resizable right panel in generic-workspace, or a modal body —
+   NOT the viewport. That is the whole point: the detail panel can be
+   dragged narrow while the window stays wide, so `md:` lies to us.
+
+   Mark an ancestor as a container with Tailwind's `@container` utility.
+   If none exists the `@media` fallback below keeps the old `md:` behaviour,
+   so these classes are safe to use anywhere.
+
+   Steps: 1 col → 2 at 28rem → 3 at 48rem → 4 at 64rem, capped at `$max`. */
+
+$fluid-grid-steps: (2: 28rem, 3: 48rem, 4: 64rem);
+
+@mixin fluid-cols($max) {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+
+  /* Fallback: only applies when there is no `@container` ancestor. */
+  @media (min-width: 768px) {
+    grid-template-columns: repeat($max, minmax(0, 1fr));
+  }
+
+  /* Container-aware steps. Exactly one of these matches at any container
+     width, and they come after the fallback, so a container always wins. */
+  @container (width < 28rem) {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  @each $cols, $min in $fluid-grid-steps {
+    @if $cols <= $max {
+      @container (width >= #{$min}) {
+        grid-template-columns: repeat($cols, minmax(0, 1fr));
+      }
+    }
+  }
+}
+
+/* Bare primitive: columns only, no spacing opinions — add your own `gap-*`. */
+.fluid-grid-2 { display: grid; @include fluid-cols(2); }
+.fluid-grid-3 { display: grid; @include fluid-cols(3); }
+.fluid-grid-4 { display: grid; @include fluid-cols(4); }
+
+.form-grid {
+  @apply grid grid-cols-1 space-y-2 mt-2;
+}
+
+.form-grid-col-1 {
+  @extend .form-grid;
+  @apply grid grid-cols-1;
+}
+
+.form-grid-2-col {
+  @extend .form-grid;
+  @include fluid-cols(2);
+}
+
+.form-grid-3-col {
+  @extend .form-grid;
+  @include fluid-cols(3);
+}
+
+.form-grid-4-col {
+  @extend .form-grid;
+  @include fluid-cols(4);
+}
+
+/* Full-size vertical flex container - base wrapper for panel/page content */
+.flex-col-fill {
+  @apply h-full w-full flex flex-col overflow-hidden;
+}
+
+.flex-col-fill-functions {
+  @apply h-full w-full flex flex-col overflow-hidden mx-2;
+}
+
+/* Scrollable flex child - hides scrollbar while keeping scroll functionality */
+.scroll-area {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+/* Section content grids - used inside expansion panels / form sections */
+.section-grid {
+  @apply grid grid-cols-1 gap-x-6 px-5;
+  padding-top: 0;
+}
+.section-grid-2 { @extend .section-grid; @include fluid-cols(2); }
+.section-grid-3 { @extend .section-grid; @include fluid-cols(3); }
+.section-grid-4 { @extend .section-grid; @include fluid-cols(4); }
+
+.panel-header {
+  @apply font-medium tracking-[0.8px]
+  -mx-4 sm:-mx-6 md:-mx-6
+  -mt-4 sm:-mt-6
+  p-4 py-2.5 mb-4 sm:mb-6 bg-[#106ebe] text-white rounded-t-lg;
+}
+/* Sub-section header/title */
+.sub-panel-header {
+  @apply font-medium tracking-[0.8px]
+  -mx-4 sm:-mx-6 md:-mx-6
+  -mt-4 sm:-mt-6
+  p-4 py-1.5 mb-4 sm:mb-6 bg-[#106ebe] text-white rounded-t-md;
+}
+
+.expansion-header {
+  @apply font-medium tracking-[0.8px] cursor-pointer text-[15px]
+  -mx-4 my-0 mb-3
+  p-4 py-1.5 bg-[#106ebe] text-white rounded-t-lg
+  hover:bg-[#0d5aa3]
+  transition-colors duration-200 ease-in-out
+  shadow-sm hover:shadow-md;
+  position: relative;
+}
+
+.expansion-sub-header {
+  @apply font-medium tracking-[0.7px] cursor-pointer text-[15px]
+  -mx-4 mb-3
+  p-4 py-1 rounded-t-md
+  bg-[#106ebe]/5 text-slate-700
+  border-l-4 border-l-[#106ebe] border-r border-r-slate-100
+  hover:bg-[#106ebe]/10 transition-colors duration-200;
+}
+
+// Color Palette
+$btn-primary: #2563EB;        // Softer blue (less harsh than previous)
+$btn-primary-dark: #1D4ED8;   // Darker blue for depth
+$btn-hover-color: #3B82F6;    // Comfortable hover blue
+$btn-text-primary: #1F2937;   // Softer black (easier on eyes)
+$btn-text-secondary: #4B5563; // Comfortable gray
+$btn-text-muted: #6B7280;     // Muted text
+$btn-text-inverse: #FFFFFF;
+
+// Background colors
+$btn-bg-primary: #F9FAFB;     // Very light gray (blends with gray-50)
+$btn-bg-surface: #FFFFFF;     // Pure white for contrast
+$btn-bg-hover: #F3F4F6;       // Subtle hover background
+$btn-bg-disabled: #F9FAFB;    // Disabled state background
+
+// Border colors
+$btn-border-default: #c5c8ca;
+$btn-border-hover: #D1D5DB;
+$btn-border-focus: #93C5FD;   // Soft blue for focus
+
+// Shadow colors
+$btn-shadow-light: rgba(0, 0, 0, 0.08);
+$btn-shadow-medium: rgba(0, 0, 0, 0.12);
+$btn-shadow-hover: rgba(59, 130, 246, 0.15);
+
+// Button Base
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 110px;
+  height: 42px;           // Slightly taller
+  padding: 0 20px;        // More padding
+  border: 1px solid $btn-border-default;
+  border-radius: 20px;     // Slightly less rounded
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.005em; // Slightly
+  line-height: 1.3;
+  text-decoration: none;
+  user-select: none;      // Prevent
+
+  // Initial state
+  background: $btn-bg-surface;
+  color: $btn-text-primary;
+
+  // Softer shadow
+  box-shadow: 0 1px 2px $btn-shadow-light;
+
+  // Smooth but not too fast transitions
+  transition: all 0.15s ease-out;
+
+  // Icon styling
+  .icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease-out;
+  }
+
+  // Comfortable hover effect
+  &:hover:not(:disabled) {
+    background: $btn-primary;
+    color: $btn-text-inverse;
+    border-color: $btn-primary;
+    transform: translateY(-0.5px); // Subtle lift
+    box-shadow: 0 3px 8px $btn-shadow-hover;
+
+    .icon {
+      transform: scale(1.02); // Very subtle scale
+    }
+  }
+
+  // Active state
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px $btn-shadow-medium;
+    background: $btn-primary-dark;
+    border-color: $btn-primary-dark;
+  }
+
+  // Focus state
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($btn-border-focus, 0.4);
+    border-color: $btn-border-focus;
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    background: $btn-bg-disabled;
+    color: $btn-text-muted;
+    border-color: $btn-border-default;
+    box-shadow: none;
+
+    &:hover {
+      background: $btn-bg-disabled;
+      color: $btn-text-muted;
+      border-color: $btn-border-default;
+      box-shadow: none;
+    }
+  }
+
+  // Loading state
+  &.loading {
+    pointer-events: none;
+    color: transparent;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba($btn-primary, 0.3);
+      border-top: 2px solid $btn-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 3;
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+// Specific button variants for banking
+.save-btn {
+  @extend .btn;
+  background: #10B981;    // Success green
+  color: $btn-text-inverse;
+  border-color: #10B981;
+
+  &:hover:not(:disabled) {
+    background: #059669;
+    border-color: #059669;
+    box-shadow: 0 3px 8px rgba(16, 185, 129, 0.25);
+  }
+
+  &:active:not(:disabled) {
+    background: #047857;
+    border-color: #047857;
+  }
+}
+
+
+
+.reset-btn {
+  @extend .btn;
+  background: $btn-bg-primary;
+  color: $btn-text-secondary;
+  border-color: $btn-border-default;
+
+  &:hover:not(:disabled) {
+    background: #F59E0B;    // Warning amber
+    color: $btn-text-inverse;
+    border-color: #F59E0B;
+    box-shadow: 0 3px 8px rgba(245, 158, 11, 0.25);
+  }
+}
+
+.exit-btn {
+  @extend .btn;
+  background: $btn-bg-surface;
+  color: #0891B2;         // Cyan blue
+  border-color: #A5F3FC;  // Light cyan border
+
+  &:hover:not(:disabled) {
+    background: #0891B2;
+    color: $btn-text-inverse;
+    border-color: #0891B2;
+    box-shadow: 0 3px 8px rgba(8, 145, 178, 0.20);
+  }
+
+  &:active:not(:disabled) {
+    background: #0E7490;
+    border-color: #0E7490;
+  }
+}
+
+// Secondary button variant
+.btn-secondary {
+  @extend .btn;
+  background: transparent;
+  color: $btn-text-secondary;
+  border-color: $btn-border-default;
+
+  &:hover:not(:disabled) {
+    background: $btn-bg-hover;
+    color: $btn-text-primary;
+    border-color: $btn-border-hover;
+    box-shadow: 0 2px 6px $btn-shadow-light;
+  }
+}
+
+// Small button variant
+.btn-sm {
+  @extend .btn;
+  min-width: 90px;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+.add-row-btn {
+  @extend .btn, .btn-sm;
+
+  color: $btn-text-inverse;
+  border: 1px solid $btn-primary;
+  background-color: $btn-primary;
+
+  &:hover {
+    background-color: $btn-hover-color;
+    border-color: $btn-hover-color;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px $btn-border-focus;
+  }
+
+  &:disabled {
+    background-color: $btn-bg-disabled;
+    color: $btn-text-muted;
+    border-color: $btn-border-default;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.remove-row-btn {
+  @extend .btn-sm;
+
+  width: 5%;
+  background: $btn-bg-surface;
+  color: #DC2626;         // Danger red
+  border-color: #FCA5A5;  // Light red border
+
+  &:hover:not(:disabled) {
+    background: #DC2626;
+    color: $btn-text-inverse;
+    border-color: #DC2626;
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+  }
+
+  &:active:not(:disabled) {
+    background: #B91C1C;
+    border-color: #B91C1C;
+  }
+}
+
+// Large button variant
+.btn-lg {
+  @extend .btn;
+  min-width: 140px;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+// Floating button
+.btn-floating {
+  @extend .btn;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 50%;
+  z-index: 1000;
+  background: $btn-primary;
+  color: $btn-text-inverse;
+  border-color: $btn-primary;
+  box-shadow: 0 4px 16px rgba($btn-primary, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba($btn-primary, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+// Outline button variant
+.btn-outline {
+  @extend .btn;
+  background: transparent;
+  color: $btn-primary;
+  border-color: $btn-primary;
+
+  &:hover:not(:disabled) {
+    background: $btn-primary;
+    color: $btn-text-inverse;
+    border-color: $btn-primary;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .btn {
+    min-width: 100px;
+    height: 44px;     // Slightly larger for touch
+    padding: 0 18px;
+    font-size: 15px;  // Larger text for mobile
+  }
+
+  .btn-sm {
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .btn-lg {
+    height: 52px;
+    font-size: 16px;
+  }
+}
+
+// Input Label
+.input-label {
+  @apply block font-medium text-slate-600;
+  @apply w-72 max-w-full;
+  font-size: 0.78rem;
+  letter-spacing: 0.1px;
+}
+
+
+/* ===============================
+   Base Input & Select Styles
+   =============================== */
+
+.custom-input,
+.custom-select {
+  @apply w-full px-3 py-1 pe-8 text-sm rounded-md border border-gray-300 bg-white text-gray-900
+         placeholder:text-slate-400 placeholder:text-sm
+         transition-all duration-150 ease-in-out
+         focus:outline-none focus:ring-2 focus:ring-[#106ebe]/15 focus:border-[#106ebe]
+         hover:border-slate-400
+         disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:cursor-not-allowed;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+
+/* Inputs (slightly smaller text for dense layouts) */
+.custom-input {
+  @apply text-xs sm:text-sm;
+}
+
+/* Selects (slightly more padding and consistent height) */
+.custom-select {
+  @apply text-sm;
+}
+
+
+.floating-input-label {
+  @apply absolute top-1 bg-white text-xs font-medium transform -translate-y-4 scale-93 left-2 text-[#106ebe]
+         px-1 transition-all duration-300 pointer-events-none
+         peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-gray-700 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2
+         peer-focus:top-1 peer-focus:-translate-y-3 peer-focus:text-[#106ebe]
+         peer-[&:not(:placeholder-shown)]:top-1 peer-[&:not(:placeholder-shown)]:-translate-y-3 peer-[&:not(:placeholder-shown)]:text-[#106ebe]
+         peer-disabled:bg-slate-100 peer-[.readonly-input]:bg-gray-200;
+}
+
+@media (max-width: 740px) {
+  .floating-input-label {
+    @apply text-[13px] top-1.5 -translate-y-3;
+  }
+
+  .custom-input {
+    @apply text-[13px] px-2 py-1.5 pe-8;
+  }
+
+  .custom-select {
+    @apply text-[13px] px-2 py-1.5;
+  }
+}
+
+/* ===============================
+   Input Error State
+   Applies app-wide via Angular's automatic .ng-invalid / .ng-touched /
+   .ng-dirty classes — every reactive-form field gets it, no per-field wiring.
+   Red border + red focus ring + a red "!" icon inside the field.
+   =============================== */
+
+/* Red border + focus ring on any invalid input (date/suffix-icon fields included). */
+.custom-input.ng-invalid.ng-touched:not(.readonly-input),
+.custom-input.ng-invalid.ng-dirty:not(.readonly-input) {
+  border-color: #ef4444 !important;
+  /* Only animate border/ring — never the icon's position (that caused the
+     left-to-right slide when the error state appeared). */
+  transition-property: border-color, box-shadow;
+}
+
+.custom-input.ng-invalid.ng-touched:not(.readonly-input):focus,
+.custom-input.ng-invalid.ng-dirty:not(.readonly-input):focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18) !important;
+}
+
+/* Red circle with white exclamation, embedded as a data URI (no HTTP request).
+   Skipped for fields that already carry a trailing icon (date pickers etc. — tagged
+   .has-suffix-icon) so the two icons don't overlap; those get border + ring only. */
+.custom-input.ng-invalid.ng-touched:not(.readonly-input):not(.has-suffix-icon),
+.custom-input.ng-invalid.ng-dirty:not(.readonly-input):not(.has-suffix-icon) {
+  padding-right: 2.25rem; /* room for the icon; matches the existing pe-8 slot */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9' fill='%23ef4444'/%3E%3Crect x='9' y='5' width='2' height='6' rx='1' fill='%23fff'/%3E%3Ccircle cx='10' cy='14' r='1.15' fill='%23fff'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 1.05rem 1.05rem;
+}
+
+/* On focus the clear button takes the right slot, so drop the icon to avoid overlap. */
+.custom-input.ng-invalid.ng-touched:not(.readonly-input):not(.has-suffix-icon):focus,
+.custom-input.ng-invalid.ng-dirty:not(.readonly-input):not(.has-suffix-icon):focus {
+  background-image: none;
+}
+
+/* Selects carry a dropdown arrow on the right, so error styling is border + ring only
+   (no icon, which would collide with the arrow).
+   `.input-error` covers searchable selects, where the form control lives on a hidden
+   <select> so Angular's .ng-invalid never reaches the visible field. */
+.custom-select.ng-invalid.ng-touched:not(.readonly-input),
+.custom-select.ng-invalid.ng-dirty:not(.readonly-input),
+.custom-select.input-error:not(.readonly-input) {
+  border-color: #ef4444 !important;
+}
+
+.custom-select.ng-invalid.ng-touched:not(.readonly-input):focus,
+.custom-select.ng-invalid.ng-dirty:not(.readonly-input):focus,
+.custom-select.input-error:not(.readonly-input):focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18) !important;
+}
+
+/* Textareas (class `custom-inputs`) — border + ring only; an icon on a multi-line
+   box would look out of place. */
+.custom-inputs.ng-invalid.ng-touched:not(.readonly-input),
+.custom-inputs.ng-invalid.ng-dirty:not(.readonly-input) {
+  border-color: #ef4444 !important;
+}
+
+.custom-inputs.ng-invalid.ng-touched:not(.readonly-input):focus,
+.custom-inputs.ng-invalid.ng-dirty:not(.readonly-input):focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18) !important;
+}
+
+// .floating-input-label{ @apply absolute text-sm text-gray-900 duration-300 transform -translate-y-4 scale-75 top-1 z-1 origin-[0] bg-white px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-blue-600 start-1; font-weight: 500; }
+
+.custom-select option {
+  // font-size: 12px;
+  // @apply text-sm;
+}
+.input-container-vertical .input-wrapper {
+  align-self: flex-start;
+}
+.input-container-vertical .select-date {
+  align-self: flex-start;
+}
+.floating-input {
+  width: 100%;
+  padding: 14px 12px 6px; /* উপরে প্যাডিং বেশি দিবে যাতে লেবেল ভিতরে থাকে */
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+
+  &:focus + .floating-label,
+  &:not(:placeholder-shown) + .floating-label {
+    top: 4px;
+    left: 12px;
+    font-size: 12px;
+    color: #3b82f6;
+    background-color: #fff;
+    padding: 0 4px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+
+  &::placeholder {
+    color: transparent;
+  }
+}
+
+.floating-label {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  font-size: 14px;
+  color: #6b7280; /* gray-500 */
+  background-color: transparent;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  user-select: none;
+  border-radius: 6px;
+}
+
+
+.select-date{
+  @apply flex items-center;
+   width: 100%;
+}
+
+.input-container-horizontal .select-date {
+  width: 250px;
+}
+
+.input-wrapper {
+   @apply flex items-center;
+   width: 100%;
+   position: relative;
+}
+
+.input-container-horizontal .input-wrapper {
+  width: 250px;
+}
+
+.select-wrapper {
+  @extend .input-wrapper;
+
+}
+
+
+
+.clear-button {
+  position: absolute;
+  right: 8px;
+
+  top: 50%;
+  transform: translateY(-50%);
+  background:rgb(226, 221, 221) ;
+  border: 1px solid rgb(109, 105, 105);
+  cursor: pointer;
+  padding: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.clear-button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.clear-button mat-icon {
+  font-size: 18px;
+  width: 13px;
+  height: 18px;
+}
+
+/* Hide clear button by default (no layout shift) and show on focus or when input has content */
+.input-wrapper .clear-button {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease-in-out;
+}
+
+/* Show clear button only when the wrapper has a value AND is focused */
+.input-wrapper.has-value:focus-within .clear-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+
+
+// .btn_elevated {
+//       background: #ffffff;
+//       font-family: 'Inter', 'Segoe UI', sans-serif;
+//       font-size: 0.75rem;
+//       font-weight: 600;
+//       color: #1e293b;
+//       text-decoration: none;
+//       min-width: 90px;
+//       position: relative;
+//       padding: 0.600rem 0.9rem 0.600rem 2.9rem;
+//       border: none;
+//       border-radius: 12px;
+//       cursor: pointer;
+//       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+//       display: inline-flex;
+//       align-items: center;
+//       justify-content: center;
+//       gap: 0.5rem;
+//       outline: none;
+//       overflow: hidden;
+//       box-shadow:
+//         0 10px 25px rgba(0, 0, 0, 0.15),
+//         0 4px 10px rgba(0, 0, 0, 0.1),
+//         inset 0 1px 0 rgba(255, 255, 255, 1);
+//     }
+
+//     .btn_elevated::before {
+//       content: '';
+//       position: absolute;
+//       top: 0;
+//       left: -100%;
+//       width: 100%;
+//       height: 100%;
+//       background: linear-gradient(
+//         90deg,
+//         transparent,
+//         rgba(59, 130, 246, 0.1),
+//         transparent
+//       );
+//       transition: left 0.5s ease;
+//     }
+
+
+
+//     .icon_container_elevated {
+//       position: absolute;
+//       left: 0.5rem;
+//       width: 1.6rem;
+//       height: 1.6rem;
+//       display: flex;
+//       align-items: center;
+//       justify-content: center;
+//       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+//       border-radius: 8px;
+//       transition: all 0.3s ease;
+//     }
+
+//       .icon_container_elevated .material-icons {
+//       font-size: 1.25rem;
+//       color: #ffffff;
+//       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+//     }
+
+
+//     .btn_elevated:active {
+//       transform: translateY(-1px);
+//       box-shadow:
+//         0 5px 15px rgba(0, 0, 0, 0.15),
+//         0 2px 5px rgba(0, 0, 0, 0.1);
+//     }
+
+
+
+//     .btn_elevated:hover .icon_container_elevated {
+//       transform: rotate(180deg) scale(1.05);
+//       box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+//     }
+
+//     .btn_elevated:active .icon_container_elevated {
+//       transform: scale(0.95) rotate(360deg);
+//       background: linear-gradient(135deg, #0d3791 0%, #2563eb 100%);
+//     }
+
+
+.a_demo_four {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-family: 'Roboto', 'Open Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #ffffff;
+  text-decoration: none;
+
+  width: fit-content;
+  height: 30px;
+  padding: 0 12px 0 28px;
+
+  position: relative;
+  border: 1px solid var(--theme-secondary);
+  border-radius: 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-secondary) 80%, white) 0%, var(--theme-secondary) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 1px rgba(4, 86, 184, 0.18), 0 2px 4px rgba(4, 86, 184, 0.28);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.a_demo_four:hover:not(:disabled) {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary) 80%, white) 0%, var(--theme-primary) 100%);
+  border-color: var(--theme-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 1px rgba(4, 86, 184, 0.2), 0 3px 6px rgba(4, 86, 184, 0.32);
+}
+
+.a_demo_four:active:not(:disabled) {
+  transform: translateY(1px);
+  background: var(--theme-secondary);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+}
+
+.a_demo_four:disabled,
+.a_demo_four[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+.a_demo_four:disabled .icon,
+.a_demo_four[disabled] .icon {
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
+
+
+.modal-wrapper {
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; justify-content: center; align-items: center;
+  z-index: 12000 !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  transform: none !important;  /* critical for hit-testing */
+}
+
+.modal-content {
+  z-index: 12001 !important;
+  pointer-events: auto !important;
+  overflow: visible !important;  /* allow dropdown to escape container */
+  position: relative;
+  transform: none !important;
+}
+
+/* Keep an open modal above the app chrome.
+   -------------------------------------------------------------------------
+   generic-modal renders its backdrop (z-index 1040) and dialog (12000) inline
+   at the point of use, so those numbers only carry to the root stacking context
+   while no ancestor of the page is a stacking context itself. Material's active
+   tab body is one — `position: relative; z-index: 1` — so on a tabbed page the
+   whole modal collapses to level 1 and the sidebar (.sidebar-panel, z-index 50)
+   paints straight over the backdrop. Releasing that cap while a modal is open
+   lets the backdrop dim the sidebar like everything else.
+
+   The previous rule here aimed at .sidebar / .sidebar-container / app-sidebar:
+   the first two are not in the DOM, and app-sidebar is unpositioned, so z-index
+   had no effect on any of them. */
+body.modal-open .mat-mdc-tab-body.mat-mdc-tab-body-active {
+  z-index: auto !important;
+}
+
+/* Second line of defence for pages sitting inside some other stacking context:
+   the sidebar drops its own z-index for as long as a modal is open, so it can
+   never outrank the modal layers regardless of what capped them. */
+body.modal-open .sidebar-panel {
+  z-index: 0 !important;
+}
+
+/* =========================================================================
+   Toasts (ngx-toastr) — redesigned
+   -------------------------------------------------------------------------
+   Light "card" language instead of the default saturated colour blocks:
+   white surface, 1px border, coloured left rail + icon chip per type,
+   small hairline progress bar. Overrides ngx-toastr's own toastr.css
+   (imported at the top of this file), so the rules below win on ordering
+   and specificity — no !important needed except where toastr.css uses it.
+
+   Placement is parameter-driven: one `.toast-pos-*` container class per
+   position, generated from $toast-positions below. Pick one from TypeScript
+   with the ToastPosition type (shared/services/toast-position.ts) — either the
+   app-wide DEFAULT_TOAST_POSITION or per call, e.g.
+   `toast.error(msg, title, { position: 'top-center' })`.
+   Offsets/gap/width are tuned once via the custom properties below.
+   ========================================================================= */
+
+:root {
+  --toast-offset-x: 20px;     /* distance from the left/right screen edge */
+  --toast-offset-y: 20px;     /* distance from the bottom screen edge */
+  /* Top-anchored stacks start below the app chrome (navbar h-13 = 52px +
+     action bar ~39px) so they never cover the Save/View/Exit buttons. */
+  --toast-offset-top: 100px;
+  --toast-gap: 10px;          /* space between stacked toasts */
+  --toast-width: 360px;       /* card width */
+}
+
+/* ---- stacking containers ---- */
+/* Keep these keys in sync with ToastPosition / TOAST_POSITION_CLASS. */
+$toast-positions: (
+  "top-left":      (y: top,    x: left,   dir: column,         align: flex-start),
+  "top-center":    (y: top,    x: center, dir: column,         align: center),
+  "top-right":     (y: top,    x: right,  dir: column,         align: flex-end),
+  "bottom-left":   (y: bottom, x: left,   dir: column-reverse, align: flex-start),
+  "bottom-center": (y: bottom, x: center, dir: column-reverse, align: center),
+  "bottom-right":  (y: bottom, x: right,  dir: column-reverse, align: flex-end),
+);
+
+.toast-container[class*="toast-pos-"] {
+  position: fixed;
+  display: flex;
+  gap: var(--toast-gap);
+  max-height: calc(100vh - var(--toast-offset-top) - var(--toast-offset-y));
+  pointer-events: none;
+}
+
+@each $name, $cfg in $toast-positions {
+  .toast-pos-#{$name} {
+    /* column-reverse on bottom anchors keeps the newest toast (first in DOM,
+       because newestOnTop is on) nearest the screen edge. */
+    flex-direction: map.get($cfg, dir);
+    align-items: map.get($cfg, align);
+
+    @if map.get($cfg, y) == top {
+      top: var(--toast-offset-top);
+    } @else {
+      bottom: var(--toast-offset-y);
+    }
+
+    @if map.get($cfg, x) == center {
+      left: 50%;
+      transform: translateX(-50%);
+    } @else {
+      #{map.get($cfg, x)}: var(--toast-offset-x);
+    }
+  }
+}
+
+/* Dead centre — its own case, since it is anchored on both axes. */
+.toast-pos-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---- the toast card ---- */
+.toast-container .ngx-toastr {
+  /* per-type tokens, overridden by the type classes below */
+  --toast-accent: #475569;
+  --toast-tint: rgba(71, 85, 105, 0.10);
+  --toast-icon: none;
+
+  position: relative;
+  display: block;
+  width: var(--toast-width, 360px);
+  max-width: calc(100vw - (var(--toast-offset-x, 20px) * 2));
+  margin: 0;
+  padding: 11px 34px 12px 44px;
+  border: 1px solid var(--theme-border, #e5e7eb);
+  border-left: 3px solid var(--toast-accent);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1f2937;
+  font-family: inherit;
+  box-shadow:
+    0 8px 20px -6px rgba(15, 23, 42, 0.18),
+    0 2px 6px -2px rgba(15, 23, 42, 0.10);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toast-slide-in 0.22s cubic-bezier(0.21, 1.02, 0.73, 1);
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+
+  /* icon chip */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 13px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--toast-accent) var(--toast-icon) center / 11px 11px no-repeat;
+  }
+
+  &:hover {
+    box-shadow:
+      0 12px 26px -6px rgba(15, 23, 42, 0.24),
+      0 3px 8px -2px rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+  }
+}
+
+/* title / message */
+.toast-container .ngx-toastr {
+  .toast-title,
+  .notification-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #111827;
+    letter-spacing: 0.01em;
+  }
+
+  .toast-message,
+  .notification-message {
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.45;
+    color: #4b5563;
+    word-wrap: break-word;
+
+    a,
+    label {
+      color: var(--toast-accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    a:hover {
+      color: var(--toast-accent);
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+
+  /* only pad the message away from the title when a title is actually rendered */
+  .toast-title + .toast-message,
+  .notification-title + .notification-message,
+  .toast-title + .notification-message,
+  .notification-title + .toast-message {
+    margin-top: 2px;
+  }
+
+  /* close button — small ghost square, top-right, out of the text flow */
+  .toast-close-button {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    float: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    color: #9ca3af;
+    text-shadow: none;
+    opacity: 1;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: #374151;
+      background: rgba(15, 23, 42, 0.06);
+      opacity: 1;
+    }
+  }
+
+  /* hairline progress bar flush with the bottom edge */
+  .toast-progress {
+    height: 2px;
+    background: var(--toast-accent);
+    opacity: 0.5;
+    border-radius: 0 2px 2px 0;
+  }
+}
+
+/* ---- per-type accents + icons ---- */
+.toast-container .toast-success {
+  --toast-accent: #16a34a;
+  --toast-tint: rgba(22, 163, 74, 0.10);
+  --toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6.5 9.2 17.3 4 12.1'/%3E%3C/svg%3E");
+}
+
+.toast-container .toast-error {
+  --toast-accent: #dc2626;
+  --toast-tint: rgba(220, 38, 38, 0.10);
+  --toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+}
+
+.toast-container .toast-warning {
+  --toast-accent: #d97706;
+  --toast-tint: rgba(217, 119, 6, 0.10);
+  --toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M12 6.5v7.2M12 17.6h.01'/%3E%3C/svg%3E");
+}
+
+.toast-container .toast-info {
+  --toast-accent: var(--theme-primary, #086ad8);
+  --toast-tint: rgba(8, 106, 216, 0.10);
+  --toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M12 17.5v-6.6M12 7.2h.01'/%3E%3C/svg%3E");
+}
+
+/* ---- notification alert (sidebar "new notification" popup, bottom-left) ---- */
+.toast-container .notification-alert-custom {
+  --toast-accent: #d80812;
+  --toast-tint: rgba(216, 8, 18, 0.10);
+  /* bell, so it reads as a notification rather than a warning */
+  --toast-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 8.5a6 6 0 1 0-12 0c0 6-2.2 7.5-2.2 7.5h16.4S18 14.5 18 8.5'/%3E%3Cpath d='M13.7 20a2 2 0 0 1-3.4 0'/%3E%3C/svg%3E");
+
+  background: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+/* ---- small screens: full-width cards ---- */
+@media all and (max-width: 640px) {
+  :root {
+    --toast-offset-x: 12px;
+    --toast-offset-y: 12px;
+  }
+
+  /* Full-width cards edge to edge, whichever position class is in play. */
+  .toast-container[class*="toast-pos-"] {
+    left: var(--toast-offset-x);
+    right: var(--toast-offset-x);
+    align-items: stretch;
+    transform: none;
+  }
+
+  .toast-container .ngx-toastr {
+    width: 100%;
+  }
+}
+
+
+/* --- FIX FOR QUILL TABLES OUTSIDE THE EDITOR --- */
+.ql-table-wrapper table {
+  max-width: 10px !important;
+  min-width: 90px !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+}
+
+.ql-table-wrapper table td,
+.ql-table-wrapper table th {
+  border: 1px solid #ccc !important;
+  padding: 4px !important;
+}
+
+
+.isHighlight {
+  background-color: #fef9c3 !important; /* soft yellow */
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Material Icons (loaded from Google Fonts CDN in index.html) */
+.material-icons,
+.mat-icon.material-icons {
+  font-family: 'Material Icons', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

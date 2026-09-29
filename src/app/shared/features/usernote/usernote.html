@@ -1,0 +1,204 @@
+<div class="notes-page flex-col-fill">
+
+  <!-- ── Page header: title, search, quick filters, new-note action ── -->
+  <header class="notes-header">
+    <div class="notes-header__title">
+      <div class="notes-header__icon">
+        <mat-icon>sticky_note_2</mat-icon>
+      </div>
+      <div>
+        <h1>My Notes</h1>
+        <p>{{ allNotes().length }} {{ allNotes().length === 1 ? 'note' : 'notes' }}</p>
+      </div>
+    </div>
+
+    <div class="notes-header__controls">
+      <!-- Search -->
+      <div class="notes-search">
+        <mat-icon class="notes-search__icon">search</mat-icon>
+        <input type="text" class="notes-search__input" placeholder="Search notes…"
+          [value]="searchTerm()" (input)="onSearchInput($any($event.target).value)" />
+        @if (searchTerm()) {
+          <button type="button" class="notes-search__clear" (click)="onSearchInput('')" aria-label="Clear search">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <!-- Quick filters -->
+      <div class="notes-filter" role="group" aria-label="Filter notes">
+        <button type="button" class="notes-filter__chip" [class.is-active]="filterMode() === 'all'"
+          (click)="setFilter('all')">All</button>
+        <button type="button" class="notes-filter__chip" [class.is-active]="filterMode() === 'pinned'"
+          (click)="setFilter('pinned')">
+          <mat-icon>push_pin</mat-icon> Pinned
+        </button>
+        <button type="button" class="notes-filter__chip" [class.is-active]="filterMode() === 'reminder'"
+          (click)="setFilter('reminder')">
+          <mat-icon>alarm</mat-icon> Reminders
+        </button>
+      </div>
+
+      <!-- Grid / list view toggle -->
+      <div class="notes-view" role="group" aria-label="View mode">
+        <button type="button" class="notes-view__btn" [class.is-active]="viewMode() === 'grid'"
+          (click)="setView('grid')" matTooltip="Grid view" aria-label="Grid view">
+          <mat-icon>grid_view</mat-icon>
+        </button>
+        <button type="button" class="notes-view__btn" [class.is-active]="viewMode() === 'list'"
+          (click)="setView('list')" matTooltip="List view" aria-label="List view">
+          <mat-icon>view_list</mat-icon>
+        </button>
+      </div>
+
+      <!-- New note -->
+      <button type="button" class="notes-new-btn" (click)="openModal()">
+        <mat-icon>add</mat-icon>
+        <span>New Note</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Body ── -->
+  <div class="scroll-area notes-body">
+
+    @if (hasNoNotes()) {
+      <!-- Empty: user has no notes at all -->
+      <div class="notes-empty">
+        <div class="notes-empty__art">
+          <mat-icon>sticky_note_2</mat-icon>
+        </div>
+        <h2>No notes yet</h2>
+        <p>Capture reminders, ideas and to-dos. Your notes will show up here.</p>
+        <button type="button" class="notes-new-btn" (click)="openModal()">
+          <mat-icon>add</mat-icon>
+          <span>Create your first note</span>
+        </button>
+      </div>
+    } @else if (hasNoMatches()) {
+      <!-- Empty: filter/search returned nothing -->
+      <div class="notes-empty notes-empty--sm">
+        <div class="notes-empty__art">
+          <mat-icon>search_off</mat-icon>
+        </div>
+        <h2>No matching notes</h2>
+        <p>Try a different search term or filter.</p>
+        <button type="button" class="notes-clear-btn" (click)="clearFilters()">Clear filters</button>
+      </div>
+    } @else {
+      <!-- Pinned section -->
+      @if (pinnedNotes().length) {
+        <section class="notes-section" [class.notes-section--list]="viewMode() === 'list'">
+          <div class="notes-section__title">
+            <mat-icon>push_pin</mat-icon>
+            <span>Pinned</span>
+            <span class="notes-section__count">{{ pinnedNotes().length }}</span>
+          </div>
+          <div class="notes-masonry" [class.notes-masonry--list]="viewMode() === 'list'"
+            cdkDropList [cdkDropListData]="pinnedNotes()" (cdkDropListDropped)="dropPinned($event)"
+            [cdkDropListDisabled]="isFiltering()">
+            @for (note of pinnedNotes(); track note.noteId) {
+              <div class="note-drag" cdkDrag>
+                <ng-container *ngTemplateOutlet="noteCard; context: { $implicit: note }"></ng-container>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- All / other notes section -->
+      @if (otherNotes().length) {
+        <section class="notes-section" [class.notes-section--list]="viewMode() === 'list'">
+          @if (pinnedNotes().length) {
+            <div class="notes-section__title">
+              <mat-icon>notes</mat-icon>
+              <span>Others</span>
+              <span class="notes-section__count">{{ otherNotes().length }}</span>
+            </div>
+          }
+          <div class="notes-masonry" [class.notes-masonry--list]="viewMode() === 'list'"
+            cdkDropList [cdkDropListData]="otherNotes()" (cdkDropListDropped)="dropOther($event)"
+            [cdkDropListDisabled]="isFiltering()">
+            @for (note of otherNotes(); track note.noteId) {
+              <div class="note-drag" cdkDrag>
+                <ng-container *ngTemplateOutlet="noteCard; context: { $implicit: note }"></ng-container>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+
+  <!-- ── Reusable note card ── -->
+  <ng-template #noteCard let-note>
+    <article class="note-card">
+      <header class="note-card__head">
+        <span class="note-card__dot" [style.background]="note.noteColor || '#94a3b8'"></span>
+        <h3 class="note-card__title" [title]="note.noteTitle">{{ note.noteTitle }}</h3>
+        <button class="note-card__pin" [class.is-pinned]="note.isPinned"
+          [matTooltip]="note.isPinned ? 'Unpin note' : 'Pin note'"
+          (click)="updateNotePinStatus(note)" aria-label="Toggle pin">
+          <mat-icon>push_pin</mat-icon>
+        </button>
+      </header>
+
+      <div class="note-card__content"
+        [class.collapsed]="!note.expanded && viewMode() !== 'list' && !checklistProgress(note)"
+        [innerHTML]="getSafeHtml(note.noteContent ?? '')"></div>
+
+      @if (viewMode() !== 'list' && !checklistProgress(note) && note.noteContent && note.noteContent.length > 220) {
+        <a class="note-card__more" (click)="toggleExpand(note)">
+          {{ note.expanded ? 'Show less' : 'Show more' }}
+        </a>
+      }
+
+      @if (reminderStatus(note) || checklistProgress(note)) {
+        <div class="note-card__meta">
+          @if (reminderStatus(note); as rs) {
+            <span class="note-pill note-pill--reminder" [attr.data-status]="rs">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ note.reminderDate | date:'MMM d, h:mm a' }}{{ rs === 'overdue' ? ' · overdue' : (rs === 'soon' ? ' · soon' : '') }}</span>
+            </span>
+          }
+          @if (checklistProgress(note); as prog) {
+            <span class="note-pill note-pill--count" [class.is-done]="prog.done === prog.total">
+              {{ prog.done }}/{{ prog.total }}
+            </span>
+          }
+        </div>
+      }
+
+      <footer class="note-card__actions">
+        <button class="note-action" matTooltip="Edit note" aria-label="Edit note" (click)="onUpdateNote(note)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button class="note-action" matTooltip="Archive note" aria-label="Archive note" (click)="onArchiveNote(note)">
+          <mat-icon>archive</mat-icon>
+        </button>
+        <button class="note-action note-action--danger" matTooltip="Delete note" aria-label="Delete note"
+          (click)="onDeleteNote(note.noteId!)">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </footer>
+    </article>
+  </ng-template>
+
+  <!-- Add / Update Note — right slide-in drawer -->
+  @if (showModal) {
+    <div class="note-drawer-backdrop" [class.is-closing]="drawerClosing" (click)="onDrawerBackdrop()"></div>
+    <aside class="note-drawer" [class.is-closing]="drawerClosing" role="dialog" aria-modal="true"
+      aria-label="Add or update note">
+      <header class="note-drawer__head">
+        <h2>{{ editNote ? 'Update Note' : 'Add Note' }}</h2>
+        <button type="button" class="note-drawer__close" (click)="closeDrawer()" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+      <div class="note-drawer__body">
+        <app-managenote [initialData]="editNote" [modalParent]="drawerApi"
+          (modalResult)="onModalResult($event)"></app-managenote>
+      </div>
+    </aside>
+  }
+</div>

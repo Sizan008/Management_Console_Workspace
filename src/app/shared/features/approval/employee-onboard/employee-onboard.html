@@ -1,0 +1,189 @@
+<div class="max-w-6xl mx-auto p-6">
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold">Employee Onboarding</h1>
+      <p class="text-sm text-gray-500">Overview and progress for new hire</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="px-4 py-2 bg-white border rounded-lg shadow-sm text-sm">Back</button>
+      <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">Export PDF</button>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left: Profile Card -->
+    <section class="bg-white rounded-2xl p-5 shadow">
+      <div class="flex items-center gap-4">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-teal-400 flex items-center justify-center text-white text-2xl font-semibold">
+          JD
+        </div>
+        <div>
+          <h2 class="text-lg font-semibold">Jane Doe</h2>
+          <p class="text-sm text-gray-500">Senior Frontend Engineer</p>
+          <p class="text-sm text-gray-500 mt-1">Employee ID: <span class="font-medium text-gray-700">EMP-2025-084</span></p>
+        </div>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div class="text-xs text-gray-500">Contact</div>
+        <div class="text-sm">jane.doe.com · +8801XXXXXXXXX</div>
+
+        <div class="mt-3 text-xs text-gray-500">Department</div>
+        <div class="text-sm">Engineering · Frontend</div>
+
+        <div class="mt-3 text-xs text-gray-500">Start Date</div>
+        <div class="text-sm font-medium">October 1, 2025</div>
+      </div>
+
+      <div class="mt-4 border-t pt-4 flex flex-col gap-2">
+        <div class="text-xs text-gray-500">Manager</div>
+        <div class="text-sm">Rahim Khan</div>
+
+        <div class="text-xs text-gray-500 mt-3">Office</div>
+        <div class="text-sm">Dhaka HQ · Floor 5 · Desk 12</div>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        <button class="flex-1 px-4 py-2 rounded-lg border">Message</button>
+        <button class="flex-1 px-4 py-2 rounded-lg bg-green-600 text-white">View Profile</button>
+      </div>
+    </section>
+
+    <!-- Middle: Onboarding Progress & Checklist -->
+    <section class="lg:col-span-2 space-y-6">
+      <div class="bg-white rounded-2xl p-5 shadow">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Onboarding Progress</h3>
+          <div class="text-sm text-gray-500">Overall status</div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="mt-4">
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="h-3 rounded-full" style="width: 65%; background: linear-gradient(90deg,#6366f1,#06b6d4)"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2 text-sm text-gray-600">
+            <span>65% Complete</span>
+            <span>3 of 5 major milestones</span>
+          </div>
+        </div>
+
+        <!-- Milestones -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="p-3 rounded-lg bg-gray-50 border">
+            <div class="text-sm font-medium">Orientation</div>
+            <div class="text-xs text-gray-500 mt-1">Completed</div>
+          </div>
+          <div class="p-3 rounded-lg bg-gray-50 border">
+            <div class="text-sm font-medium">Laptop & Accounts</div>
+            <div class="text-xs text-gray-500 mt-1">In progress</div>
+          </div>
+          <div class="p-3 rounded-lg bg-gray-50 border">
+            <div class="text-sm font-medium">Team Ramp-up</div>
+            <div class="text-xs text-gray-500 mt-1">Pending</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Checklist</h3>
+          <div class="text-sm text-gray-500">Non-editable view</div>
+        </div>
+
+        <ul class="mt-4 space-y-3">
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-green-600 text-white flex items-center justify-center text-xs">✓</div>
+            <div>
+              <div class="text-sm font-medium">Signed Offer Letter</div>
+              <div class="text-xs text-gray-500">Signed on Sep 10, 2025</div>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-yellow-400 text-white flex items-center justify-center text-xs">●</div>
+            <div>
+              <div class="text-sm font-medium">Laptop Assigned</div>
+              <div class="text-xs text-gray-500">Request created — awaiting pickup</div>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs">○</div>
+            <div>
+              <div class="text-sm font-medium">Bank Account Setup</div>
+              <div class="text-xs text-gray-500">Pending</div>
+            </div>
+          </li>
+
+          <li class="flex items-start gap-3">
+            <div class="mt-1 w-5 h-5 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs">○</div>
+            <div>
+              <div class="text-sm font-medium">Team Intro & 1:1</div>
+              <div class="text-xs text-gray-500">Pending</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="mt-4 text-sm text-gray-500">If you need to update anything, use the admin panel or HR tools.</div>
+      </div>
+
+      <!-- Documents & Timeline -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-5 shadow">
+          <h3 class="text-lg font-semibold mb-3">Documents</h3>
+          <ul class="space-y-3">
+            <li class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium">Signed Offer.pdf</div>
+                <div class="text-xs text-gray-500">Uploaded Sep 10, 2025 · 120 KB</div>
+              </div>
+              <div class="text-sm text-indigo-600">View</div>
+            </li>
+            <li class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium">ID Proof.jpg</div>
+                <div class="text-xs text-gray-500">Uploaded Sep 11, 2025 · 340 KB</div>
+              </div>
+              <div class="text-sm text-indigo-600">View</div>
+            </li>
+            <li class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium">Tax Form.pdf</div>
+                <div class="text-xs text-gray-500">Not yet uploaded</div>
+              </div>
+              <div class="text-sm text-gray-400">Missing</div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow">
+          <h3 class="text-lg font-semibold mb-3">Onboarding Timeline</h3>
+          <ol class="relative border-l border-gray-200 ml-3">
+            <li class="mb-6 ml-6">
+              <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-600 rounded-full text-white text-xs">✓</span>
+              <div class="text-sm font-medium">Offer Sent</div>
+              <div class="text-xs text-gray-500">Sep 08, 2025</div>
+            </li>
+            <li class="mb-6 ml-6">
+              <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-600 rounded-full text-white text-xs">✓</span>
+              <div class="text-sm font-medium">Offer Signed</div>
+              <div class="text-xs text-gray-500">Sep 10, 2025</div>
+            </li>
+            <li class="mb-6 ml-6">
+              <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-yellow-400 rounded-full text-white text-xs">•</span>
+              <div class="text-sm font-medium">Accounts Created</div>
+              <div class="text-xs text-gray-500">Sep 20, 2025</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-gray-300 rounded-full text-white text-xs">○</span>
+              <div class="text-sm font-medium">First Day</div>
+              <div class="text-xs text-gray-500">Oct 01, 2025</div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

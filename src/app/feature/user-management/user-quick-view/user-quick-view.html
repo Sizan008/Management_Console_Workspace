@@ -1,0 +1,21 @@
+<div class="w-full h-full flex flex-col min-h-0 bg-white overflow-hidden">
+  <!-- Main Scrollable Body -->
+  <div class="flex-1 min-h-0 overflow-y-auto sm:p-5 space-y-5 pb-24 scrollbar-none">
+
+    <case-summary-details
+      title="User Details"
+      [details]="overviewDetails"
+    ></case-summary-details>
+
+  </div>
+
+  <!-- Fixed Drawer Footer -->
+  <div class="bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center sm:items-center space-y-2 sm:space-y-0 sm:space-x-2.5 flex-shrink-0 justify-end p-3">
+    <button (click)="onClose()" class="w-full sm:w-auto px-4 py-2 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded hover:bg-slate-50 transition-colors shadow-sm">
+      Close
+    </button>
+    <button class="w-full sm:w-auto px-4 py-2 text-xs font-bold btn-theme-primary rounded shadow-sm focus:outline-none">
+      View User Details
+    </button>
+  </div>
+</div>

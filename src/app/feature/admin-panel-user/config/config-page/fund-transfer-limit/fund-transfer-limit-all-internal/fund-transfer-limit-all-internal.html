@@ -1,0 +1,60 @@
+<form [formGroup]="internalForm" class="p-3">
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+    <div class="md:col-span-3">
+      <input-select-option-field
+        [frmGroup]="internalForm"
+        [controlName]="'transferTypeId'"
+        [label]="'Transfer Type'"
+        [options]="fTTypeList"
+        [searchable]="true"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Transfer Type is required' }"
+        (onSelect)="onTransferTypeChange()">
+      </input-select-option-field>
+    </div>
+
+    <div class="md:col-span-3">
+      <input-text-box
+        [frmGroup]="internalForm"
+        [controlName]="'minAmountPerTrans'"
+        [label]="'Min Amount Per Transaction'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Required', min: 'Must be ≥ 0' }">
+      </input-text-box>
+    </div>
+
+    <div class="md:col-span-3">
+      <input-text-box
+        [frmGroup]="internalForm"
+        [controlName]="'maxAmountPerTrans'"
+        [label]="'Max Amount Per Transaction'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Required', min: 'Must be ≥ 0' }">
+      </input-text-box>
+    </div>
+
+    <div class="md:col-span-3">
+      <input-text-box
+        [frmGroup]="internalForm"
+        [controlName]="'maxAmountTransPerDay'"
+        [label]="'Max Amount Transaction Per Day'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Required', min: 'Must be ≥ 0' }">
+      </input-text-box>
+    </div>
+
+    <div class="md:col-span-3">
+      <input-text-box
+        [frmGroup]="internalForm"
+        [controlName]="'maxNumOfTransPerDay'"
+        [label]="'Max Number Of Transactions Per Day'"
+        displayMode="vertical"
+        [customErrorMessages]="{ required: 'Required', min: 'Must be ≥ 0' }">
+      </input-text-box>
+    </div>
+
+  </div>
+
+</form>

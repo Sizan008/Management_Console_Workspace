@@ -1,0 +1,9 @@
+<button
+  class="a_demo_four icon-save"
+  (click)="customAction()"
+  [disabled]="disabled || frmGroup().invalid"
+  [attr.aria-label]="'/asset/icons/add.svg'"
+>
+  <img [src]="icon" alt="" class="icon" />
+  <p class="text">{{ level }}</p>
+</button>

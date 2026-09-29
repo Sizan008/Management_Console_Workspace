@@ -1,0 +1,17 @@
+<div class="relative inline-block w-full  ms-0">
+  <span id="mirror" class="invisible absolute whitespace-pre"></span>
+  <input #fastPath type="text" style="font-size: 12px;" placeholder="Fast Path..."
+  class="search bg-white text-gray-800 flex border justify-start placeholder-gray-500 text-sm rounded-md
+           px-1 py-1 focus:outline-none shadow-sm transition-all duration-300 w-full border"
+    (keydown.enter)="handleFastPath(fastPath)" />
+
+</div>
+
+<!-- <script>
+  function adjustWidth(input) {
+    const mirror = document.getElementById('mirror');
+    mirror.textContent = input.value || input.placeholder;
+    const newWidth = mirror.offsetWidth + 24; // padding buffer
+    input.style.width = newWidth + 'px';
+  }
+</script> -->

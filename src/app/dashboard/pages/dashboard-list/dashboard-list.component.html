@@ -1,0 +1,715 @@
+<div class="container mx-auto p-6">
+
+  <!-- Filter + Actions Bar -->
+  <div class="mb-6 p-4 bg-slate-50 rounded-lg">
+    <!-- Application Selection (always visible) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+      <div class="component-section">
+        <input-select-option-field [frmGroup]="filterForm" controlName="applicationId"
+          label="Application"
+          [options]="applicationOptions()"
+          placeholder="Select Application"
+          (onSelect)="onApplicationChanged($event)">
+        </input-select-option-field>
+      </div>
+    </div>
+
+    <!-- Additional Filters (shown only when application is selected) -->
+    @if (isApplicationSelected()) {
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mt-4">
+        <div class="component-section">
+          <input-select-option-field [frmGroup]="filterForm" controlName="widgetType" label="Choose Widget Type"
+            [options]="widgetTypeOptions()" placeholder="All widget types">
+          </input-select-option-field>
+        </div>
+
+        <div class="p-4">
+          <generic-button [label]="'Create'" [enable]="!isLoading()" (onClick)="onCreate()">
+          </generic-button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ── Unified widget grid: new (unsaved) + existing ────────────────────── -->
+  <div class="card-grid" *ngIf="!isLoading()" [ngStyle]="getDesignGridStyle()">
+
+    <!-- New unsaved preview cards -->
+    <app-widget-card
+      *ngFor="let card of previewCards(); let i = index"
+      [ngStyle]="getPreviewCardGridStyle(i)"
+      [class.is-selected]="selectedCard()?.uid === card.uid"
+      [widgetId]="0"
+      [widgetType]="card.widgetType"
+      [widgetName]="card.name || card.widgetTypeName"
+      [isConfigured]="false"
+      [unsaved]="true">
+      <div card-footer class="dl-design-footer">
+        <button class="dl-footer-btn dl-footer-delete" (click)="deletePreviewCard(card.uid)">Delete</button>
+        <button class="dl-footer-btn dl-footer-configure" (click)="openPanel(card)">Configure</button>
+      </div>
+    </app-widget-card>
+
+    <!-- Existing saved widgets -->
+    @for (dashboard of filteredDashboards(); track dashboard.id) {
+    @for (w of getWidgetsFor(dashboard.id); track w.id) {
+    <app-widget-card
+      [ngStyle]="getCardGridStyle(w.id)"
+      [widgetId]="w.id"
+      [widgetType]="w.widgetType"
+      [widgetName]="w.name"
+      [isConfigured]="!!w.isConfigured"
+      [data]="getWidgetDataFor(w.id)"
+      [isRefreshing]="isRefreshingDesign(w.id)"
+      [filterDefs]="getWidgetFilters(w)"
+      [filterValues]="getDesignFilterVals(w.id)"
+      [rangeOptions]="rangeOptions"
+      [currentRange]="getDesignRange(w.id)"
+      [customFrom]="getDesignFrom(w.id)"
+      [customTo]="getDesignTo(w.id)"
+      [renderConfig]="getRenderConfig(w.id)"
+      [chartStyle]="getChartStyle(w.id)"
+      [enableDateSort]="isDesignDateSortingEnabled(w)"
+      (refresh)="refreshWidgetDesign(w)"
+      (rangeChange)="setDesignRange(w, $any($event))"
+      (customFromChange)="setDesignFrom(w, $event)"
+      (customToChange)="setDesignTo(w, $event)"
+      (applyCustomRange)="applyDesignCustom(w)"
+      (filterChange)="updateDesignFilter(w, $event.paramName, $event.value)">
+      <div card-footer class="dl-design-footer">
+        <button class="dl-footer-btn dl-footer-delete" (click)="deleteExistingWidget(w)">Delete</button>
+        <button class="dl-footer-btn dl-footer-configure" (click)="openWidgetConfigure(w)">Configure</button>
+      </div>
+    </app-widget-card>
+    }
+    }
+
+  </div>
+
+  <div *ngIf="filteredDashboards().length === 0 && previewCards().length === 0 && !isLoading()" class="empty-state">
+    <mat-icon class="empty-icon">dashboard_customize</mat-icon>
+    <p class="empty-title">No dashboards found</p>
+    <p class="empty-sub">Select a widget type above and click Create to get started</p>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-wrap">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+
+</div>
+
+<!-- ══ Right-side Configure Panel ══════════════════════════════════════════════ -->
+<div *ngIf="panelOpen() && selectedCard()" class="fixed inset-0 z-50 flex justify-end">
+  <!-- Backdrop (transparent, click to close) -->
+  <div class="flex-1" (click)="closePanel()"></div>
+
+  <!-- Panel -->
+  <div class="config-panel flex flex-col shadow-2xl" style="width:480px;height:100vh;overflow:hidden">
+
+    <!-- Panel Header -->
+    <div class="config-panel-header flex items-center gap-3 px-5 py-4 border-b flex-shrink-0">
+      <span class="panel-type-icon" [innerHTML]="getPanelIcon(selectedCard()!.widgetType)"></span>
+      <div class="flex-1">
+        <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">
+          {{ selectedCard()!.existingWidgetId ? 'Edit Widget' : 'Configure Widget' }}
+        </p>
+        <h3 class="text-base font-bold text-slate-800">{{ selectedCard()!.name || selectedCard()!.widgetTypeName }}</h3>
+      </div>
+      <button (click)="closePanel()" class="text-slate-400 hover:text-slate-700 text-xl leading-none">&#x2715;</button>
+    </div>
+
+    <!-- Panel Scrollable Body -->
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+
+      <!-- ── Common: Widget Name ─────────────────────────────── -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Widget / Dashboard Name</label>
+        <input [(ngModel)]="selectedCard()!.name"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+          placeholder="e.g. Monthly Sales KPI" />
+      </div>
+
+      <!-- ── Data Source ────────────────────────────────────────────────── -->
+      <div class="ds-section">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-2">Data Source <span
+            class="text-red-500">*</span></p>
+
+        <!-- Source type selector -->
+        <select class="ds-type-select" [value]="selectedCard()!.dataSource.sourceType"
+          (change)="selectedCard()!.dataSource.sourceType = $any($event.target).value">
+          <option value="VIEW"> View — query an Oracle view</option>
+          <option value="STORED_PROCEDURE"> Stored Procedure — call a procedure returning a cursor</option>
+          <option value="API"> API — call an external URL from the browser</option>
+          <option value="BUILD_QUERY"> Build Query — visual SQL query builder</option>
+        </select>
+
+        <!-- VIEW sub-panel -->
+        <div *ngIf="selectedCard()!.dataSource.sourceType === 'VIEW'" class="ds-panel space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Database View Name</label>
+            <input [(ngModel)]="selectedCard()!.dataSource.viewName"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"
+              placeholder="e.g. VW_MONTHLY_SALES" />
+            <p class="text-xs text-slate-400 mt-1">view name — only letters, numbers, underscores.</p>
+          </div>
+        </div>
+
+        <!-- STORED_PROCEDURE sub-panel -->
+        <div *ngIf="selectedCard()!.dataSource.sourceType === 'STORED_PROCEDURE'" class="ds-panel space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Procedure Name</label>
+            <input [(ngModel)]="selectedCard()!.dataSource.procedureName"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"
+              placeholder="e.g. GET_MONTHLY_SUMMARY" />
+            <p class="text-xs text-slate-400 mt-1">Must return a SYS_REFCURSOR as its last OUT parameter.</p>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-semibold text-slate-600">IN Parameters</label>
+              <button type="button" (click)="addProcParam()"
+                class="text-xs text-blue-600 hover:text-blue-800 font-semibold">+ Add</button>
+            </div>
+            <div *ngFor="let p of (selectedCard()!.dataSource.procedureParams ?? []); let i = index"
+              class="flex gap-2 mb-2 items-start">
+              <!-- Param name -->
+              <input [(ngModel)]="p.name"
+                class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-400"
+                placeholder="Param name" />
+
+              <!-- Data type selector (VARCHAR, NUMBER, DATE, SESSION) -->
+              <select [(ngModel)]="p.dataType"
+                class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+                <option value="VARCHAR">Text</option>
+                <option value="NUMBER">Number</option>
+                <option value="DATE">Date</option>
+                <option value="SESSION">Session</option>
+              </select>
+
+              <!-- Default value (for VARCHAR, NUMBER, DATE) -->
+              <input *ngIf="p.dataType !== 'SESSION'" [(ngModel)]="p.defaultValue"
+                class="w-24 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+                placeholder="Default" />
+
+              <!-- Session field selector (for SESSION only) -->
+              <select *ngIf="p.dataType === 'SESSION'" [(ngModel)]="p.sessionFieldName"
+                class="w-40 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+                <option value="">-- Choose session field --</option>
+                @for (field of sessionFields(); track field.key) {
+                  <option [value]="field.key">{{ field.value }}</option>
+                }
+              </select>
+
+              <!-- Remove button -->
+              <button type="button" (click)="removeProcParam(p)"
+                class="text-slate-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- API sub-panel -->
+        <div *ngIf="selectedCard()!.dataSource.sourceType === 'API'" class="ds-panel space-y-3">
+
+          <!-- URL + Method row -->
+          <div class="flex gap-2 items-end">
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">URL</label>
+              <input [(ngModel)]="selectedCard()!.dataSource.apiUrl"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"
+                placeholder="http://your-service/api/resource/{id}" />
+            </div>
+            <div class="w-24 flex-shrink-0">
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Method</label>
+              <select [(ngModel)]="selectedCard()!.dataSource.apiMethod"
+                class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Params table -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-semibold text-slate-600">Query Params &amp; Path Variables</label>
+              <button type="button" class="ds-add-link" (click)="addApiParam()">+ Add</button>
+            </div>
+            @if ((selectedCard()!.dataSource.apiParams ?? []).length === 0) {
+            <p class="text-xs text-slate-400 italic">No params defined. Use <code>&#123;name&#125;</code> in the URL for
+              path variables.</p>
+            } @else {
+            <div class="space-y-2">
+              @for (p of selectedCard()!.dataSource.apiParams ?? []; track p) {
+              <div class="flex gap-2 items-start flex-wrap border border-slate-200 rounded p-2 bg-slate-50">
+                <!-- Type: QUERY or PATH -->
+                <select [(ngModel)]="p.type"
+                  class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+                  <option value="QUERY">Query</option>
+                  <option value="PATH">Path</option>
+                </select>
+
+                <!-- Name -->
+                <input [(ngModel)]="p.name"
+                  class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-400"
+                  placeholder="paramName" />
+
+                <!-- Parameter Source dropdown -->
+                <select [(ngModel)]="p.paramSource"
+                  class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+                  <option value="LITERAL">Literal</option>
+                  <option value="RUNTIME_FILTER">Runtime</option>
+                  <option value="SESSION">Session</option>
+                </select>
+
+                <!-- Default Value (LITERAL/RUNTIME_FILTER) -->
+                <input *ngIf="p.paramSource !== 'SESSION'" [(ngModel)]="p.defaultValue"
+                  class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+                  placeholder="Default value (optional)" />
+
+                <!-- Session Field (SESSION only) -->
+                <select *ngIf="p.paramSource === 'SESSION'" [(ngModel)]="p.sessionFieldName"
+                  class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+                  <option value="">-- Choose session field --</option>
+                  @for (field of sessionFields(); track field.key) {
+                    <option [value]="field.key">{{ field.value }}</option>
+                  }
+                </select>
+
+                <!-- Description -->
+                <input [(ngModel)]="p.description"
+                  class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+                  placeholder="Description (optional)" />
+
+                <!-- Remove button -->
+                <button type="button" (click)="removeApiParam(p)"
+                  class="text-slate-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
+              </div>
+              }
+            </div>
+            }
+          </div>
+
+          <!-- Body (POST only) -->
+          @if (selectedCard()!.dataSource.apiMethod === 'POST') {
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">
+              Request Body <span class="font-normal text-slate-400">(JSON template — use
+                <code>&#123;paramName&#125;</code> for runtime values)</span>
+            </label>
+            <textarea [(ngModel)]="selectedCard()!.dataSource.apiBody"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-blue-400 resize-y"
+              rows="4" placeholder='{ "fromDate": "{fromDate}", "status": "APPROVED" }'></textarea>
+          </div>
+          }
+
+          <p class="text-xs text-slate-400">
+            The browser calls this URL directly. Response must be <code>&#123; columns, rows, totalRows &#125;</code>.
+            Path variables <code>&#123;name&#125;</code> are substituted; query params are appended as
+            <code>?name=value</code>.
+          </p>
+        </div>
+
+        <!-- BUILD_QUERY sub-panel -->
+        <div *ngIf="selectedCard()!.dataSource.sourceType === 'BUILD_QUERY'" class="ds-panel">
+          <div class="flex items-center justify-between">
+            <div class="text-sm">
+              @if (selectedCard()!.dataSource.queryConfig?.from) {
+              <span class="font-medium text-green-700">✓ Query configured</span>
+              } @else {
+              <span class="text-slate-400">No query built yet</span>
+              }
+            </div>
+            <button class="ds-open-btn" (click)="openQueryBuilder()">
+              🏗 Open Query Builder →
+            </button>
+          </div>
+          @if (selectedCard()!.dataSource.queryConfig?.from) {
+          <p class="text-xs text-slate-500 mt-2">
+            Entity ID: {{ selectedCard()!.dataSource.queryConfig!.from!.entityId }}
+            · {{ (selectedCard()!.dataSource.queryConfig!.select?.length ?? 0) }} columns
+            @if (selectedCard()!.dataSource.queryConfig!.where?.conditions?.length) {
+            · {{ selectedCard()!.dataSource.queryConfig!.where!.conditions!.length }} condition(s)
+            }
+          </p>
+          }
+        </div>
+
+        <!-- ══ Widget-type-specific config ════════════════════════════════════ -->
+
+      <!-- KPI_CARD -->
+      <div *ngIf="selectedCard()!.widgetType === 'KPI_CARD'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">KPI Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Metric Column <span
+              class="text-slate-400">(from query result)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['metricField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. total_amount" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Label Text</label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['labelText']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. Total Revenue" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Trend Column <span
+              class="text-slate-400">(optional, % change)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['trendField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. change_pct" />
+        </div>
+        <div class="threshold-grid">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">🟢 Good ≥</label>
+            <input type="number" [(ngModel)]="selectedCard()!.renderConfig['thresholdGood']"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              placeholder="e.g. 0" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">🟡 Warn ≥</label>
+            <input type="number" [(ngModel)]="selectedCard()!.renderConfig['thresholdWarn']"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              placeholder="e.g. 500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">🔴 Critical ≥</label>
+            <input type="number" [(ngModel)]="selectedCard()!.renderConfig['thresholdCritical']"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+              placeholder="e.g. 1000" />
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT_CARD -->
+      <div *ngIf="selectedCard()!.widgetType === 'STAT_CARD'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Stat Card Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Metric Column <span
+              class="text-slate-400">(from query result)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['metricField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. total_amount" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Label Text</label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['labelText']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. Orders Placed" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Prefix <span
+              class="text-slate-400">(optional)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['prefix']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. $" />
+        </div>
+      </div>
+
+      <!-- PIE_CHART -->
+      <div *ngIf="selectedCard()!.widgetType === 'PIE_CHART'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Pie Chart Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Label Column <span
+              class="text-slate-400">(slice names)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['labelField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. category_name" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Value Column <span
+              class="text-slate-400">(numeric)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['valueField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. amount" />
+        </div>
+      </div>
+
+      <!-- BAR_CHART -->
+      <div *ngIf="selectedCard()!.widgetType === 'BAR_CHART'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Bar Chart Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">X-Axis Column <span
+              class="text-slate-400">(categories)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['xField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. month" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Y-Axis Column <span
+              class="text-slate-400">(numeric)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['yField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. total_sales" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Orientation</label>
+          <select [(ngModel)]="selectedCard()!.renderConfig['orientation']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+            <option value="vertical">Vertical</option>
+            <option value="horizontal">Horizontal</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LINE_CHART -->
+      <div *ngIf="selectedCard()!.widgetType === 'LINE_CHART'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Line Chart Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">X-Axis Column <span
+              class="text-slate-400">(time / category)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['xField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. date" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Y-Axis Column <span
+              class="text-slate-400">(numeric)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['yField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. revenue" />
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="smooth" [(ngModel)]="selectedCard()!.renderConfig['smooth']"
+            class="rounded border-slate-300" />
+          <label for="smooth" class="text-sm text-slate-600">Smooth curve</label>
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <div *ngIf="selectedCard()!.widgetType === 'DATA_TABLE'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Table Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Rows per page</label>
+          <input type="number" [(ngModel)]="selectedCard()!.renderConfig['rowsPerPage']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="10" min="5" max="100" />
+        </div>
+      </div>
+
+      <!-- APPROVAL_LIST -->
+      <div *ngIf="selectedCard()!.widgetType === 'APPROVAL_LIST'" class="space-y-3">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600">Approval List Settings</p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Status Column <span class="text-slate-400">(Y/N
+              or pending/approved)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['statusField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. approval_status" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Item Title Column</label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['titleField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. request_name" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Date Column <span
+              class="text-slate-400">(optional)</span></label>
+          <input [(ngModel)]="selectedCard()!.renderConfig['dateField']"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400"
+            placeholder="e.g. submitted_date" />
+        </div>
+      </div>
+
+      
+<!-- Date-wise Sorting -->
+        <div class="mt-4">
+          <div class="flex items-center gap-3 mb-2">
+            <input type="checkbox" id="enableRecordDtSort"
+              [(ngModel)]="selectedCard()!.dataSource.enableRecordDtSort"
+              class="toggle-switch" />
+            <label for="enableRecordDtSort" class="toggle-label">
+              Enable Date-wise Sorting
+            </label>
+          </div>
+          <p class="text-xs text-slate-400">Group results by date ranges (Last 24 hours, 7 days, 30 days, etc.) using the <code>RECORD_DT</code> column.</p>
+        </div>
+
+        <!-- Runtime Filters (all types) -->
+        <div class="mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs font-semibold text-slate-600 uppercase tracking-widest">Runtime Filters</p>
+            <button type="button" (click)="addFilter()"
+              class="text-xs text-blue-600 hover:text-blue-800 font-semibold">+ Add Filter</button>
+          </div>
+          <p class="text-xs text-slate-400 mb-2">Live dashboard users see these as input controls above the widget.</p>
+          <div *ngFor="let fd of (selectedCard()!.dataSource.filters ?? [])"
+            class="flex gap-2 mb-4 items-start flex-wrap">
+            <!-- Filter name (RUNTIME_FILTER and LITERAL only) -->
+            <input *ngIf="selectedCard()!.dataSource.sourceType !== 'BUILD_QUERY'" [(ngModel)]="fd.paramName"
+              class="w-28 border border-slate-200 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-400"
+              placeholder="paramName" />
+            <input [(ngModel)]="fd.label"
+              class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+              placeholder="Label" />
+
+            <!-- NEW: Parameter Source Selector (dropdown) -->
+            <select [(ngModel)]="fd.paramSource"
+              class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+              <option value="LITERAL">Literal</option>
+              <option value="RUNTIME_FILTER">Runtime Filter</option>
+              <option value="SESSION">Session Storage</option>
+            </select>
+
+            <!-- Input type (for LITERAL and RUNTIME_FILTER) -->
+            <select *ngIf="fd.paramSource !== 'SESSION'" [(ngModel)]="fd.inputType"
+              class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+              <option value="TEXT">Text</option>
+              <option value="DATE">Date</option>
+              <option value="SELECT">Select</option>
+            </select>
+
+            <!-- Data type (for LITERAL and RUNTIME_FILTER) -->
+            <select *ngIf="fd.paramSource !== 'SESSION'" [(ngModel)]="fd.dataType"
+              class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+              <option value="VARCHAR">VARCHAR</option>
+              <option value="NUMBER">NUMBER</option>
+              <option value="DATE">DATE</option>
+            </select>
+
+            <!-- Session field selector (SESSION only) -->
+            <select *ngIf="fd.paramSource === 'SESSION'" [(ngModel)]="fd.sessionFieldName"
+              class="border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400">
+              <option value="">-- Choose session field --</option>
+              @for (field of sessionFields(); track field.key) {
+                <option [value]="field.key">{{ field.value }}</option>
+              }
+            </select>
+
+            <button type="button" (click)="removeFilter(fd)"
+              class="text-slate-400 hover:text-red-500 text-xs pt-1">✕</button>
+
+            <!-- BUILD_QUERY: column picker links filter to an entity field -->
+            <div *ngIf="selectedCard()!.dataSource.sourceType === 'BUILD_QUERY'" class="w-full flex gap-2 items-center">
+              <span class="text-xs text-slate-400 flex-shrink-0">Filter column:</span>
+              <select
+                class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+                [value]="filterColumnKey(fd)" (change)="setFilterColumn(fd, $any($event.target).value)">
+                <option value="">— pick a column —</option>
+                @for (col of querySelectColumns(); track col.key) {
+                <option [value]="col.key" [selected]="col.key === filterColumnKey(fd)">{{ col.label }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- STORED_PROCEDURE: map to an IN parameter (RUNTIME_FILTER only) -->
+            <div *ngIf="selectedCard()!.dataSource.sourceType === 'STORED_PROCEDURE' && fd.paramSource === 'RUNTIME_FILTER'"
+              class="w-full flex gap-2 items-center">
+              <span class="text-xs text-slate-400 flex-shrink-0">Proc param:</span>
+              <input [(ngModel)]="fd.procParamName"
+                class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs font-mono focus:outline-none focus:border-blue-400"
+                placeholder="IN param name (e.g. P_STATUS)" />
+            </div>
+
+            <!-- SELECT input type: define the dropdown options -->
+            <div *ngIf="fd.inputType === 'SELECT'" class="w-full flex gap-2 items-center">
+              <span class="text-xs text-slate-400 flex-shrink-0">Options:</span>
+              <input
+                class="flex-1 border border-slate-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-blue-400"
+                [value]="filterOptionsStr(fd)" (change)="setFilterOptionsStr(fd, $any($event.target).value)"
+                placeholder="e.g. 0, 1  or  Y, N  (comma-separated)" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Permitted Roles ──────────────────────────────────────────────── -->
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-2">Permitted Roles</p>
+        <p class="text-xs text-slate-400 mb-2">Widget is hidden from all users if no roles are added.</p>
+
+        <!-- Dropdown trigger -->
+        <div class="relative" (click)="$event.stopPropagation()">
+          <button type="button" (click)="rolesDropdownOpen = !rolesDropdownOpen"
+            class="w-full flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white hover:border-blue-300 focus:outline-none focus:border-blue-400 transition">
+            <span [class]="selectedCard()!.permittedRoles.length === 0 ? 'text-slate-400' : 'text-slate-700'">
+              {{ selectedCard()!.permittedRoles.length === 0 ? 'Select roles…' : selectedCard()!.permittedRoles.length + ' role(s) selected' }}
+            </span>
+            <svg class="w-4 h-4 text-slate-400 transition-transform" [class.rotate-180]="rolesDropdownOpen"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <!-- Dropdown list -->
+          <div *ngIf="rolesDropdownOpen"
+            class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
+            <div *ngIf="rolesLoading()" class="flex items-center justify-center gap-2 py-4 text-slate-400 text-sm">
+              <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+              </svg>
+              Loading roles…
+            </div>
+            <div *ngIf="!rolesLoading() && availableRoles().length === 0"
+              class="py-4 text-center text-slate-400 text-sm">No roles available</div>
+            <label *ngFor="let role of availableRoles(); trackBy: trackRoleById"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm select-none">
+              <input type="checkbox"
+                [checked]="selectedCard()!.permittedRoles.includes(role.roleName)"
+                (change)="toggleRole(role.roleName)"
+                class="rounded border-slate-300 accent-blue-600" />
+              <span class="text-slate-700">{{ role.roleName }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Selected chips -->
+        <div *ngIf="selectedCard()!.permittedRoles.length > 0" class="flex flex-wrap gap-2 mt-2">
+          <span *ngFor="let role of selectedCard()!.permittedRoles"
+            class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+            {{ roleNameById(role) }}
+            <button (click)="toggleRole(role)" class="text-blue-500 hover:text-blue-800 leading-none">&#x2715;</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- ── Cache TTL ────────────────────────────────────────────────────── -->
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-2">Cache</p>
+        <div class="flex items-center gap-2">
+          <input type="number" [(ngModel)]="selectedCard()!.cacheTtlMinutes" min="0" max="1440"
+            class="w-28 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
+          <span class="text-sm text-slate-500">minutes (0 = no cache)</span>
+        </div>
+      </div>
+
+    </div><!-- /scrollable body -->
+
+    <!-- Panel Footer -->
+    <div class="config-panel-footer flex items-center justify-between px-5 py-4 border-t flex-shrink-0">
+      <button (click)="closePanel()"
+        class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition">
+        Cancel
+      </button>
+      <button (click)="saveFromPanel()" [disabled]="panelSaving()"
+        class="px-5 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition">
+        {{ panelSaving() ? 'Saving…' : (selectedCard()?.existingWidgetId ? 'Update Widget' : 'Save Widget') }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Query Builder Modal -->
+@if (queryBuilderOpen()) {
+<app-query-builder-modal [initialConfig]="selectedCard()?.dataSource?.queryConfig ?? null" (close)="closeQueryBuilder()"
+  (configSaved)="applyQueryBuilderConfig($event)">
+</app-query-builder-modal>
+}
+
+<!-- Layout Designer Modal -->
+
+<!-- Modal: blank dashboard (no widget type selected) -->
+<generic-modal *ngIf="showModal()" [title]="modalTitle" (onClose)="closeModal()">
+  <form [formGroup]="dashboardForm" class="space-y-4">
+    <input-text-box [frmGroup]="dashboardForm" controlName="name" label="Dashboard Name"
+      placeholder="e.g. Sales Overview"></input-text-box>
+    <input-text-area [frmGroup]="dashboardForm" controlName="description" label="Description"
+      placeholder="Optional description"></input-text-area>
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <generic-button [label]="'Cancel'" (onClick)="closeModal()"></generic-button>
+      <generic-button [label]="'Save'" [enable]="!isLoading()" (onClick)="saveDashboard()"></generic-button>
+    </div>
+  </form>
+</generic-modal>
+

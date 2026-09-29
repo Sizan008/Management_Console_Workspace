@@ -1,0 +1,49 @@
+.page-wrapper {
+  padding: 2rem;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.person-form {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+
+  .text-xl {
+    color: #1f2937;
+  }
+
+  ::ng-deep input-text-box,
+  ::ng-deep app-number-input {
+    .label-text {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    input {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      &.ng-invalid.ng-touched {
+        border-color: #ef4444;
+      }
+    }
+
+    .error-text {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+  }
+}

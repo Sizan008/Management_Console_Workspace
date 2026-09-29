@@ -1,0 +1,166 @@
+<!-- number-base-input.html -->
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        id="number_outlined"
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [disabled]="isDisabled"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        type="number"
+        inputmode="numeric"
+        matInput
+        [placeholder]="' '"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        [min]="minValue() ?? 0"
+        [max]="maxValue() ?? null"
+        [maxLength]="maxLen() ?? null"
+        [minLength]="minLen() ?? null"
+        step="1"
+        class="custom-input peer block px-3 pt-4 pb-2 text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+        autocomplete="off"
+        (keypress)="onKeyPress($event)"
+        (input)="onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur($event)" />
+
+      <!-- FLOATING LABEL -->
+      <label
+        for="number_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- CLEAR BUTTON -->
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearInput()"
+          [attr.aria-label]="'Clear ' + label()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+          </svg>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    @if (displayMode() === 'vertical') {
+      <label class="input-label block leading-tight">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    @if (displayMode() === 'horizontal') {
+      <label class="input-label relative">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [disabled]="isDisabled"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        type="number"
+        inputmode="numeric"
+        matInput
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        [placeholder]="placeholder() ?? 'Enter ' + label()"
+        [min]="minValue() ?? 0"
+        [max]="maxValue() ?? null"
+        [maxLength]="maxLen() ?? null"
+        [minLength]="minLen() ?? null"
+        step="1"
+        class="custom-input"
+        autocomplete="off"
+        (keypress)="onKeyPress($event)"
+        (input)="onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur($event)" />
+
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearInput()"
+          [attr.aria-label]="'Clear ' + label()">
+          <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+          </svg>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+    <div
+    class="mt-0 min-h-[1.5rem]">
+    @if (isInvalid()) {
+      <p
+      class="text-[10px] text-red-500 leading-4 ms-1">
+        @if (hasError('required')) {
+          @if (hasCustomMessage('required')) {
+            {{ getCustomErrorMessage('required') }}
+          } @else {
+            {{ label() }} is required!
+          }
+        }
+
+        @if (hasError('min')) {
+          @if (hasCustomMessage('min')) {
+            {{ getCustomErrorMessage('min') }}
+          } @else {
+            Minimum value required is {{ getErrorValue('min') }}
+          }
+        }
+
+        @if (hasError('max')) {
+          @if (hasCustomMessage('max')) {
+            {{ getCustomErrorMessage('max') }}
+          } @else {
+            Maximum value allowed is {{ getErrorValue('max') }}
+          }
+        }
+
+        @if (hasError('pattern')) {
+          @if (hasCustomMessage('pattern')) {
+            {{ getCustomErrorMessage('pattern') }}
+          } @else {
+            Only whole numbers are allowed
+          }
+        }
+
+        @if (hasCustomErrors()) {
+          @for (errorKey of getCustomErrorKeys(); track errorKey) {
+            <div>{{ getCustomErrorMessage(errorKey) }}</div>
+          }
+        }
+      </p>
+    }
+  </div>
+</div>

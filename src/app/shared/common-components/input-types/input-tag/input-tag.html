@@ -1,0 +1,87 @@
+<div class="tag-input-wrapper " [ngClass]="'tag-input-theme-' + theme()">
+  <mat-form-field appearance="outline" class="w-full">
+    <!-- Label -->
+    @if (label()) {
+      <mat-label>{{ label() }}</mat-label>
+    }
+
+    <!-- Chip Grid with Drag and Drop -->
+    <mat-chip-grid
+      #chipGrid
+      [disabled]="isDisabled()"
+      cdkDropList
+      [cdkDropListData]="tags()"
+      [cdkDropListDisabled]="!draggable() || isDisabled()"
+      [cdkDropListConnectedTo]="dragZone()"
+      (cdkDropListDropped)="drop($event)"
+      cdkDropListOrientation="horizontal"
+      class="tag-chip-grid">
+
+      <!-- Individual Tags -->
+      @for (tag of tags(); track trackByFn($index, tag); let i = $index) {
+        <mat-chip-row
+          cdkDrag
+          [cdkDragData]="tag"
+          [cdkDragDisabled]="!draggable() || isDisabled() || isTagReadonly(tag)"
+          [editable]="isTagEditable(tag)"
+          (edited)="editTag(tag, $event)"
+          [removable]="isTagRemovable(tag)"
+          (removed)="removeTag(tag)"
+          [disabled]="isTagReadonly(tag)"
+          [matTooltip]="tooltip()"
+          [matTooltipPosition]="tooltipPosition()"
+          [matTooltipDisabled]="!tooltip()">
+
+          <!-- Display value -->
+          {{ getDisplayValue(tag) }}
+
+          <!-- Remove button -->
+          @if (isTagRemovable(tag)) {
+            <button matChipRemove [attr.aria-label]="'Remove ' + getDisplayValue(tag)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          }
+        </mat-chip-row>
+      }
+
+      <!-- Input field for adding new tags -->
+      @if (!isDisabled() && (maxItems() === null || tags().length < maxItems()!)) {
+        <input
+          #inputField
+          [id]="inputId()"
+          [class]="inputClass()"
+          matInput
+          [placeholder]="getPlaceholderText()"
+          [matAutocomplete]="auto"
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes()"
+          (matChipInputTokenEnd)="addTag($event)"
+          (input)="onInputChange($any($event.target).value)"
+          (focus)="onInputFocus($event)"
+          (blur)="onInputBlur($event)"
+          (paste)="onPasteEvent($event)"
+          [disabled]="isDisabled()" />
+      }
+    </mat-chip-grid>
+
+    <!-- Autocomplete Dropdown -->
+    @if (autocompleteItems().length > 0 || autocompleteObservable()) {
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="selectTag($event)">
+        @for (item of filteredItems(); track trackByFn($index, item)) {
+          <mat-option [value]="item">
+            <span>{{ getDisplayValue(item) }}</span>
+          </mat-option>
+        }
+      </mat-autocomplete>
+    }
+  </mat-form-field>
+
+  <!-- Validation Messages -->
+  @if (hasErrors()) {
+    <div class="error-message">
+      <p class="text-[10px] text-red-500">{{ getErrorMessage() }}</p>
+    </div>
+  }
+</div>

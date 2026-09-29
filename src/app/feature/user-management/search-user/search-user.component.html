@@ -1,0 +1,215 @@
+<div class="flex flex-col h-full overflow-hidden bg-slate-50">
+
+  <!-- ── Search Criteria Card ──────────────────────────────────────────────── -->
+  <div class="flex-shrink-0 bg-white border-b border-slate-200 px-5 py-4 shadow-sm">
+
+    <div class="flex flex-wrap items-end gap-3">
+
+      <!-- User ID -->
+      <div class="flex flex-col gap-1 min-w-[140px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">User ID</label>
+        <input type="text" [(ngModel)]="filterUserId"
+          placeholder="e.g. USR-2025-001"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 placeholder-slate-400
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors" />
+      </div>
+
+      <!-- Full Name -->
+      <div class="flex flex-col gap-1 min-w-[140px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Full Name</label>
+        <input type="text" [(ngModel)]="filterName"
+          placeholder="e.g. Rafiq Ahmed"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 placeholder-slate-400
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors" />
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col gap-1 min-w-[160px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email</label>
+        <input type="text" [(ngModel)]="filterEmail"
+          placeholder="e.g. user@company.bd"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-800 placeholder-slate-400
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors" />
+      </div>
+
+      <!-- Department -->
+      <div class="flex flex-col gap-1 min-w-[140px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Department</label>
+        <select [(ngModel)]="filterDepartment"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer">
+          <option value="">All Departments</option>
+          @for (d of departmentOptions; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Role -->
+      <div class="flex flex-col gap-1 min-w-[120px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Role</label>
+        <select [(ngModel)]="filterRole"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer">
+          <option value="">All Roles</option>
+          @for (r of roleOptions; track r) {
+            <option [value]="r">{{ r }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Stage -->
+      <div class="flex flex-col gap-1 min-w-[130px]">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Stage</label>
+        <select [(ngModel)]="filterStage"
+          class="px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg bg-white text-slate-700
+                 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors cursor-pointer">
+          <option value="">All Stages</option>
+          @for (s of stageOptions; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-end gap-2 ml-auto">
+        <button type="button" (click)="onReset()"
+          class="px-4 py-1.5 text-xs font-bold border border-slate-200 text-slate-700 bg-white rounded-lg
+                 hover:bg-slate-50 transition-colors cursor-pointer">
+          Reset
+        </button>
+        <button type="button" (click)="onSearch()"
+          class="px-5 py-1.5 text-xs font-bold btn-theme-primary rounded-lg
+                 shadow-sm cursor-pointer flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          Search
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Results Grid ──────────────────────────────────────────────────────── -->
+  @if (searched()) {
+    <div class="flex-1 min-h-0 flex flex-col px-5 py-4">
+
+      <!-- Result count -->
+      <div class="flex items-center justify-between mb-2 flex-shrink-0">
+        <h2 class="text-sm font-extrabold text-slate-800 tracking-tight flex items-center gap-1.5">
+          Search Results
+          <span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded-full border border-slate-200/60">
+            {{ allResult().length }}
+          </span>
+        </h2>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white border border-slate-200 rounded shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
+        <div class="overflow-auto flex-1 min-h-0">
+          <table class="w-full table-auto text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b-2 border-slate-200 text-[10px] font-extrabold text-slate-700 uppercase tracking-wider select-none">
+                <th class="py-3 px-4 whitespace-nowrap">User ID</th>
+                <th class="py-3 px-4 whitespace-nowrap">Full Name</th>
+                <th class="py-3 px-4 whitespace-nowrap hidden md:table-cell">Email</th>
+                <th class="py-3 px-4 whitespace-nowrap hidden sm:table-cell">Department</th>
+                <th class="py-3 px-4 whitespace-nowrap hidden sm:table-cell">Branch</th>
+                <th class="py-3 px-4 whitespace-nowrap">Role</th>
+                <th class="py-3 px-4 whitespace-nowrap">Stage</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+
+              @if (allResult().length === 0) {
+                <tr>
+                  <td colspan="7" class="py-14 text-center text-xs font-bold text-slate-400">
+                    No users match your search criteria.
+                  </td>
+                </tr>
+              }
+
+              @for (user of pagedItems(); track user.userId) {
+                <tr class="hover:bg-blue-50/20 cursor-pointer transition-colors duration-150">
+                  <td class="py-1.5 px-4 text-xs font-mono text-slate-700 font-semibold">{{ user.userId }}</td>
+                  <td class="py-1.5 px-4 text-xs font-semibold text-slate-800">{{ user.fullName }}</td>
+                  <td class="py-1.5 px-4 text-xs text-slate-500 hidden md:table-cell">{{ user.email }}</td>
+                  <td class="py-1.5 px-4 text-xs text-slate-600 hidden sm:table-cell">{{ user.department }}</td>
+                  <td class="py-1.5 px-4 text-xs text-slate-600 hidden sm:table-cell">{{ user.branch ?? '—' }}</td>
+                  <td class="py-1.5 px-4 text-xs text-slate-600">{{ user.role }}</td>
+                  <td class="py-1.5 px-4 text-xs">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold transition-all duration-150"
+                      [ngClass]="badgeClass(user.stage)">
+                      {{ user.stage }}
+                    </span>
+                  </td>
+                </tr>
+              }
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex-shrink-0 bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-between gap-2 flex-wrap mt-0 rounded-b border border-slate-200 border-t-0">
+
+        <div class="flex items-center gap-3">
+          <span class="text-[11px] text-slate-500">
+            Showing
+            <span class="font-bold text-slate-700">{{ startRecord() }}</span>–<span class="font-bold text-slate-700">{{ endRecord() }}</span>
+            of <span class="font-bold text-slate-700">{{ allResult().length }}</span> records
+          </span>
+          <select [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)"
+            class="text-[11px] border border-slate-200 rounded-md px-2 py-1 text-slate-600 bg-white
+                   focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
+            <option [value]="10">10 / page</option>
+            <option [value]="25">25 / page</option>
+            <option [value]="50">50 / page</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+            class="pagination-nav-btn flex items-center justify-center w-7 h-7 rounded-md border transition-colors text-sm cursor-pointer">
+            ‹
+          </button>
+          @for (p of getPageNumbers(); track $index) {
+            @if (p !== '...') {
+              <button (click)="goToPage(+p)"
+                [ngClass]="currentPage() === p
+                  ? 'pagination-page-active'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+                class="w-7 h-7 text-[11px] font-bold rounded-md border flex items-center justify-center transition-colors cursor-pointer">
+                {{ p }}
+              </button>
+            } @else {
+              <span class="w-5 text-center text-xs text-slate-400 select-none">…</span>
+            }
+          }
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+            class="pagination-nav-btn flex items-center justify-center w-7 h-7 rounded-md border transition-colors text-sm cursor-pointer">
+            ›
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  } @else {
+
+    <!-- Empty state before first search -->
+    <div class="flex-1 flex flex-col items-center justify-center text-slate-400">
+      <svg class="w-12 h-12 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+      </svg>
+      <p class="text-sm font-semibold">Enter criteria and click Search</p>
+    </div>
+
+  }
+
+</div>

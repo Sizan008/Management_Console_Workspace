@@ -1,0 +1,22 @@
+<div class="lookup-modal">
+  <div class="lookup-modal__header">
+  </div>
+  <div class="panel bg-white">
+    <div class="component-section mt-3">
+      <generic-data-grid
+        [dataSource]="rows"
+        [selectedColumns]="selectedColumns"
+        [customColumnNames]="customColumnNames"
+        [showEditButton]="false"
+        [showDeleteButton]="false"
+        [showViewButton]="true"
+        [showPrintButton]="false"
+        [enableSelection]="false"
+        [searchEnabled]="true"
+        [initPageSize]="8"
+        (onRowDoubleClick)="onSelectRow($event)"
+        (onFHViewClick)="onSelectRow($event)">
+      </generic-data-grid>
+    </div>
+  </div>
+</div>

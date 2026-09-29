@@ -1,0 +1,89 @@
+<div class="transaction-grid-container mb-5">
+    <form *ngIf="frmUserNote" [formGroup]="frmUserNote" class="userNote-form">
+        <!-- <section class="header-section">
+            <app-expansion-panel-header [isOpenSignal]="businessHeaderPanel" [panelTitle]="'New Note'" />
+        </section> -->
+        <div class="grid grid-cols-2">
+            <div class="component-section">
+                <input-text-area [frmGroup]="frmUserNote" [controlName]="'title'" [label]="'Title'" [isVertical]="true"
+                    [rows]="2" [cols]="20" [maxRows]="10" [maxCols]="200" wi [placeholder]="'Enter Note Title'"
+                    [showRowCount]="true" [autoResize]="true"></input-text-area>
+                <!-- <app-text-base-input [frmGroup]="frmUserNote" [controlName]="'title'" [label]="'Title'"
+                    [isReadonly]="false" displayMode="vertical" [tooltip]="'Note Title'" [tooltipPosition]="'above'"
+                    [tooltipDelay]="300" [tooltipClass]="'success-tooltip'" [customErrorMessages]="{
+                    required: 'Note title is required'
+                  }"></app-text-base-input> -->
+            </div>
+        </div>
+        <div class="grid grid-cols-1 mt-2">
+            <div class="component-section">
+                <common-quill-editor [formGroup]="frmUserNote" [controlName]="'content'" [labelName]="'Content'"
+                    [configType]="'min'">
+                </common-quill-editor>
+                <!-- <lds-txt-area [frmGroup]="frmUserNote" [controlName]="'content'" [label]="'Content'"
+                    [isVertical]="true" [rows]="5" [cols]="20" [maxRows]="10" [maxCols]="200" wi
+                    [placeholder]="'Enter Note Content'" [showRowCount]="true" [autoResize]="true"></lds-txt-area> -->
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-2">
+            <div class="component-section min-w-0">
+                <mat-form-field appearance="fill" class="note-color-select w-full">
+                    <mat-label>Note Color</mat-label>
+                    <mat-select formControlName="noteColor">
+                        <mat-option *ngFor="let c of noteColors" [value]="c.code">
+                            <div class="color-option" [style.--color]="c.code">
+                                <span class="color-name">{{ c.name }}</span>
+                            </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <!-- <app-select-option-field
+                [frmGroup]="frmUserNote"
+                [controlName]="'noteColor'"
+                [label]="'Note Color'"
+                [isVertical]="true"
+                [isReadonly]="false"
+                [options]="_noteColorOption()"
+                [tooltip]="'Select Note Color'"
+                (onSelect)="handleColorSelection($event)"
+              ></app-select-option-field> -->
+            </div>
+            <div class="component-section">
+                <generic-switch [frmGroup]="frmUserNote" [controlName]="'isPinned'" [label]="'Set as pinned'"
+                    [isChecked]="frmUserNote.get('isPinned')?.value || false"></generic-switch>
+                <div class="text-xs text-gray-600 mt-1">
+                    Pinned notes are shown at the top of the list.
+                </div>
+            </div>
+            <div class="component-section">
+                <generic-switch [frmGroup]="frmUserNote" [controlName]="'isReminder'" [label]="'Set reminder'"
+                    [isChecked]="frmUserNote.get('isReminder')?.value || false"></generic-switch>
+                <div class="text-xs text-gray-600 mt-1">
+                    Enable this if you want to be notified.
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 mt-2" *ngIf="form['isReminder'].value">
+            <div class="component-section flex flex-wrap gap-4 items-start">
+                <div class="flex-1 min-w-max">
+                    <input-date [frmGroup]="frmUserNote" [controlName]="'reminderDate'" [label]="'Reminder Date'"
+                        [isVertical]="true" [dateFormat]="'YYYY-MM-DD'" [maxYear]="2050" [includeTime]=1
+                        [enableYearRangeValidation]="false"></input-date>
+                </div>
+                <div class="flex-1 min-w-max">
+                    <input-time [frmGroup]="frmUserNote" [controlName]="'reminderTime'" label="Time"
+                        [placeholder]="'hh:mm tt'" [minTime]="'00:00'" [maxTime]="'23:59'" [class]="'time-input-style'" />
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 mt-2 mb-5">
+            <div class="component-section">
+                <generic-button id="saveBtn" value="save" [label]="saveButtonText" (onClick)="createNote()">
+                </generic-button>
+                &nbsp;&nbsp;
+                <generic-button id="resetBtn" value="reset" label="Reset" (onClick)="onReset()">
+                </generic-button>
+            </div>
+        </div>
+    </form>
+</div>

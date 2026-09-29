@@ -1,0 +1,19 @@
+<!-- <button (click)="reset()" class="reset-btn">
+  <mat-icon>refresh</mat-icon>
+  <p class="text">Reset</p>
+</button> -->
+
+
+<!-- 
+<button class="btn_elevated" (click)="reset()" [disabled]="frmGroup().invalid">
+  <div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e42 100%);" class="icon_container_elevated">
+    <mat-icon>refresh</mat-icon>
+  </div>
+  <span class="btn_text">Reset</span>
+</button> -->
+
+
+<button (click)="reset()" [disabled]="disabled || frmGroup().invalid" class="a_demo_four icon-reset">
+  <img src="/asset/icons/reset.svg" alt="" class="icon" />
+  Reset
+</button>

@@ -1,0 +1,12 @@
+<app-generic-workspace
+  [config]="workspaceConfig"
+  [items]="allCases"
+  [customTemplates]="{ userId: userIdTemplate }">
+</app-generic-workspace>
+
+<!-- Custom Cell Templates -->
+<ng-template #userIdTemplate let-item>
+  <span class="font-bold text-blue-600 hover:underline">
+    {{ item.userId }}
+  </span>
+</ng-template>

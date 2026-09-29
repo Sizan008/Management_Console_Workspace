@@ -1,0 +1,106 @@
+<div [ngClass]="isVertical() ? 'input-container-vertical': 'input-container-horizontal'" [style]="styles()" [matTooltip]="tooltip()">
+    <label class="input-label leading-tight" [attr.for]="id() || null">
+        {{ label() }}
+        @if (isRequired()) { <span class="required">*</span> }
+    </label>
+
+    <div class="file-input-wrapper">
+        @if (isImageMode()) {
+            <div class="image-picker" (click)="!disabled() && fileInput.click()">
+                <div
+                  class="image-circle"
+                  [class.image-circle-has-file]="selectedFiles().length > 0"
+                  [class.image-circle-has-preview]="!!previewUrl()"
+                  [class.image-shape-square]="imageShape() === 'square'"
+                >
+                    @if (selectedFiles().length > 0 && previewUrl()) {
+                        <img [src]="previewUrl()" alt="Uploaded preview" class="image-preview" />
+                    } @else {
+                        <svg class="camera-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 7l.7-1.4A1 1 0 0 1 10.57 5h2.86a1 1 0 0 1 .87.6L15 7h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2z"/>
+                            <circle cx="12" cy="13" r="3.2" stroke-width="1.8"/>
+                        </svg>
+                    }
+                </div>
+                <div class="image-picker-text">
+                    <!-- <div class="image-picker-title">{{ selectedFiles().length === 0 ? 'Upload image' : selectedFiles()[0].name }}</div> -->
+                    <div class="image-picker-subtext">{{ getDisplayExtensions() }}</div>
+                </div>
+            </div>
+        } @else {
+            <div class="file-input-group"
+                 [class.drag-over]="isDragOver()"
+                 [class.disabled]="disabled()"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)">
+
+                <div class="file-display" (click)="!disabled() && fileInput.click()">
+                    <div class="file-content">
+                        <div class="file-icon">
+                            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+                        <div class="file-text">
+                            <div class="file-name" [class.placeholder-text]="selectedFiles().length === 0">
+                                {{ selectedFiles().length === 0 ? 'Choose files or drag' :
+                                   selectedFiles().length === 1 ? selectedFiles()[0].name :
+                                   selectedFiles().length + ' files selected' }}
+                            </div>
+                        </div>
+                    </div>
+
+           <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M129.5 464L179.5 304L558.9 304L508.9 464L129.5 464zM320.2 512L509 512C530 512 548.6 498.4 554.8 478.3L604.8 318.3C614.5 287.4 591.4 256 559 256L179.6 256C158.6 256 140 269.6 133.8 289.7L112.2 358.4L112.2 160C112.2 151.2 119.4 144 128.2 144L266.9 144C270.4 144 273.7 145.1 276.5 147.2L314.9 176C328.7 186.4 345.6 192 362.9 192L480.2 192C489 192 496.2 199.2 496.2 208L544.2 208C544.2 172.7 515.5 144 480.2 144L362.9 144C356 144 349.2 141.8 343.7 137.6L305.3 108.8C294.2 100.5 280.8 96 266.9 96L128.2 96C92.9 96 64.2 124.7 64.2 160L64.2 448C64.2 483.3 92.9 512 128.2 512L320.2 512z"/></svg>
+
+
+
+
+                </div>
+
+            </div>
+
+
+              @if (getDisplayExtensions()) {
+                <div class="file-extensions-hint ">
+                {{ getDisplayExtensions() }}
+                </div>
+            }
+        }
+
+        <input
+            class="file-native-input"
+            type="file"
+            [id]="id() || null"
+            [disabled]="disabled()"
+            [accept]="acceptAttr()"
+            [attr.multiple]="multipleFile() ? '' : null"
+            (change)="onFileInputChange($event)"
+            #fileInput
+        />
+
+
+        <!-- Selected files display -->
+        <!-- @if (selectedFiles().length > 0) {
+            <div class="selected-files">
+                @for (file of selectedFiles(); track file.name; let i = $index) {
+                    <div class="file-item">
+                        <div class="file-info">
+                            <div class="file-type-icon">{{ getFileExtension(file.name) }}</div>
+                            <div class="file-details">
+                                <h4>{{ file.name }}</h4>
+                                <div class="file-size">{{ formatFileSize(file.size) }}</div>
+                            </div>
+                        </div>
+                        <button class="remove-btn" (click)="removeFile(i)" title="Remove file" type="button">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                }
+            </div>
+        } -->
+    </div>
+</div>

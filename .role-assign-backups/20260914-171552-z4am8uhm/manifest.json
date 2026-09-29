@@ -1,0 +1,33 @@
+{
+  "root": "/home/sizan/Documents/microfont-poc_ORG 1/microfont-poc_ORG",
+  "files": [
+    {
+      "path": "src/app/feature/admin-panel-user/admin-panel-role-assign/admin-panel-role-assign.html",
+      "before": "1e2b0fd3e3f8c6f1c0955fecf422cb5e1680df68204af2cfdef0a4ccb7130237",
+      "after": "4470f5fc9a0a24cf9addba8529f2a676309bd4d851fb89fe69389f1e50c2a317",
+      "existed": true,
+      "mode": 436
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/admin-panel-role-assign/admin-panel-role-assign.ts",
+      "before": "48f7e10c8df3aba262b9f7d01a113fe80e23cf20f3ae48ec30a2a8282d7aaf9c",
+      "after": "32ec5464540adc26620ac0d50803fc09c282a742e63ecbc4742bc191c54c1f64",
+      "existed": true,
+      "mode": 436
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/shared/models/role-assign.model.ts",
+      "before": null,
+      "after": "0d41268cae38ccd5196f72bc6dc6b93e3eab1c8cc0ea3d6fc8c1c9737f4bdde0",
+      "existed": false,
+      "mode": 420
+    },
+    {
+      "path": "src/app/feature/admin-panel-user/shared/services/role-assign.service.ts",
+      "before": null,
+      "after": "604bf9b2a0b2a94bea08e42f74d793539d08b472c4ef55f57823e24ffbbaaf76",
+      "existed": false,
+      "mode": 420
+    }
+  ]
+}

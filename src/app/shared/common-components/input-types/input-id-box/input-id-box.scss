@@ -1,0 +1,42 @@
+
+
+// .input-label {
+//   font-weight: 500;
+//   margin-bottom: 4px;
+//   color: #374151;
+// }
+
+.input-with-button-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  align-self: flex-start;
+}
+
+.input-with-button-container .custom-input {
+  padding-right: 60px !important; 
+  // background-color: #265cc9;
+  // width: 100%;
+}
+
+.dots-button {
+  position: absolute;
+  right: 1px;
+//   top: 50%;
+//   transform: translateY(-50%);
+  background-color: var(--theme-primary);
+//   border: 1px solid #d1d5db;
+  border-radius: 4px;
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 22px;
+  transition: all 0.2s ease;
+  
+
+}

@@ -1,0 +1,50 @@
+// Minimal custom styles - rely on Tailwind for layout and theming
+// Only add custom styles when Tailwind classes can't handle it
+
+:host {
+  display: block;
+}
+
+.page-wrapper {
+  width: 100%;
+}
+
+.dashboard-designer-form {
+  width: 100%;
+}
+
+.panel {
+  padding: 0;
+}
+
+.header-section {
+  margin-bottom: 1.5rem;
+}
+
+// Custom scrollbar styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+
+  &:hover {
+    background: #999;
+  }
+}
+
+// Checkbox styling for property selection
+input[type="checkbox"] {
+  cursor: pointer;
+
+  &:checked {
+    accent-color: #0066cc;
+  }
+}

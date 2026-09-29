@@ -1,0 +1,219 @@
+<div
+  class="define-roles-page w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 font-roboto"
+>
+  <div class="min-w-0 space-y-3 p-3">
+    <section
+      class="define-role-panel min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        panelTitle="Role Details"
+        [isOpenSignal]="roleDetailsPanelOpen"
+      >
+      </app-expansion-panel-header>
+      @if (roleDetailsPanelOpen()) {
+        <div class="border-t border-slate-100 p-3">
+          <form
+            id="define-role-form"
+            [formGroup]="roleForm"
+            class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-3"
+          >
+            <input-text-box
+              [frmGroup]="roleForm"
+              controlName="roleName"
+              label="Role Name"
+              placeholder="Enter Role Name"
+              displayMode="outline"
+              [maxLength]="100"
+            >
+            </input-text-box>
+            <input-text-box
+              [frmGroup]="roleForm"
+              controlName="roleDescription"
+              label="Role Description"
+              placeholder="Enter Role Description"
+              displayMode="outline"
+              [maxLength]="250"
+            >
+            </input-text-box>
+          </form>
+        </div>
+      }
+    </section>
+    <section
+      class="define-role-panel min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        panelTitle="Method Assign"
+        [isOpenSignal]="methodAssignPanelOpen"
+      >
+      </app-expansion-panel-header>
+      @if (methodAssignPanelOpen()) {
+        <div class="border-t border-slate-100 p-3">
+          <div
+            class="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_80px_minmax(0,1fr)]"
+          >
+            <article class="min-w-0 rounded-md border border-slate-200 p-3">
+              <h3 class="mb-2 text-sm font-semibold text-slate-700">
+                Unassigned Method
+              </h3>
+              <div class="min-w-0 overflow-x-auto">
+                <generic-data-grid
+                  id="define-role-unassigned-method-grid"
+                  [dataSource]="unassignedMethodGridRows()"
+                  [selectedColumns]="methodGridColumns"
+                  [customColumnNames]="methodGridColumnNames"
+                  [initPageSize]="5"
+                  [pageSizeOptions]="[5, 10, 20, 50]"
+                  [showPaginator]="true"
+                  [searchEnabled]="true"
+                  [enableSelection]="true"
+                  [useInlineEdit]="false"
+                  uniqueIdField="methodId"
+                  (onChecked)="onUnassignedMethodChecked($event)"
+                  (onSelectAllChange)="onUnassignedMethodsSelectAll($event)"
+                >
+                </generic-data-grid>
+              </div>
+            </article>
+            <div class="flex items-center justify-center gap-2 lg:flex-col">
+              <generic-button
+                label="›"
+                cssClass="define-role-transfer-button"
+                [enable]="!loading()"
+                (onClick)="moveSelectedToAssigned()"
+              >
+              </generic-button>
+              <generic-button
+                label="‹"
+                cssClass="define-role-transfer-button"
+                [enable]="!loading()"
+                (onClick)="moveSelectedToUnassigned()"
+              >
+              </generic-button>
+              <generic-button
+                label="»"
+                cssClass="define-role-transfer-button"
+                [enable]="!loading()"
+                (onClick)="moveAllToAssigned()"
+              >
+              </generic-button>
+              <generic-button
+                label="«"
+                cssClass="define-role-transfer-button"
+                [enable]="!loading()"
+                (onClick)="moveAllToUnassigned()"
+              >
+              </generic-button>
+            </div>
+            <article class="min-w-0 rounded-md border border-slate-200 p-3">
+              <h3 class="mb-2 text-sm font-semibold text-slate-700">
+                Assigned Method
+              </h3>
+              <div class="min-w-0 overflow-x-auto">
+                <generic-data-grid
+                  id="define-role-assigned-method-grid"
+                  [dataSource]="assignedMethodGridRows()"
+                  [selectedColumns]="methodGridColumns"
+                  [customColumnNames]="methodGridColumnNames"
+                  [initPageSize]="5"
+                  [pageSizeOptions]="[5, 10, 20, 50]"
+                  [showPaginator]="true"
+                  [searchEnabled]="true"
+                  [enableSelection]="true"
+                  [useInlineEdit]="false"
+                  uniqueIdField="methodId"
+                  (onChecked)="onAssignedMethodChecked($event)"
+                  (onSelectAllChange)="onAssignedMethodsSelectAll($event)"
+                >
+                </generic-data-grid>
+              </div>
+            </article>
+          </div>
+        </div>
+      }
+    </section>
+    <section
+      class="define-role-panel min-w-0 overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm"
+    >
+      <app-expansion-panel-header
+        panelTitle="Role List"
+        [isOpenSignal]="roleListPanelOpen"
+      >
+      </app-expansion-panel-header>
+      @if (roleListPanelOpen()) {
+        <div class="border-t border-slate-100 p-3">
+          <div class="min-w-0 overflow-x-auto">
+            <generic-data-grid
+              id="define-role-list-grid"
+              [dataSource]="roleGridRows()"
+              [selectedColumns]="roleGridColumns"
+              [customColumnNames]="roleGridColumnNames"
+              [initPageSize]="5"
+              [pageSizeOptions]="[5, 10, 20, 50]"
+              [showPaginator]="true"
+              [searchEnabled]="true"
+              [useInlineEdit]="false"
+              [showCustomAction1]="true"
+              [customActionSvg1]="detailsActionSvg"
+              [customActionTooltip1]="'Details'"
+              [showCustomAction2]="true"
+              [customActionSvg2]="editActionSvg"
+              [customActionTooltip2]="'Edit'"
+              uniqueIdField="roleId"
+              (onExtraAction1Click)="openRoleDetails($event)"
+              (onExtraAction2Click)="editRole($event)"
+            >
+            </generic-data-grid>
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+  <generic-modal
+    [isVisible]="detailsModalVisible()"
+    modalTitle="Role Details"
+    [closeOnBackdropClick]="false"
+    [showDefaultFooter]="false"
+    cssClass="define-role-details-modal"
+    (modalClosed)="closeRoleDetailsModal()"
+  >
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div class="rounded-md border border-slate-200 p-3">
+          <span class="text-xs text-slate-500">Role Name</span>
+          <p class="mt-1 text-sm font-semibold text-slate-800">
+            {{ selectedDetailsRole()?.roleName || "-" }}
+          </p>
+        </div>
+        <div class="rounded-md border border-slate-200 p-3">
+          <span class="text-xs text-slate-500">Role Description</span>
+          <p class="mt-1 text-sm font-semibold text-slate-800">
+            {{ selectedDetailsRole()?.roleDescription || "-" }}
+          </p>
+        </div>
+      </div>
+      <div class="min-w-0 overflow-x-auto">
+        <generic-data-grid
+          id="define-role-details-method-grid"
+          [dataSource]="detailsModalGridRows()"
+          [selectedColumns]="methodGridColumns"
+          [customColumnNames]="methodGridColumnNames"
+          [initPageSize]="10"
+          [pageSizeOptions]="[10, 20, 50]"
+          [showPaginator]="true"
+          [searchEnabled]="false"
+          uniqueIdField="methodId"
+        >
+        </generic-data-grid>
+      </div>
+      <div class="flex justify-end">
+        <generic-button label="Close" (onClick)="closeRoleDetailsModal()">
+        </generic-button>
+      </div>
+    </div>
+  </generic-modal>
+</div>
+
+
+

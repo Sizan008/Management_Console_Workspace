@@ -1,0 +1,493 @@
+<div class="mt-6">
+  <div style="padding: 0 !important;" class="panel ">
+    <div class="data-grid-container  container-fluid" [id]="id()"
+      [style.--data-row-height]="rowHeight() || null">
+      <div class="flex flex-col" [ngClass]="summaryGridPosition() === 'above' ? 'flex-col' : 'flex-col-reverse'">
+        @if(summaryGridEnabled()) {
+        <div [class.mb-10]="groupOptionEnabled()">
+          @if(frmGroup) {
+          <form [formGroup]="frmGroup" class="transaction-form">
+            <div class="flex flex-col gap-4 p-4
+         md:flex-row md:items-end md:gap-2" *ngIf="groupOptionEnabled()">
+              <div class="w-full md:w-1/3">
+                <generic-multi-select-option [frmGroup]="frmGroup" [controlName]="'summaryColumn'"
+                  [label]="'Summary Column'" [isReadonly]="false" [options]="_summaryOption()"
+                  (selectionChange)="onSummaryChange($event)">
+                </generic-multi-select-option>
+              </div>
+
+              <div class="w-full md:w-1/3">
+                <generic-multi-select-option [frmGroup]="frmGroup" [controlName]="'groupColumn'"
+                  [label]="'Group Column'" [isReadonly]="false" [options]="_groupByOption()"
+                  (selectionChange)="onGroupChange($event)">
+                </generic-multi-select-option>
+              </div>
+
+              <div class="w-full md:w-auto md:mt-0">
+                <generic-button id="showBtn" value="show" labelText="Show" class="w-full md:w-auto"
+                  (onClick)="generateSelectedGroupSummary()">
+                </generic-button>
+              </div>
+            </div>
+
+          </form>
+          }
+          <!-- Summary Grid -->
+          <app-expansion-panel-header [isOpenSignal]="businessHeaderPanel" [panelTitle]="_panelTitle()">
+            <section class="transaction-grid-section bg-white rounded-lg shadow-sm">
+              <div class="p-4" style="overflow-x: scroll;">
+                <table mat-table [dataSource]="_groupedSummary()" [class]="tblClass()" class="data-table">
+                  <!-- Group Columns -->
+                  <ng-container *ngFor="let col of _gridGroupColumns()" [matColumnDef]="col">
+                    <th mat-header-cell *matHeaderCellDef>{{ formatColumnHeader(col) }}</th>
+                    <td mat-cell *matCellDef="let row">{{ row[col] }}</td>
+                    <td mat-footer-cell *matFooterCellDef>
+                      <ng-container *ngIf="_gridGroupColumns()[0] === col">Total</ng-container>
+                    </td>
+                  </ng-container>
+
+                  <!-- Summary Columns -->
+                  <ng-container *ngFor="let col of _gridSummaryColumns()" [matColumnDef]="col">
+                    <th mat-header-cell *matHeaderCellDef>{{ formatColumnHeader(col) }}</th>
+                    <td mat-cell *matCellDef="let row">{{ row[col] | number: '1.0-2' }}</td>
+                    <td mat-footer-cell *matFooterCellDef>{{ _totalSummary().totals[col] | number: '1.0-2' }}</td>
+                  </ng-container>
+
+                  <!-- Count Column -->
+                  <ng-container matColumnDef="count">
+                    <th mat-header-cell *matHeaderCellDef>Count</th>
+                    <td mat-cell *matCellDef="let row">{{ row.count }}</td>
+                    <td mat-footer-cell *matFooterCellDef>{{ _totalSummary().totalCount }}</td>
+                  </ng-container>
+
+                  <!-- Header, Rows, Footer -->
+                  <tr mat-header-row *matHeaderRowDef="getDisplayedColumnsWithCount()" class="header-style"></tr>
+                  <tr mat-row *matRowDef="let row; columns: getDisplayedColumnsWithCount()" class="data-row"
+                    [ngStyle]="getRowStyle(row)" (dblclick)="emitRowDoubleClick(row)"></tr>
+                  <tr mat-footer-row *matFooterRowDef="getDisplayedColumnsWithCount()" class="footer-row"></tr>
+                </table>
+              </div>
+            </section>
+          </app-expansion-panel-header>
+        </div>
+        }
+        <div>
+          <div class="subsection component-section">
+            <!-- Search and Controls Bar -->
+            @if(searchEnabled()) {
+            <div class="controls-bar  text-right">
+              <div class="search-section">
+                <mat-form-field class="search-field">
+                  <input matInput type="text" placeholder="Search in all columns..."
+                    [value]="_searchTerm()"
+                    (input)="onSearch($any($event.target).value)" />
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+            }
+          </div>
+          <!-- Data Table -->
+          @if(_filteredData().length > 0) {
+          <div class="table-container">
+            <table mat-table [dataSource]="displayedData()" [class]="tblClass()" class="data-table">
+
+              <!-- Selection Column (Row Selection) -->
+              <ng-container sticky matColumnDef="selection" *ngIf="enableSelection()">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox [checked]="isAllSelected()"
+                    [indeterminate]="selectedSelectableDisplayedCount() > 0 && selectedSelectableDisplayedCount() < selectableDisplayedRows().length"
+                    [disabled]="selectableDisplayedRows().length === 0"
+                    (change)="onSelectAll($event.checked)" aria-label="Select all rows">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let element; let i = index">
+                  <ng-container *ngIf="isRowSelectable(element); else hiddenSelectionCell">
+                    <mat-checkbox [checked]="isRowSelected(element)" (change)="onRowSelect(element, $event.checked)"
+                      [disabled]="isRowDisabled(element)"
+                      aria-label="Select row">
+                    </mat-checkbox>
+                  </ng-container>
+                  <ng-template #hiddenSelectionCell>
+                    <span class="hidden-selection-placeholder"></span>
+                  </ng-template>
+                </td>
+              </ng-container>
+
+              <!-- Actions Column -->
+              <ng-container sticky matColumnDef="actions"
+                *ngIf="showEditButton() || showDeleteButton() || showViewButton() || showPrintButton() || showProgressButton() || showCustomAction1() || showCustomAction2()">
+                <th mat-header-cell *matHeaderCellDef
+                  style="width: 180px; min-width: 180px; max-width: 180px; overflow: visible !important;">Actions</th>
+                <td mat-cell *matCellDef="let element; let i = index"
+                  style="width: 180px; min-width: 180px; max-width: 180px; overflow: visible !important;">
+                  <div class="action-buttons" [class.even-row]="i % 2 === 0">
+
+                    <!-- Edit Button -->
+                    <button *ngIf="isActionVisible(element, 'edit', showEditButton())" mat-icon-button color="primary"
+                      [matTooltip]="getEditActionLabel(element, i)" [attr.aria-label]="getEditActionLabel(element, i)"
+                      [disabled]="isRowDisabled(element)"
+                      (click)="useInlineEdit() ? (isRowEditing(i) ? saveEdit(i) : startEdit(i)) : onEditClick(element)"
+                      class="action-btn edit-btn">
+                      <ng-container *ngIf="!isRowEditing(i); else saveIcon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M5 19H6.098L16.796 8.30202L15.698 7.20402L5 17.902V19ZM4 20V17.48L17.18 4.28802C17.2833 4.19668 17.3967 4.12602 17.52 4.07602C17.6433 4.02602 17.7723 4.00068 17.907 4.00002C18.0417 3.99935 18.1717 4.02068 18.297 4.06402C18.4237 4.10602 18.5403 4.18201 18.647 4.29201L19.714 5.36602C19.824 5.47202 19.8993 5.58868 19.94 5.71602C19.98 5.84268 20 5.96935 20 6.09602C20 6.23202 19.9773 6.36202 19.932 6.48602C19.886 6.60935 19.8133 6.72235 19.714 6.82502L6.519 20H4ZM16.238 7.76202L15.698 7.20402L16.796 8.30202L16.238 7.76202Z"
+                            fill="black" />
+                        </svg>
+                      </ng-container>
+                      <ng-template #saveIcon>
+                        <mat-icon>save</mat-icon>
+                      </ng-template>
+                    </button>
+
+                    <!-- Cancel Edit Button -->
+                    <button *ngIf="isRowEditing(i)" mat-icon-button color="warn" matTooltip="Cancel"
+                      [disabled]="isRowDisabled(element)"
+                      (click)="cancelEdit()" class="action-btn cancel-btn">
+                      <mat-icon>close</mat-icon>
+                    </button>
+
+                    <!-- View Button -->
+                    <button *ngIf="isActionVisible(element, 'view', showViewButton()) && !isRowEditing(i)"
+                      mat-icon-button color="accent" matTooltip="View" (click)="onViewClick(element)"
+                      [disabled]="isRowDisabled(element)"
+                      class="action-btn view-btn">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M12 9C12.7956 9 13.5587 9.31607 14.1213 9.87868C14.6839 10.4413 15 11.2044 15 12C15 12.7956 14.6839 13.5587 14.1213 14.1213C13.5587 14.6839 12.7956 15 12 15C11.2044 15 10.4413 14.6839 9.87868 14.1213C9.31607 13.5587 9 12.7956 9 12C9 11.2044 9.31607 10.4413 9.87868 9.87868C10.4413 9.31607 11.2044 9 12 9ZM12 4.5C17 4.5 21.27 7.61 23 12C21.27 16.39 17 19.5 12 19.5C7 19.5 2.73 16.39 1 12C2.73 7.61 7 4.5 12 4.5ZM3.18 12C3.98825 13.6503 5.24331 15.0407 6.80248 16.0133C8.36165 16.9858 10.1624 17.5013 12 17.5013C13.8376 17.5013 15.6383 16.9858 17.1975 16.0133C18.7567 15.0407 20.0117 13.6503 20.82 12C20.0117 10.3497 18.7567 8.95925 17.1975 7.98675C15.6383 7.01424 13.8376 6.49868 12 6.49868C10.1624 6.49868 8.36165 7.01424 6.80248 7.98675C5.24331 8.95925 3.98825 10.3497 3.18 12Z"
+                          fill="blue" />
+                      </svg>
+                    </button>
+
+                    <!-- Progress Button -->
+                    <button *ngIf="isActionVisible(element, 'progress', showProgressButton()) && !isRowEditing(i)"
+                      mat-icon-button color="primary" matTooltip="Progress" (click)="onFHProgress(element)"
+                      [disabled]="isRowDisabled(element)"
+                      class="action-btn progress-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#000000">
+                        <path
+                          d="M120-120v-80l80-80v160h-80Zm160 0v-240l80-80v320h-80Zm160 0v-320l80 81v239h-80Zm160 0v-239l80-80v319h-80Zm160 0v-400l80-80v480h-80ZM120-327v-113l280-280 160 160 280-280v113L560-447 400-607 120-327Z" />
+                      </svg>
+                    </button>
+
+                    <!-- Delete Button -->
+                    <button *ngIf="isActionVisible(element, 'delete', showDeleteButton()) && !isRowEditing(i)"
+                      mat-icon-button matTooltip="Delete" (click)="onDeleteClick(element)"
+                      [disabled]="isRowDisabled(element)"
+                      class="action-btn delete-btn">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M6 19C6 19.5304 6.21071 20.0391 6.58579 20.4142C6.96086 20.7893 7.46957 21 8 21H16C16.5304 21 17.0391 20.7893 17.4142 20.4142C17.7893 20.0391 18 19.5304 18 19V7H6V19ZM8 9H16V19H8V9ZM15.5 4L14.5 3H9.5L8.5 4H5V6H19V4H15.5Z"
+                          fill="red" />
+                      </svg>
+                    </button>
+
+                    <!-- Print Button -->
+                    <button *ngIf="isActionVisible(element, 'print', showPrintButton()) && !isRowEditing(i)"
+                      mat-icon-button color="primary" matTooltip="Print" (click)="onPrintClick(element)"
+                      [disabled]="isRowDisabled(element)"
+                      class="action-btn print-btn">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M16 8V5H8V8H6V3H18V8H16ZM18 12.5C18.2833 12.5 18.521 12.404 18.713 12.212C18.905 12.02 19.0007 11.7827 19 11.5C18.9993 11.2173 18.9033 10.98 18.712 10.788C18.5207 10.596 18.2833 10.5 18 10.5C17.7167 10.5 17.4793 10.596 17.288 10.788C17.0967 10.98 17.0007 11.2173 17 11.5C16.9993 11.7827 17.0953 12.0203 17.288 12.213C17.4807 12.4057 17.718 12.5013 18 12.5ZM16 19V15H8V19H16ZM18 21H6V17H2V11C2 10.15 2.29167 9.43767 2.875 8.863C3.45833 8.28833 4.16667 8.00067 5 8H19C19.85 8 20.5627 8.28767 21.138 8.863C21.7133 9.43833 22.0007 10.1507 22 11V17H18V21ZM20 15V11C20 10.7167 19.904 10.4793 19.712 10.288C19.52 10.0967 19.2827 10.0007 19 10H5C4.71667 10 4.47933 10.096 4.288 10.288C4.09667 10.48 4.00067 10.7173 4 11V15H6V13H18V15H20Z"
+                          fill="black" />
+                      </svg>
+                    </button>
+
+                    <!-- Extra Action 1 -->
+                    <button *ngIf="isActionVisible(element, 'customAction1', showCustomAction1()) && !isRowEditing(i)"
+                      mat-icon-button matTooltip="{{ customActionTooltip1() || 'Action' }}"
+                      (click)="emitExtraAction1(element)" [disabled]="isRowDisabled(element)" class="action-btn extra-action-1">
+                      <ng-container *ngIf="customActionSvg1()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                          [innerHTML]="getSafeHtml(customActionSvg1())"></svg>
+                      </ng-container>
+                      <ng-container *ngIf="!customActionSvg1()">
+                        <img *ngIf="customActionIcon1()" [src]="getIconUrl(customActionIcon1())" width="24" height="24"
+                          alt="action1" />
+                        <mat-icon *ngIf="!customActionIcon1()">more_horiz</mat-icon>
+                      </ng-container>
+                    </button>
+
+                    <!-- Extra Action 2 -->
+                    <button *ngIf="isActionVisible(element, 'customAction2', showCustomAction2()) && !isRowEditing(i)"
+                      mat-icon-button matTooltip="{{ customActionTooltip2() || 'Action' }}"
+                      (click)="emitExtraAction2(element)" [disabled]="isRowDisabled(element)" class="action-btn extra-action-2">
+                      <ng-container *ngIf="customActionSvg2()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                          [innerHTML]="getSafeHtml(customActionSvg2())"></svg>
+                      </ng-container>
+                      <ng-container *ngIf="!customActionSvg2()">
+                        <img *ngIf="customActionIcon2()" [src]="getIconUrl(customActionIcon2())" width="24" height="24"
+                          alt="action2" />
+                        <mat-icon *ngIf="!customActionIcon2()">more_horiz</mat-icon>
+                      </ng-container>
+                    </button>
+
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Data Columns (with Checkbox Support) -->
+              <ng-container *ngFor="let column of columns()" [matColumnDef]="column.property">
+
+                <!-- Enhanced Header Cell for Checkbox Columns -->
+                <th mat-header-cell *matHeaderCellDef [class.sortable]="column.sortable && !column.isCheckbox"
+                  [class.numeric-cell]="column.isNumeric" [class.wrap-cell]="isWrapColumn(column.property)"
+                  (click)="column.sortable && !column.isCheckbox ? onSort(column.property) : null"
+                  [style.width]="column.width"
+                  [style.max-width]="isWrapColumn(column.property) ? column.width : null">
+                  <div class="header-content" [class.numeric-cell]="column.isNumeric">
+                    <!-- Checkbox Column Header with Select All -->
+                    <ng-container *ngIf="column.isCheckbox; else regularHeader">
+                      <div class="checkbox-header">
+                        <span>{{ column.header }}</span>
+                        <!-- Select all checkbox for this column -->
+                        <mat-checkbox *ngIf="column.showSelectAll" [checked]="isAllColumnValuesChecked(column.property)"
+                          [indeterminate]="isSomeColumnValuesChecked(column.property)"
+                          (change)="onSelectAllForColumn(column.property, $event.checked)"
+                          [aria-label]="'Select all ' + column.header" class="column-select-all">
+                        </mat-checkbox>
+                      </div>
+                    </ng-container>
+
+                    <!-- Regular Header -->
+                    <div>
+                      <ng-template #regularHeader>
+                        <span>{{ column.header }}</span>
+                        <mat-icon *ngIf="column.sortable" class="sort-icon"
+                          [class.sorted]="_sortColumn() === column.property"
+                          [class.asc]="_sortColumn() === column.property && _sortDirection() === 'asc'"
+                          [class.desc]="_sortColumn() === column.property && _sortDirection() === 'desc'">
+                          {{ _sortColumn() === column.property && _sortDirection() === 'desc' ? 'arrow_downward' :
+                          'arrow_upward' }}
+                        </mat-icon>
+                      </ng-template>
+                    </div>
+                  </div>
+                </th>
+
+                <!-- Enhanced Cell Content -->
+                <td mat-cell *matCellDef="let element; let i = index"
+                  [ngStyle]="getCellStyle(column, getPropertyValue(element, column.property), element)"
+                  [ngClass]="getCellCssClasses(column, getPropertyValue(element, column.property), element)"
+                  [class.numeric-cell]="column.isNumeric" [class.wrap-cell]="isWrapColumn(column.property)"
+                  [class.invalid-cell]="isRowEditing(i) && hasCellError(column.property)"
+                  [style.width]="column.width"
+                  [style.max-width]="isWrapColumn(column.property) ? column.width : null"
+                  (keydown)="onCellKeydown($event, i, column.property)">
+
+                  <!-- A cell hidden for this row renders empty; the column stays in place -->
+                  <ng-container *ngIf="isCellVisible(column.property, element, i)">
+
+                  <!-- Inline File Upload Cell (same UI in view and edit mode) -->
+                  <ng-container *ngIf="column.isFileUpload; else nonFileCell">
+                    <div class="file-upload-cell">
+                      <input type="file" class="hidden-file-input"
+                        [id]="getFileInputId(element, column.property)"
+                        [accept]="column.fileAccept || '*/*'"
+                        (change)="onFileSelected(element, column.property, $event)" />
+
+                      <button mat-icon-button type="button" class="action-btn file-upload-btn"
+                        [disabled]="isCellReadOnly(column.property, element, i)"
+                        [matTooltip]="getRowFileName(element, column.property) ? 'Replace file' : 'Choose file'"
+                        [attr.aria-label]="column.header + ' for row ' + (i + 1)"
+                        (click)="triggerFileInput(element, column.property)">
+                        <mat-icon>attach_file</mat-icon>
+                      </button>
+
+                      <span class="file-name" [class.empty]="!getRowFileName(element, column.property)"
+                        [matTooltip]="getRowFileName(element, column.property)">
+                        {{ getRowFileName(element, column.property) || 'No file chosen' }}
+                      </span>
+
+                      <button *ngIf="getRowFileName(element, column.property)" mat-icon-button type="button"
+                        class="action-btn file-clear-btn" matTooltip="Remove file"
+                        [disabled]="isCellReadOnly(column.property, element, i)"
+                        (click)="clearRowFile(element, column.property)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                  </ng-container>
+
+                  <ng-template #nonFileCell>
+
+                  <!-- Editable Cell -->
+                  <ng-container *ngIf="isRowEditing(i) && column.isEditable; else displayCell">
+
+                    <!-- Checkbox Edit Mode -->
+                    <ng-container *ngIf="column.isCheckbox; else notCheckbox">
+                      <mat-checkbox [checked]="getEditingValue(column.property)"
+                        (change)="setEditingValue(column.property, $event.checked)"
+                        [disabled]="isRowDisabled(element) || isCellReadOnly(column.property, element, i)"
+                        [aria-label]="column.header + ' for row ' + (i + 1)" class="edit-checkbox">
+                      </mat-checkbox>
+                    </ng-container>
+
+                    <!-- Other input types -->
+                    <ng-template #notCheckbox>
+
+                      <!-- Dropdown/Select Field -->
+                      <ng-container *ngIf="column.isDropdown; else dateInput">
+                        <mat-form-field appearance="outline" class="inline-edit-field">
+                          <mat-select [value]="getEditingValue(column.property)"
+                            (selectionChange)="setEditingValue(column.property, $event.value)"
+                            [disabled]="isCellReadOnly(column.property, element, i)" [multiple]="column.isMultiSelect"
+                            class="inline-select">
+                            <mat-option *ngFor="let option of getDropdownOptions(column, element)"
+                              [value]="option.value" [disabled]="option.disabled">
+                              {{ option.label }}
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </ng-container>
+
+                      <!-- Date Input Field -->
+                      <ng-template #dateInput>
+                        <ng-container *ngIf="column.isDateField || isDateColumn(column.property); else timeInput">
+                          <div class="inline-date-field" [formGroup]="getEditingFormGroup()">
+                            <input-date [frmGroup]="getEditingFormGroup()" [controlName]="column.property" [label]="''"
+                              [displayMode]="'outline'" [isReadonly]="isCellReadOnly(column.property, element, i)"
+                              (onBlurred)="onDateFieldChange(column.property, formatDateValue(getEditingFormGroup().get(column.property)?.value))">
+                            </input-date>
+                          </div>
+                        </ng-container>
+
+                        <!-- Time Input Field -->
+                        <ng-template #timeInput>
+                          <ng-container *ngIf="column.isTimeField || isTimeColumn(column.property); else regularInput">
+                            <div class="inline-time-field" [formGroup]="getEditingFormGroup()">
+                              <input-time [frmGroup]="getEditingFormGroup()" [controlName]="column.property"
+                                [label]="''" [displayMode]="'outline'"
+                                [isReadonly]="isCellReadOnly(column.property, element, i)"
+                                (timeChange)="onTimeFieldChange(column.property, getEditingFormGroup().get(column.property)?.value)">
+                              </input-time>
+                            </div>
+                          </ng-container>
+
+                          <!-- Regular Input Field -->
+                          <ng-template #regularInput>
+                            <mat-form-field appearance="outline" class="inline-edit-field">
+                              <input matInput [type]="column.isNumeric ? 'number' : 'text'"
+                                [value]="getEditingValue(column.property)"
+                                (input)="setEditingValue(column.property, $any($event.target).value)"
+                                [disabled]="isCellReadOnly(column.property, element, i)" class="inline-input" />
+                            </mat-form-field>
+                          </ng-template>
+                        </ng-template>
+                      </ng-template>
+                    </ng-template>
+                  </ng-container>
+
+                  <!-- Display Cell -->
+                  <ng-template #displayCell>
+                    <!-- NEW: Custom rendering support for arbitrary content -->
+                    <ng-container *ngIf="hasCustomCellRendering(column); else defaultRendering">
+                      <div
+                        [innerHTML]="renderCellContent(column, getPropertyValue(element, column.property), element, i)">
+                      </div>
+                    </ng-container>
+
+                    <!-- Default rendering -->
+                    <ng-template #defaultRendering>
+                      <span [class.numeric]="column.isNumeric">
+
+                        <!-- Checkbox Display Mode -->
+                        <ng-container *ngIf="column.isCheckbox; else notCheckboxDisplay">
+                          <!-- Interactive Checkbox (for editable columns) -->
+                          <ng-container
+                            *ngIf="column.isEditable && !column.readOnly && !isCellReadOnly(column.property, element, i); else readOnlyCheckbox">
+                            <mat-checkbox [checked]="getPropertyValue(element, column.property)"
+                              (change)="onCheckboxChange(element, column.property, $event.checked, i)"
+                              [disabled]="isRowDisabled(element) || isCellReadOnly(column.property, element, i)"
+                              [aria-label]="column.header + ' for row ' + (i + 1)" class="data-checkbox interactive">
+                            </mat-checkbox>
+                          </ng-container>
+
+                          <!-- Read-only Checkbox Display -->
+                          <ng-template #readOnlyCheckbox>
+                            <mat-checkbox [checked]="getPropertyValue(element, column.property)" [disabled]="true"
+                              [aria-label]="column.header + ' for row ' + (i + 1)" class="data-checkbox readonly">
+                            </mat-checkbox>
+                          </ng-template>
+                        </ng-container>
+
+                        <!-- Other Display Modes -->
+                        <ng-template #notCheckboxDisplay>
+                          <ng-container *ngIf="column.isDropdown; else nonDropdownCell">
+                            {{ getDropdownDisplayText(column, getPropertyValue(element, column.property), element) }}
+                          </ng-container>
+                          <ng-template #nonDropdownCell>
+                            <ng-container *ngIf="column.isNumeric; else nonNumericCell">
+                              {{ getPropertyValue(element, column.property) | number:'1.2-2' }}
+                            </ng-container>
+                            <ng-template #nonNumericCell>
+                              <ng-container *ngIf="isDateOrTimeColumn(column); else regularCell">
+                                {{ getFormattedDateForDisplay(getPropertyValue(element, column.property), column) }}
+                              </ng-container>
+                              <ng-template #regularCell>
+                                {{ getPropertyValue(element, column.property) }}
+                              </ng-template>
+                            </ng-template>
+                          </ng-template>
+                        </ng-template>
+                      </span>
+                    </ng-template>
+                  </ng-template>
+                  </ng-template>
+                  </ng-container>
+
+                  <!-- Validation message for the row currently being inline-edited -->
+                  <span class="cell-error" *ngIf="isRowEditing(i) && hasCellError(column.property)">
+                    {{ getCellError(column.property) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Row Template -->
+              <tr mat-header-row *matHeaderRowDef="getDisplayedColumns()" class="header-row"></tr>
+              <tr mat-row *matRowDef="let row; let i = index; columns: getDisplayedColumns(); trackBy: trackByRowId"
+                class="data-row" [ngStyle]="getRowStyle(row)" [class.selected]="isRowSelected(row)"
+                [class.editing]="isRowEditing(i)" [class.row-invalid]="isRowEditing(i) && hasRowErrors()"
+                [class.even-row]="i % 2 === 0" [class.odd-row]="i % 2 !== 0"
+                [class.disabled-row]="isRowDisabled(row)"
+                (dblclick)="isRowDisabled(row) ? null : emitRowDoubleClick(row)">
+              </tr>
+            </table>
+          </div>
+          } @else {
+          <div class="no-data-message">No data available</div>
+          }
+
+          @if(showPaginator()){
+          <!-- Pagination -->
+          <div class="pagination-container" *ngIf="_filteredData().length > 0">
+            <mat-paginator [length]="_filteredData().length" [pageSize]="_pageSize()" [pageIndex]="_currentPage()"
+              [pageSizeOptions]="getPageSizeOptions()" (page)="onPageChange($event)" showFirstLastButtons
+              aria-label="Select page">
+            </mat-paginator>
+          </div>
+          }
+
+
+          <!-- Status Bar -->
+          @if(_filteredData().length > 0) {
+          <div class="status-bar">
+            <span class="status-info">
+              Showing {{ (_currentPage() * _pageSize()) + 1 }} to {{ Math.min((_currentPage() + 1) * _pageSize(),
+              _filteredData().length) }} of {{ _filteredData().length }} entries
+            </span>
+            <span class="selection-info" *ngIf="enableSelection() && selectedCount() > 0">
+              {{ selectedCount() }} row(s) selected
+            </span>
+          </div>
+          }
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

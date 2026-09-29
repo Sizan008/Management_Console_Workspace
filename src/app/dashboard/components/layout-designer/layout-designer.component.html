@@ -1,0 +1,81 @@
+<div class="designer-container">
+
+  <!-- Control Bar -->
+  <div class="control-bar">
+    <button class="btn-save" (click)="saveLayout()">💾 Save Layout</button>
+    <span class="info-text">
+      Drag the left grip (⠿) to move • Drag corners (↔ ↕) to resize • Click to select
+    </span>
+  </div>
+
+  <!-- Preview Grid -->
+  <div class="preview-grid">
+    <div class="grid-container" (click)="onGridClick()">
+
+      <!-- Empty cell drop targets — only rendered while a drag is active -->
+      @if (draggedId() !== null) {
+        @for (cell of validDropCells(); track cell.col + '_' + cell.row) {
+          <div
+            class="cell-drop"
+            [ngStyle]="getCellStyle(cell)"
+            [class.cell-hover]="isDragOverCell(cell)"
+            (dragover)="onDragOverCell(cell, $event)"
+            (dragleave)="onCellDragLeave()"
+            (drop)="onDropOnCell(cell, $event)">
+          </div>
+        }
+      }
+
+      <!-- Widgets -->
+      @for (widget of sortedWidgets(); track widget.id) {
+        <div
+          class="widget-box"
+          draggable="true"
+          [class.selected]="selectedWidgetId() === widget.id"
+          [class.drag-over]="dragOverId() === widget.id"
+          [class.dragging]="draggedId() === widget.id"
+          [ngStyle]="getWidgetStyle(widget.id)"
+          (click)="onWidgetClick(widget.id, $event)"
+          (dragstart)="onDragStart(widget.id, $event)"
+          (dragover)="onDragOverWidget(widget.id, $event)"
+          (drop)="onDropOnWidget(widget.id, $event)"
+          (dragend)="onDragEnd()">
+
+          <!-- Left drag handle (grip) -->
+          <div class="drag-handle" draggable="false" title="Drag to move">
+            <span class="grip-dots"></span>
+          </div>
+
+          <!-- Header -->
+          <div class="widget-header">
+            <span class="widget-name">{{ widget.name }}</span>
+            <span class="widget-type">({{ widget.widgetType }})</span>
+          </div>
+
+          <!-- Resize handles (shown when selected) -->
+          @if (selectedWidgetId() === widget.id) {
+            <div class="resize-handle resize-left"   draggable="false"
+              (mousedown)="onResizeStart(widget.id, 'left',   $event)" title="Drag to resize from left">↔</div>
+            <div class="resize-handle resize-width"  draggable="false"
+              (mousedown)="onResizeStart(widget.id, 'width',  $event)" title="Drag to resize width">↔</div>
+            <div class="resize-handle resize-height" draggable="false"
+              (mousedown)="onResizeStart(widget.id, 'height', $event)" title="Drag to resize height">↕</div>
+          }
+
+          <!-- Size indicator -->
+          <div class="size-indicator">
+            col {{ getPos(widget.id)?.colStart }}–{{ (getPos(widget.id)?.colStart ?? 1) + (getPos(widget.id)?.colSpan ?? 1) - 1 }}
+            · row {{ getPos(widget.id)?.rowStart }}–{{ (getPos(widget.id)?.rowStart ?? 1) + (getPos(widget.id)?.rowSpan ?? 1) - 1 }}
+            ({{ getPos(widget.id)?.colSpan }} × {{ getPos(widget.id)?.rowSpan }})
+          </div>
+
+          <!-- Placeholder body -->
+          <div class="widget-preview">[{{ widget.widgetType }}]</div>
+
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

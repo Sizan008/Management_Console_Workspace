@@ -1,0 +1,73 @@
+import { AdminPanelUserCase } from './admin-panel-user.model';
+
+/**
+ * Demo rows for the admin-panel-user grid. The grid's *rows* are intentionally
+ * served from this constant because no backend endpoint exists that returns
+ * AdminPanelUserCase[]; the feature mirrors the same trade-off as
+ * `MOCK_USERS` in `user-management`. Stage meta (names/colours) and per-stage
+ * actions, however, are now sourced exclusively from the live API through
+ * `WorkspaceResolverService` and `WorkspaceApiService.getActionsByStage` —
+ * there is no mock fallback for them in this file.
+ */
+export const MOCK_ADMIN_PANEL_USERS: AdminPanelUserCase[] = [
+  {
+    userId: 'zubair',
+    fullName: 'Sara Khan',
+    email: 'sara.khan@example.com',
+    department: 'Finance',
+    role: '—',
+    stage: 'Pending',
+    stageId: 5,
+    joinDate: '2026-02-04',
+    lastLogin: '2026-02-05 10:21',
+    branch: 'Gulshan',
+  },
+  {
+    userId: 'pantho',
+    fullName: 'Rahim Uddin',
+    email: 'rahim.uddin@example.com',
+    department: 'IT',
+    role: 'Approver',
+    stage: 'Authorized',
+    stageId: 4,
+    joinDate: '2026-02-18',
+    lastLogin: '2026-08-30 09:12',
+    branch: 'Dhanmondi',
+  },
+  {
+    userId: 'ibnul',
+    fullName: 'Imran Chowdhury',
+    email: 'imran.chowdhury@example.com',
+    department: 'Operations',
+    role: 'Maker',
+    stage: 'Authorized',
+    stageId: 4,
+    joinDate: '2026-04-09',
+    lastLogin: '2026-09-05 08:33',
+    branch: 'Motijheel',
+  },
+  {
+    userId: 'rezwan',
+    fullName: 'Nadia Hossain',
+    email: 'nadia.hossain@example.com',
+    department: 'HR',
+    role: 'Approver',
+    stage: 'Pending',
+    stageId: 5,
+    joinDate: '2026-03-22',
+    lastLogin: '2026-09-01 14:48',
+    branch: 'Banani',
+  },
+  // {
+  //   userId: 'ibnul',
+  //   fullName: 'Tahmina Begum',
+  //   email: 'tahmina.begum@example.com',
+  //   department: 'Compliance',
+  //   role: 'Analyst',
+  //   stage: 'Created',
+  //   stageId: 3,
+  //   joinDate: '2026-05-17',
+  //   lastLogin: '2026-08-22 16:05',
+  //   branch: 'Head Office',
+  // },
+];

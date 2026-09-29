@@ -1,0 +1,165 @@
+<!-- number-base-input.html -->
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }">
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div class="input-wrapper relative" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        id="number_outlined"
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        amountFormat
+        [decimalPlaces]="decimalPlaces()"
+        [allowNegative]="allowNegative()"
+        [allowLeadingZeros]="allowLeadingZeros()"
+        [maxLen]="maxLen()"
+        matInput
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        [placeholder]="' '"
+        class="custom-input number-align peer block px-3 pt-4 pb-2  text-gray-900 bg-transparent border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 transition-all duration-200"
+        (input)="onChangeInput($event); onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      <!-- FLOATING LABEL -->
+      <label
+        for="number_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- CLEAR BUTTON -->
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearInput()"
+          [attr.aria-label]="'Clear ' + label()">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                  </svg>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    @if (displayMode() === 'vertical') {
+      <label class="input-label block leading-tight">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+    @if (displayMode() === 'horizontal') {
+      <label class="input-label relative">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+    }
+
+          <div ngClass="{'input-wrapper-horizontal:'}" class="input-wrapper" [class.has-value]="frmGroup().get(controlName())?.value">
+      <input
+        [formControlName]="controlName()"
+        [attr.controlName]="controlName()"
+        [readonly]="isReadonly()"
+        [ngClass]="{ 'readonly-input': isReadonly() }"
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        amountFormat
+        [decimalPlaces]="decimalPlaces()"
+        [allowNegative]="allowNegative()"
+        [allowLeadingZeros]="allowLeadingZeros()"
+        [maxLen]="maxLen()"
+        matInput
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        [placeholder]="placeholder() ?? 'Enter ' + label()"
+        class="custom-input number-align"
+        (input)="onChangeInput($event); onInput($event)"
+        (change)="onChange($event)"
+        (blur)="onBlur()" />
+
+      @if (!isReadonly() && !frmGroup().get(controlName())?.disabled) {
+        <button
+          type="button"
+          class="clear-button"
+          (click)="clearInput()"
+          [attr.aria-label]="'Clear ' + label()">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#000000">
+                    <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                  </svg>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+   <div
+    class="mt-0 min-h-[1.5rem]">
+    @if (isInvalid()) {
+           <p
+      class="text-[10px] text-red-500 leading-4 ms-1">
+        @if (hasError('required')) {
+          @if (hasCustomMessage('required')) {
+            {{ getCustomErrorMessage('required') }}
+          } @else {
+            {{ label() }} is required..!
+          }
+        }
+
+          @if (hasError('min') && !hasCustomMessage('min')) {
+              Minimum amount required is {{ getErrorValue('min') }}
+            }
+
+            @if (hasError('max') && !hasCustomMessage('max')) {
+              Maximum amount allowed is {{ getErrorValue('max') }}
+            }
+
+        @if (hasError('maxLengthNumber') && !hasCustomMessage('maxLengthNumber') ) {
+          Maximum {{ getErrorValue('maxLengthNumber').requiredLength }} digits allowed
+        }
+        @else if (hasError('maxlength') && !hasCustomMessage('maxlength')) {
+          Maximum {{ getErrorValue('maxlength').requiredLength }} characters allowed
+        }
+
+        @if (hasError('leadingZeros') && !hasCustomMessage('leadingZeros')) {
+          Leading zeros are not allowed (e.g., 0987 should be 987)
+        }
+
+        @if (hasError('invalidAmount') && !hasCustomMessage('invalidAmount') ) {
+          Invalid amount format. Maximum {{ getErrorValue('invalidAmount').maxDecimals }} decimal places allowed
+        }
+
+        @if (hasError('negativeNotAllowed') && !hasCustomMessage('negativeNotAllowed')) {
+          Negative amounts are not allowed
+        }
+
+        @if (hasCustomErrors()) {
+          @for (errorKey of getCustomErrorKeys(); track errorKey) {
+            <div>{{ getCustomErrorMessage(errorKey) }}</div>
+          }
+        }
+      </p>
+    }
+  </div>
+</div>

@@ -1,0 +1,84 @@
+<!-- Backdrop and wrapper for standalone usage -->
+@if (isOpen() && showBackdropValue && !dialogRef) {
+  <div class="fixed inset-0 bg-black opacity-60 backdrop-blur-sm z-40" 
+       (click)="onBackdropClick($event)">
+  </div>
+}
+
+@if (isOpen() && !dialogRef) {
+  <div class="fixed inset-0 z-50 grid place-items-center p-4 flex justify-center items-center bg-opacity-100" 
+       (click)="onBackdropClick($event)">
+    
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md transition-all duration-200 ease-out scale-95 opacity-0 animate-[fadeIn_0.2s_ease-out_forwards] border border-gray-100">
+      
+      <div class="p-6 space-y-4">
+        <!-- Icon -->
+        <div [class]="getIconBgClass()">
+          <div [innerHTML]="getIconSvgHtml()" [class]="getIconColorClass()"></div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="text-center space-y-2">
+          <h3 class="text-lg text-gray-900 leading-6">{{ titleText }}</h3>
+          @if (messageText) {
+            <p class="text-sm text-gray-700" [innerHTML]="messageText"></p>
+          }
+        </div>
+      </div>
+
+      <!-- Actions -->
+      @if (buttons.length > 0) {
+        <div class="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end gap-3">
+          @for (button of buttons; track i; let i = $index) {
+            <button
+              type="button"
+              [disabled]="button.disabled"
+              class="inline-flex justify-center rounded-md border px-6 py-2 text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer min-w-[80px]"
+              [class]="getButtonClasses(button, i)"
+              (click)="onButtonClick(button)"
+            >
+              {{ button.text }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Content for MatDialog usage -->
+@if (dialogRef) {
+  <div class="w-full max-w-md">
+    <div class="p-6 space-y-4">
+      <!-- Icon -->
+      <div [class]="getIconBgClass()">
+        <div [innerHTML]="getIconSvgHtml()" [class]="getIconColorClass()"></div>
+      </div>
+
+      <!-- Text Content -->
+      <div class="text-center space-y-2">
+        <h3 class="text-lg text-gray-900 leading-6">{{ titleText }}</h3>
+        @if (messageText) {
+          <p class="text-sm text-gray-700" [innerHTML]="messageText"></p>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    @if (buttons.length > 0) {
+      <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+        @for (button of buttons; track i; let i = $index) {
+          <button
+            type="button"
+            [disabled]="button.disabled"
+            class="inline-flex justify-center rounded-md border px-6 py-2 text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer min-w-[80px]"
+            [class]="getButtonClasses(button, i)"
+            (click)="onButtonClick(button)"
+          >
+            {{ button.text }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

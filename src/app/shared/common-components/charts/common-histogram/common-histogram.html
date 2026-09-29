@@ -1,0 +1,45 @@
+<div class="flex items-center justify-between mb-4">
+  <h3 class="text-xl text-gray-800">{{ headerTitle }}</h3>
+
+  <div class="flex gap-2">
+    @if (showWeekly && has('weekly')) {
+      <button (click)="setRange('weekly')"
+              [ngClass]="range==='weekly'
+                ? 'px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm'
+                : 'px-3 py-1.5 bg-gray-100 rounded-lg text-sm'">
+        Weekly
+      </button>
+    }
+    @if (showMonthly && has('monthly')) {
+      <button (click)="setRange('monthly')"
+              [ngClass]="range==='monthly'
+                ? 'px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm'
+                : 'px-3 py-1.5 bg-gray-100 rounded-lg text-sm'">
+        Monthly
+      </button>
+    }
+    @if (showYearly && has('yearly')) {
+      <button (click)="setRange('yearly')"
+              [ngClass]="range==='yearly'
+                ? 'px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm'
+                : 'px-3 py-1.5 bg-gray-100 rounded-lg text-sm'">
+        Yearly
+      </button>
+    }
+  </div>
+</div>
+
+<apx-chart
+  [series]="series"
+  [chart]="chart"
+  [xaxis]="xaxis"
+  [yaxis]="yaxis"
+  [plotOptions]="plotOptions"
+  [grid]="grid"
+  [dataLabels]="dataLabels"
+  [tooltip]="tooltip"
+  [fill]="fill"
+  [stroke]="stroke"
+  [legend]="legend"
+  [title]="apexTitle">
+</apx-chart>

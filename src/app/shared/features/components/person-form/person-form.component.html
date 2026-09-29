@@ -1,0 +1,51 @@
+<div class="page-wrapper">
+  @if (frmGroup) {
+    <form [formGroup]="frmGroup" class="person-form max-w-md mx-auto p-6 bg-white rounded-lg shadow-sm">
+      
+      <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">
+        Person Information
+      </h2>
+
+      <!-- Name Field -->
+      <div class="mb-6">
+        <input-text-box
+          [frmGroup]="frmGroup"
+          [controlName]="'name'"
+          [label]="'Full Name'"
+          [placeholder]="'Enter your name'"
+          displayMode="vertical"
+          [tooltip]="'Only letters, spaces, hyphens and apostrophes allowed'"
+          [customErrorMessages]="{
+            required: 'Name is required',
+            minlength: 'Name must be at least 2 characters',
+            maxlength: 'Name cannot exceed 50 characters',
+            pattern: 'Only letters, spaces, hyphens and apostrophes are allowed'
+          }"
+          (onChanged)="onNameChanged($event)"
+        ></input-text-box>
+      </div>
+
+      <!-- Age Field -->
+      <div class="mb-6">
+        <input-number
+          [frmGroup]="frmGroup"
+          [controlName]="'age'"
+          [label]="'Age'"
+          [placeholder]="'Enter age'"
+          [minValue]="1"
+          [maxValue]="120"
+          
+          
+          [customErrorMessages]="{
+            required: 'Age is required',
+            min: 'Age must be at least 1',
+            max: 'Age cannot exceed 120'
+          }"
+          (onChanged)="onAgeChanged($event)"
+        ></input-number>
+      </div>
+
+    
+    </form>
+  }
+</div>

@@ -1,0 +1,120 @@
+<div class="profile-editor">
+
+  <!-- 🔹 Left rail: identity + read-only account facts -->
+  <aside class="identity-rail">
+    <div class="avatar-block">
+      <div class="avatar-frame">
+        @if (imgPreviewUrl) {
+          <img [src]="imgPreviewUrl" alt="Profile photo" (error)="onImageError()" />
+        } @else {
+          <img src="asset/icons/blackProfile.svg" alt="" class="avatar-placeholder" />
+        }
+      </div>
+
+      <label class="avatar-edit" title="Change profile photo">
+        <mat-icon fontIcon="edit"></mat-icon>
+        <input
+          type="file"
+          accept=".png,.jpg,.jpeg"
+          (change)="onProfilePicSelected($event)"
+          hidden
+        />
+      </label>
+    </div>
+
+    <p class="identity-name">{{ displayName }}</p>
+    <p class="identity-email">{{ displayEmail }}</p>
+
+    <label class="upload-link" [class.is-busy]="imageUploadInProgress">
+      {{ imageUploadInProgress ? 'Processing…' : 'Upload a new photo' }}
+      <input
+        type="file"
+        accept=".png,.jpg,.jpeg"
+        (change)="onProfilePicSelected($event)"
+        hidden
+      />
+    </label>
+
+    <hr class="rail-divider" />
+
+    <h4 class="section-label">Account Details</h4>
+
+    <dl class="fact-list">
+      @for (fact of accountFacts; track fact.label) {
+        <div class="fact-row">
+          <dt>{{ fact.label }}</dt>
+          <dd>{{ fact.value || '—' }}</dd>
+        </div>
+      }
+    </dl>
+
+  
+  </aside>
+
+  <!-- 🔹 Right pane: editable fields -->
+  <form [formGroup]="frmGroup" class="editor-form">
+
+    <section class="form-section">
+      <h4 class="section-label">Personal Information</h4>
+
+      <div class="field-grid">
+        <!-- User Name -->
+        <input-text-box
+          [frmGroup]="frmGroup"
+          [controlName]="'user_nm'"
+          [label]="'User Name'"
+          displayMode="vertical"
+          [customErrorMessages]="{
+            required: 'User name is required',
+            maxlength: 'Max 100 characters'
+          }"
+        ></input-text-box>
+
+        <!-- Email -->
+        <input-text-box
+          [frmGroup]="frmGroup"
+          [controlName]="'user_email_id'"
+          [label]="'Email'"
+          displayMode="vertical"
+          [customErrorMessages]="{
+            required: 'Email is required',
+            email: 'Enter valid email'
+          }"
+        ></input-text-box>
+
+        <!-- Mobile Number -->
+        <input-text-box
+          [frmGroup]="frmGroup"
+          [controlName]="'mobile_number'"
+          [label]="'Mobile Number'"
+          displayMode="vertical"
+          [placeholder]="'+8801XXXXXXXXX'"
+        ></input-text-box>
+      </div>
+    </section>
+
+    <hr class="form-divider" />
+
+    <section class="form-section">
+      <h4 class="section-label">About</h4>
+
+      <div class="about-field">
+        <div class="about-head">
+          <span class="about-label">Description</span>
+          <span class="char-count" [class.is-limit]="descriptionLength >= descriptionMaxLength">
+            {{ descriptionLength }} / {{ descriptionMaxLength }}
+          </span>
+        </div>
+
+        <input-text-area
+          [frmGroup]="frmGroup"
+          [controlName]="'user_descrip'"
+          [label]="''"
+          [rows]="4"
+          [maxLen]="descriptionMaxLength"
+          [placeholder]="'A short line about your role, team, or focus.'"
+        ></input-text-area>
+      </div>
+    </section>
+  </form>
+</div>

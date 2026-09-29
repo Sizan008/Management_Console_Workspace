@@ -1,0 +1,43 @@
+<section class="tab-panel">
+  <app-expansion-panel-header [isOpenSignal]="stageHeaderPanel" [panelTitle]="'Stage Information'">
+  
+<div class="editor-wrapper">
+  <div class="editor-section">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input-text-box [frmGroup]="form" [controlName]="'workspace_id'" [label]="'Workspace ID'" [displayMode]="'vertical'" [isReadonly]="true"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'stage_name'" [label]="'Stage Name'" [displayMode]="'vertical'"></input-text-box>
+      <input-select-option-field [frmGroup]="form" [controlName]="'stage_colour'" [label]="'Stage Colour'" [options]="colorOptions" [displayMode]="'vertical'"></input-select-option-field>
+      <input-text-box [frmGroup]="form" [controlName]="'display_order'" [label]="'Display Order'" [displayMode]="'vertical'"></input-text-box>
+      <input-text-box [frmGroup]="form" [controlName]="'quick_route'" [label]="'Quick Route'" [displayMode]="'vertical'"></input-text-box>
+      <div class="switch-block">
+        <label class="switch-label">Status</label>
+        <generic-switch [frmGroup]="form" [controlName]="'is_active'" [label]="'Active'" [isChecked]="form.get('is_active')?.value === 1" [enable]="true" [displayMode]="'horizontal'"></generic-switch>
+      </div>
+    </div>
+
+    <div class="toolbar-row editor-toolbar" *ngIf="modalComponentData?.mode !== 'edit'">
+      <generic-button [label]="editingIndex >= 0 ? 'Update Row' : 'Add Row'" (onClick)="addRow()"></generic-button>
+    </div>
+    <div *ngIf="modalComponentData?.mode !== 'edit'">
+    <generic-data-grid
+      [dataSource]="rows"
+      [selectedColumns]="['workspace_id', 'stage_name', 'display_order']"
+      [customColumnNames]="{ workspace_id: 'Workspace ID', stage_name: 'Stage Name', display_order: 'Display Order' }"
+      [showEditButton]="false"
+      [showDeleteButton]="true"
+      [showViewButton]="true"
+      [showPrintButton]="false"
+      [enableSelection]="false"
+      [searchEnabled]="false"
+      (onFHViewClick)="editRow($event)"
+      (onFHDeleteClick)="deleteRow($event)">
+    </generic-data-grid>
+    </div>
+  </div>
+  <div class="footer-actions">
+    <generic-button [label]="'Cancel'" (onClick)="close()"></generic-button>
+    <generic-button [label]="showBatchMode ? 'Save All' : (form.get('stage_id')?.value ? 'Update' : 'Save')" (onClick)="submit()"></generic-button>
+  </div>
+</div>
+</app-expansion-panel-header>
+</section>

@@ -1,0 +1,124 @@
+<section
+  class="flex min-w-0 flex-col bg-white"
+  aria-label="Active Session"
+  [attr.aria-busy]="busy()"
+>
+  <div class="min-w-0 space-y-4 p-3 sm:p-5">
+    @if (selectedUserId()) {
+      <div
+        class="flex min-w-0 flex-col gap-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4"
+      >
+        <span class="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Selected User
+        </span>
+        <span class="break-all text-sm font-semibold text-slate-800">
+          {{ selectedUserId() }}
+        </span>
+      </div>
+    }
+
+    @if (loading()) {
+      <p
+        role="status"
+        class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"
+      >
+        Loading active sessions…
+      </p>
+    }
+
+    @if (errorMessage()) {
+      <p
+        role="alert"
+        class="break-words rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (successMessage()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800"
+      >
+        {{ successMessage() }}
+      </p>
+    }
+
+    @if (infoMessage()) {
+      <p
+        role="status"
+        class="break-words rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700"
+      >
+        {{ infoMessage() }}
+      </p>
+    }
+
+    @if (selectedUserId()) {
+      <div class="min-w-0 space-y-3">
+        <app-expansion-panel-header
+          panelTitle="Active Session Details"
+          [isOpenSignal]="sessionPanelOpen"
+        />
+
+        @if (sessionPanelOpen() && hasSessions()) {
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <generic-button
+              [label]="clearing() ? 'Clearing…' : 'Clear Active Sessions'"
+              [enable]="!busy() && hasSessions()"
+              (onClick)="requestClearAll()"
+            />
+          </div>
+
+          <div
+            class="min-w-0 overflow-x-auto"
+            [class.pointer-events-none]="busy()"
+            [class.opacity-60]="clearing()"
+          >
+            <generic-data-grid
+              class="block min-w-[720px]"
+              id="admin-panel-active-session-grid"
+              [dataSource]="activeSessions()"
+              [selectedColumns]="selectedColumns"
+              [customColumnNames]="customColumnNames"
+              [cellRenderFunctions]="cellRenderFunctions"
+              uniqueIdField="userId"
+              [showEditButton]="false"
+              [showDeleteButton]="true"
+              [showViewButton]="false"
+              [showPrintButton]="false"
+              [enableSelection]="false"
+              [useInlineEdit]="false"
+              [searchEnabled]="true"
+              [showPaginator]="true"
+              [initPageSize]="10"
+              [pageSizeOptions]="[10, 25, 50]"
+              (onFHDeleteClick)="onRowDelete($event)"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <div
+    class="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 p-3 sm:px-5"
+  >
+    <generic-button
+      label="Close"
+      [enable]="!clearing()"
+      (onClick)="onClose()"
+    />
+    <generic-button
+      label="Refresh"
+      [enable]="!busy() && !!selectedUserId()"
+      (onClick)="refresh()"
+    />
+  </div>
+</section>
+
+<confirmation-dialogue
+  [isOpen]="confirmationOpen()"
+  [config]="confirmationConfig()"
+  (buttonClick)="onConfirmationButtonClick($event)"
+  (close)="onCancelConfirmation()"
+/>

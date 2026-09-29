@@ -1,0 +1,261 @@
+<!-- multi-select-base-input.html -->
+<div
+  [formGroup]="frmGroup()"
+  [ngClass]="{
+    'input-container-vertical': displayMode() === 'vertical',
+    'input-container-horizontal': displayMode() === 'horizontal',
+    'input-container-outline': displayMode() === 'outline'
+  }"
+  #multiSelectWrapper
+>
+
+  <!-- ======================== OUTLINE MODE ======================== -->
+  @if (displayMode() === 'outline') {
+    <div #selectWrapper class="select-wrapper relative" [ngClass]="{ 'readonly-input': isReadonly() }">
+      <input
+        #searchInput
+        id="multi_select_outlined"
+        type="text"
+        [placeholder]="getDisplayText() || placeholder() || 'Select options...'"
+        [value]="searchable() ? searchTerm() : ''"
+        [readonly]="!searchable() || isReadonly()"
+        [disabled]="isReadonly()"
+        (input)="onSearchInput($event)"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        (focus)="onInputFocus()"
+        (blur)="onInputBlur()"
+        (keydown)="onKeyDown($event)"
+        (click)="onInputClick($event)"
+        class="custom-select"
+        role="combobox"
+        [attr.aria-expanded]="isOpen()"
+        [attr.aria-label]="label()"
+        autocomplete="off"
+      />
+
+      <!-- Floating Label -->
+      <label
+        for="multi_select_outlined"
+        class="floating-input-label">
+        {{ label() }}
+        @if (isRequired()) { <span class="text-red-500">*</span> }
+      </label>
+
+      <!-- Clear Search -->
+      @if (searchable() && searchTerm() && !isReadonly()) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch(); $event.stopPropagation()"
+          (mousedown)="$event.preventDefault()"
+          tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+          </svg>
+        </button>
+      }
+
+      <!-- Dropdown Toggle -->
+      <button
+        type="button"
+        class="dropdown-toggle"
+        (click)="onToggleClick($event)"
+        [disabled]="isReadonly()"
+        tabindex="-1">
+        <svg class="dropdown-icon" [ngClass]="{'rotate-180': isOpen()}" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+        </svg>
+      </button>
+
+      <!-- Dropdown -->
+      @if (isOpen()) {
+        <div class="dropdown-menu" [ngStyle]="menuStyle()">
+          @if (searchable() && searchTerm() && getSearchResultsText()) {
+            <div class="search-results-info">{{ getSearchResultsText() }}</div>
+          }
+
+          @if (showSelectAll() && hasSearchResults()) {
+            <div
+              class="dropdown-option select-all-item"
+              [class.selected]="isAllFilteredSelected()"
+              [class.indeterminate]="isFilteredIndeterminate()"
+              (click)="toggleSelectAllFiltered($event)"
+              (mousedown)="$event.preventDefault()"
+              role="option"
+              [attr.aria-selected]="isAllFilteredSelected()">
+              <mat-pseudo-checkbox
+                [state]="isAllFilteredSelected() ? 'checked' : (isFilteredIndeterminate() ? 'indeterminate' : 'unchecked')"
+                class="option-checkbox">
+              </mat-pseudo-checkbox>
+              <span class="option-text select-all-text">
+                {{ searchTerm() ? 'Select All Filtered' : 'Select All' }}
+              </span>
+            </div>
+            <div class="select-all-separator"></div>
+          }
+
+          <!-- Options -->
+          @for (option of filteredOptions(); track option.key) {
+            <div
+              class="dropdown-option"
+              [class.selected]="isOptionSelected(option)"
+              (click)="toggleOption(option, $event)"
+              (mousedown)="$event.preventDefault()"
+              role="option"
+              [attr.aria-selected]="isOptionSelected(option)">
+              <mat-pseudo-checkbox
+                [state]="isOptionSelected(option) ? 'checked' : 'unchecked'"
+                class="option-checkbox">
+              </mat-pseudo-checkbox>
+              <span class="option-text">{{ option.value }}</span>
+            </div>
+          }
+
+          <!-- No results -->
+          @if (!hasSearchResults() && searchTerm()) {
+            <div class="no-options">
+              <mat-icon>search_off</mat-icon>
+              <span>No options match "{{ searchTerm() }}"</span>
+            </div>
+          }
+
+          @if (!filteredOptions().length) {
+            <div class="no-options">
+              <mat-icon>list</mat-icon>
+              <span>No options available</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================== HORIZONTAL / VERTICAL ======================== -->
+  @else {
+    <label *ngIf="label()" class="input-label" [class.required]="isRequired()">
+      {{ label() }}
+      @if (isRequired()) { <span class="text-red-500">*</span> }
+    </label>
+
+    <div #selectWrapper class="select-wrapper relative" [ngClass]="{ 'readonly-input': isReadonly() }">
+      <input
+        #searchInput
+        type="text"
+        [placeholder]="getDisplayText() || placeholder() || 'Select options...'"
+        [value]="searchable() ? searchTerm() : ''"
+        [readonly]="!searchable() || isReadonly()"
+        [disabled]="isReadonly()"
+        (input)="onSearchInput($event)"
+        [matTooltip]="tooltip()"
+        [matTooltipPosition]="tooltipPosition()"
+        [matTooltipClass]="tooltipClass()"
+        [matTooltipDisabled]="!tooltip()"
+        (focus)="onInputFocus()"
+        (blur)="onInputBlur()"
+        (keydown)="onKeyDown($event)"
+        (click)="onInputClick($event)"
+        class="custom-select"
+        role="combobox"
+        [attr.aria-expanded]="isOpen()"
+        [attr.aria-label]="label()"
+        autocomplete="off"
+      />
+
+      @if (searchable() && searchTerm() && !isReadonly()) {
+        <button
+          type="button"
+          class="clear-search-btn"
+          (click)="clearSearch(); $event.stopPropagation()"
+          (mousedown)="$event.preventDefault()"
+          tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+          </svg>
+        </button>
+      }
+
+      <button
+        type="button"
+        class="dropdown-toggle"
+        (click)="onToggleClick($event)"
+        [disabled]="isReadonly()"
+        tabindex="-1">
+        <svg class="dropdown-icon" [ngClass]="{'rotate-180': isOpen()}" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+        </svg>
+      </button>
+
+      @if (isOpen()) {
+        <div class="dropdown-menu" [ngStyle]="menuStyle()">
+          @if (searchable() && searchTerm() && getSearchResultsText()) {
+            <div class="search-results-info">{{ getSearchResultsText() }}</div>
+          }
+
+          @if (showSelectAll() && hasSearchResults()) {
+            <div
+              class="dropdown-option select-all-item"
+              [class.selected]="isAllFilteredSelected()"
+              [class.indeterminate]="isFilteredIndeterminate()"
+              (click)="toggleSelectAllFiltered($event)"
+              (mousedown)="$event.preventDefault()"
+              role="option"
+              [attr.aria-selected]="isAllFilteredSelected()">
+              <mat-pseudo-checkbox
+                [state]="isAllFilteredSelected() ? 'checked' : (isFilteredIndeterminate() ? 'indeterminate' : 'unchecked')"
+                class="option-checkbox">
+              </mat-pseudo-checkbox>
+              <span class="option-text select-all-text">
+                {{ searchTerm() ? 'Select All Filtered' : 'Select All' }}
+              </span>
+            </div>
+            <div class="select-all-separator"></div>
+          }
+
+          @for (option of filteredOptions(); track option.key) {
+            <div
+              class="dropdown-option"
+              [class.selected]="isOptionSelected(option)"
+              (click)="toggleOption(option, $event)"
+              (mousedown)="$event.preventDefault()"
+              role="option"
+              [attr.aria-selected]="isOptionSelected(option)">
+              <mat-pseudo-checkbox
+                [state]="isOptionSelected(option) ? 'checked' : 'unchecked'"
+                class="option-checkbox">
+              </mat-pseudo-checkbox>
+              <span class="option-text">{{ option.value }}</span>
+            </div>
+          }
+
+          @if (!hasSearchResults() && searchTerm()) {
+            <div class="no-options">
+              <mat-icon>search_off</mat-icon>
+              <span>No options match "{{ searchTerm() }}"</span>
+            </div>
+          }
+
+          @if (!filteredOptions().length) {
+            <div class="no-options">
+              <mat-icon>list</mat-icon>
+              <span>No options available</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ======================== VALIDATION ======================== -->
+  @if (frmGroup().get(controlName())?.invalid && (frmGroup().get(controlName())?.touched || frmGroup().get(controlName())?.dirty)) {
+    <div class="text-red-500 text-xs mt-1">
+      {{ label() }} is required..!
+    </div>
+  }
+</div>

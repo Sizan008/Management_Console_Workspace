@@ -1,0 +1,33 @@
+@use "tailwindcss";
+
+:host {
+  display: block;
+  font-family: 'Roboto', 'Inter', 'Segoe UI', sans-serif;
+}
+
+.enhanced-notification-table {
+  @apply w-full text-sm;
+
+  th {
+    @apply bg-gradient-to-r from-gray-50 to-gray-100 text-left font-semibold text-gray-700 uppercase tracking-wider py-3 px-4;
+  }
+
+  td {
+    @apply py-3 px-4 border-b border-gray-200;
+  }
+
+  tr:hover {
+    @apply bg-blue-50 transition-colors;
+  }
+
+  .mat-checkbox-checked .mat-checkbox-background {
+    @apply bg-indigo-600;
+  }
+}
+
+.action-btn {
+  @apply p-1 rounded-full hover:bg-gray-100 transition;
+}
+
+.view-btn svg path { fill: #6366f1; }
+.delete-btn svg path { fill: #ef4444; }

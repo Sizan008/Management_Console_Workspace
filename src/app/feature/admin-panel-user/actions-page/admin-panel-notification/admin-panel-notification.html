@@ -1,0 +1,207 @@
+<div
+  class="flex h-full min-h-0 w-full min-w-0 max-w-full flex-col overflow-hidden bg-slate-50 font-roboto"
+>
+  <div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+    @if (userInfo) {
+      <div class="min-w-0 space-y-3 p-3">
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'Recipient Information'"
+            [isOpenSignal]="userInfoPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (userInfoPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <div
+                class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-3"
+              >
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Customer ID
+                  </p>
+                  <p
+                    class="mt-1 min-w-0 text-sm font-semibold text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.customerId || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    User ID
+                  </p>
+                  <p
+                    class="mt-1 min-w-0 text-sm font-semibold text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.userId || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    User Name
+                  </p>
+                  <p
+                    class="mt-1 min-w-0 text-sm font-semibold text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.userNm || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Email Address
+                  </p>
+                  <p
+                    class="mt-1 min-w-0 text-sm text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.emailAddress || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Mobile Number
+                  </p>
+                  <p
+                    class="mt-1 min-w-0 text-sm text-slate-800 [overflow-wrap:anywhere]"
+                  >
+                    {{ userInfo?.regCustUser?.mobileNumber || "-" }}
+                  </p>
+                </div>
+                <div class="min-w-0 rounded-lg bg-slate-50 p-3">
+                  <p
+                    class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    User Status
+                  </p>
+                  <div class="mt-1 flex min-w-0 flex-wrap gap-1.5">
+                    <span
+                      class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                      [ngClass]="
+                        userInfo?.regCustUser?.userStatusActiveFlag
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-red-100 text-red-700'
+                      "
+                    >
+                      {{
+                        userInfo?.regCustUser?.userStatusActiveFlag
+                          ? "Active"
+                          : "Inactive"
+                      }}
+                    </span>
+                    <span
+                      class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                      [ngClass]="
+                        userInfo?.regCustUser?.lockedFlag
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-slate-200 text-slate-600'
+                      "
+                    >
+                      {{
+                        userInfo?.regCustUser?.lockedFlag
+                          ? "Locked"
+                          : "Unlocked"
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+        <section
+          class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-white"
+        >
+          <app-expansion-panel-header
+            [panelTitle]="'Notification Message'"
+            [isOpenSignal]="notificationPanelOpen"
+          >
+          </app-expansion-panel-header>
+          @if (notificationPanelOpen()) {
+            <div class="min-w-0 border-t border-slate-100 p-3">
+              <form
+                id="notification-form"
+                [formGroup]="notificationForm"
+                class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(280px,100%),1fr))] gap-4"
+              >
+                <div class="min-w-0">
+                  <input-text-box
+                    [frmGroup]="notificationForm"
+                    controlName="subject"
+                    label="Subject"
+                    placeholder="Enter notification subject"
+                    displayMode="outline"
+                    [maxLength]="200"
+                  >
+                  </input-text-box>
+                </div>
+                <div class="min-w-0 [grid-column:1/-1]">
+                  <input-text-area
+                    [frmGroup]="notificationForm"
+                    controlName="description"
+                    label="Description"
+                    [rows]="5"
+                    [placeholder]="'Write your notification message here...'"
+                  >
+                  </input-text-area>
+                </div>
+              </form>
+              <div
+                class="mt-4 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2.5"
+              >
+                <p class="text-xs leading-5 text-blue-700">
+                  This notification will be sent only to
+                  <span class="font-semibold">{{ userId }}</span>
+                  using customer ID
+                  <span class="font-semibold">{{
+                    userInfo?.regCustUser?.customerId || "-"
+                  }}</span
+                  >.
+                </p>
+              </div>
+            </div>
+          }
+        </section>
+      </div>
+    }
+    @if (!loading() && !userInfo) {
+      <div class="flex min-h-[300px] items-center justify-center px-4 py-10">
+        <p class="text-sm text-slate-500">User information is not available.</p>
+      </div>
+    }
+  </div>
+  <div
+    class="shrink-0 border-t border-slate-200 bg-white px-3 py-3 shadow-[0_-2px_6px_rgba(15,23,42,0.06)]"
+  >
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-2">
+      <generic-button
+        label="Reset"
+        [enable]="!loading() && !saving() && hasNotificationValue"
+        (onClick)="requestReset()"
+      >
+      </generic-button>
+      <generic-button
+        [label]="saving() ? 'Sending...' : 'Send Notification'"
+        [enable]="!loading() && !saving() && !!userInfo"
+        (onClick)="requestSendNotification()"
+      >
+      </generic-button>
+      <generic-button
+        label="Close"
+        [enable]="!loading() && !saving()"
+        (onClick)="requestClose()"
+      >
+      </generic-button>
+    </div>
+  </div>
+  <app-action-confirmation-host></app-action-confirmation-host>
+</div>
